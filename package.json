@@ -31,12 +31,16 @@
     "locale/*.json",
     "icon.svg",
     "README.md",
+    "README.zh.md",
+    "README.i18n.yaml",
     "LICENSE",
     "CHANGELOG.md",
     "docs/*.png"
   ],
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "inject": [
@@ -61,13 +65,29 @@
     "@deepseek-ai/dsh-fs": "^0.2.1-alpha.2"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/cordis": { "optional": true },
-    "@deepseek-ai/dsh-session": { "optional": true },
-    "@deepseek-ai/dsh-session-query": { "optional": true },
-    "@deepseek-ai/dsh-workspace": { "optional": true },
-    "@deepseek-ai/dsh-api-workspace-files": { "optional": true },
-    "@deepseek-ai/dsh-session-persistence": { "optional": true },
-    "@deepseek-ai/dsh-sandbox-policy": { "optional": true },
-    "@deepseek-ai/dsh-fs": { "optional": true }
+    "@deepseek-ai/cordis": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-session": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-session-query": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-workspace": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-api-workspace-files": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-session-persistence": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-sandbox-policy": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-fs": {
+      "optional": true
+    }
   }
 }

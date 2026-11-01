@@ -1,4 +1,11 @@
+---
+description: "Adds an Artifact Space sidebar entry to DSH, listing every session's final effective artifacts per workspace and session, with preview, search and favorites."
+kind: "package-bundle"
+---
+
 # Artifact Space (产物空间)
+
+[English](README.md) | [中文](README.zh.md)
 
 [![npm version](https://img.shields.io/npm/v/artifact-space.svg)](https://www.npmjs.com/package/artifact-space)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
