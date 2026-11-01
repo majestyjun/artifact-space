@@ -44,35 +44,6 @@ const ROWS_PATH = '/api/artifact-space.rows';
 /** Route serving one file's text for the preview. */
 const READ_PATH = '/api/artifact-space.read';
 
-/** Route serving one image's bytes so the preview can show it. */
-const IMAGE_PATH = '/api/artifact-space.image';
-
-/**
- * Byte cap for one image read; larger pictures are refused rather than
- * pulled into memory whole.
- */
-const MAX_IMAGE_BYTES = 16 * 1024 * 1024;
-
-/**
- * Image extensions the preview can display, with the media type each one is
- * served under.
- *
- * The map is the single source of truth for what counts as a picture: the
- * client asks the Host for bytes only for these extensions, and the Host
- * serves them under exactly the type named here.
- */
-const IMAGE_MEDIA_TYPES = new Map([
-  ['png', 'image/png'],
-  ['jpg', 'image/jpeg'],
-  ['jpeg', 'image/jpeg'],
-  ['gif', 'image/gif'],
-  ['webp', 'image/webp'],
-  ['bmp', 'image/bmp'],
-  ['avif', 'image/avif'],
-  ['ico', 'image/x-icon'],
-  ['svg', 'image/svg+xml'],
-]);
-
 /** Trailing path segment, the part that identifies the file at a glance. */
 function basename(path) {
   const at = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
@@ -148,16 +119,7 @@ function extensionOf(path) {
 
 /** Whether a path's extension is known to hold binary content. */
 function isBinaryPath(path) {
-  const ext = extensionOf(path);
-  // A picture is binary too, but it is binary the preview can still show, so
-  // it never counts as unreadable here.
-  if (IMAGE_MEDIA_TYPES.has(ext)) return false;
-  return BINARY_EXTENSIONS.has(ext);
-}
-
-/** Whether a path's extension names a picture the preview can display. */
-function isImagePath(path) {
-  return IMAGE_MEDIA_TYPES.has(extensionOf(path));
+  return BINARY_EXTENSIONS.has(extensionOf(path));
 }
 
 /** Coerce a recorded time (epoch ms, epoch seconds, or an ISO string) to milliseconds. */
@@ -299,10 +261,9 @@ function isAppendSurfaceEvent(event) {
  * Fold one session's final artifacts from its complete event log.
  *
  * Mirrors the turn-scoped deliverables derivation at session scope: the last
- * delivery of each path wins its description, a path both produced and
- * delivered is one entry whose kind is `presented`, and every row carries the
- * moment it last appeared in the log so the list can be read newest first.
- * The turn of the latest `workspace/changes` announcement is
+ * delivery of each path wins its description, produced paths keep first-seen
+ * order, and a path both produced and delivered is one entry whose kind is
+ * `presented`. The turn of the latest `workspace/changes` announcement is
  * carried so the preview can resolve it through the same Host recorder. The
  * final event timestamp is returned as the session's last activity.
  *
@@ -332,10 +293,10 @@ function foldSessionArtifacts(events) {
         const argumentPath = calls.get(String(event.data.message.source.callId));
         if (argumentPath === null || argumentPath === undefined) break;
         const path = mutationResultPath(argumentPath, event.data.meta);
-if (path === null || seen.has(path)) break;
-            seen.add(path);
-            produced.push({ path, at });
-            break;
+        if (path === null || seen.has(path)) break;
+        seen.add(path);
+        produced.push(path);
+        break;
       }
       case 'deliverables/presented': {
         if (!isPresentedData(event.data)) break;
@@ -346,7 +307,6 @@ if (path === null || seen.has(path)) break;
             path: file.path,
             description: typeof file.description === 'string' ? file.description : undefined,
             turn,
-            at,
           });
         }
         break;
@@ -361,18 +321,14 @@ if (path === null || seen.has(path)) break;
     }
   }
 
-  // Every row carries the moment its file last appeared in the log: the write
-  // for a produced file, the delivery for a presented one, or the later of the
-  // two when a path is both written and delivered.
   const rows = [];
-  for (const entry of produced) {
-    const delivery = presented.get(entry.path);
+  for (const path of produced) {
+    const delivery = presented.get(path);
     rows.push({
-      path: entry.path,
+      path,
       description: delivery?.description,
       turn: delivery?.turn ?? null,
       kind: delivery === undefined ? 'produced' : 'presented',
-      producedAt: laterTime(entry.at, delivery?.at ?? null),
     });
   }
   for (const [path, delivery] of presented) {
@@ -382,20 +338,9 @@ if (path === null || seen.has(path)) break;
       description: delivery.description,
       turn: delivery.turn,
       kind: 'presented',
-      producedAt: delivery.at,
     });
   }
-  // Newest first, so the file the reader just made is the first one they see.
-  rows.sort((left, right) => (right.producedAt ?? 0) - (left.producedAt ?? 0)
-    || left.path.localeCompare(right.path));
   return { rows, changesTurn, lastActivity };
-}
-
-/** The later of two optional epoch-millisecond stamps, or the one that exists. */
-function laterTime(left, right) {
-  if (left === null || left === undefined) return right ?? null;
-  if (right === null || right === undefined) return left;
-  return Math.max(left, right);
 }
 
 /**
@@ -570,14 +515,9 @@ async function collectSessionRow(ctx, sessionId, snapshotsById, titles, signal) 
       kind: row.kind,
       description: row.description ?? null,
       turn: row.turn,
-      producedAt: row.producedAt ?? null,
       bytes: resolved.info.size ?? 0,
       extension: extensionOf(absolutePath),
       binary: isBinaryPath(absolutePath),
-      // A picture the preview can show: the browser fetches its bytes from the
-      // image route instead of asking the text route for a preview.
-      image: isImagePath(absolutePath),
-      mediaType: IMAGE_MEDIA_TYPES.get(extensionOf(absolutePath)) ?? null,
       outsideWorkspace: !isWithinWorkspace(ctx, rootTarget, resolved.target),
     });
   }
@@ -729,96 +669,6 @@ function requiredQuery(url, name) {
 }
 
 /**
- * Read one picture's bytes so the preview can display it.
- *
- * The path is resolved and confined exactly like a text preview: the file must
- * be a regular file inside the session's own workspace, and its extension must
- * name a picture the preview knows how to show. Bytes are served under the
- * media type that extension maps to, so the browser renders the picture
- * instead of guessing from the bytes.
- *
- * @param ctx - host context carrying the session, workspace and file services.
- * @param request - the incoming request, carrying the session id and path.
- * @returns {Promise<Response>} the picture bytes, or a typed failure.
- */
-async function readArtifactImage(ctx, request) {
-  const { sessionId, path } = request;
-  if (typeof sessionId !== 'string' || typeof path !== 'string' || path.length === 0) {
-    return Response.json({ error: 'invalid-artifact' }, { status: 400 });
-  }
-  let cwd;
-  let absolutePath = null;
-  try {
-    const live = typeof ctx.sessions?.get === 'function' ? ctx.sessions.get(sessionId) : undefined;
-    const stored = live === undefined && typeof ctx.sessionPersistence?.stat === 'function'
-      ? await ctx.sessionPersistence.stat(sessionId)
-      : undefined;
-    if (live === undefined && stored === undefined) {
-      return Response.json({ error: 'session-not-found' }, { status: 404 });
-    }
-    cwd = live?.header.cwd ?? stored?.header.cwd ?? ctx.sandboxPolicy.workspaceRoot;
-    absolutePath = resolveAgainst(cwd, path);
-    if (absolutePath === null) {
-      return Response.json({ error: 'unresolvable-path' }, { status: 400 });
-    }
-    const mediaType = IMAGE_MEDIA_TYPES.get(extensionOf(absolutePath));
-    if (mediaType === undefined) {
-      return Response.json({ error: 'not-an-image', extension: extensionOf(absolutePath) }, { status: 415 });
-    }
-    const resolved = await resolveRegularFile(ctx, absolutePath, request.signal);
-    if (resolved === null) {
-      return Response.json({ error: 'not-a-file' }, { status: 404 });
-    }
-    const rootTarget = await workspaceRootTarget(ctx, cwd, request.signal);
-    if (!isWithinWorkspace(ctx, rootTarget, resolved.target)) {
-      return Response.json(
-        { error: 'outside-workspace', path: absolutePath, workspaceRoot: cwd },
-        { status: 403 },
-      );
-    }
-    if (resolved.info.size !== undefined && resolved.info.size > MAX_IMAGE_BYTES) {
-      return Response.json(
-        { error: 'too-large', limit: MAX_IMAGE_BYTES, bytes: resolved.info.size },
-        { status: 413 },
-      );
-    }
-    const scope = { sessionId, workspaceRoot: cwd };
-    const read = await ctx.workspaceFiles.readBytes(scope, absolutePath, {}, request.signal);
-    const data = read.data instanceof Uint8Array ? read.data : new Uint8Array(read.data ?? []);
-    if (data.length === 0) {
-      return Response.json({ error: 'empty-file' }, { status: 404 });
-    }
-    return new Response(data, {
-      status: 200,
-      headers: {
-        'content-type': mediaType,
-        'content-length': String(data.length),
-        // The bytes are the file's own; a private cache keeps them out of any
-        // shared cache while still letting the browser reuse them while the
-        // preview stays open.
-        'cache-control': 'private, max-age=60',
-      },
-    });
-  } catch (error) {
-    request.signal.throwIfAborted();
-    const code = failureCode(error);
-    if (code === 'workspace-file/outside-workspace') {
-      return Response.json(
-        { error: 'outside-workspace', path: absolutePath ?? path, workspaceRoot: cwd ?? '' },
-        { status: 403 },
-      );
-    }
-    if (code === 'workspace-file/not-found') {
-      return Response.json({ error: 'not-found' }, { status: 404 });
-    }
-    const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
-    console.error(`[artifact-space] image read failed for "${path}": ${detail}`);
-    ctx.logger?.warn?.(`artifact-space image read failed for "${path}": ${detail}`);
-    return Response.json({ error: 'read-failed', detail }, { status: failureStatus(error) });
-  }
-}
-
-/**
  * Register the Artifact Space routes inside Connection's authentication fence.
  *
  * @param ctx - host context carrying the connection, session, and workspace services.
@@ -858,21 +708,6 @@ function registerRoutes(ctx) {
       const marker = {};
       pending.add(marker);
       return readArtifact(ctx, {
-        sessionId,
-        path,
-        signal: AbortSignal.any([request.signal, lifetime.signal]),
-      }).finally(() => { pending.delete(marker); });
-    }],
-    [IMAGE_PATH, ['GET'], (request) => {
-      const url = new URL(request.url);
-      const sessionId = requiredQuery(url, 'sessionId');
-      const path = requiredQuery(url, 'path');
-      if (sessionId === null || path === null) {
-        return Promise.resolve(Response.json({ error: 'invalid-coordinates' }, { status: 400 }));
-      }
-      const marker = {};
-      pending.add(marker);
-      return readArtifactImage(ctx, {
         sessionId,
         path,
         signal: AbortSignal.any([request.signal, lifetime.signal]),
