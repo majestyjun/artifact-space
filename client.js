@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@xxjxx/artifact-space',
+  id: '@local/artifact-space',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
@@ -62,10 +62,6 @@ window.__ModuleLoader__.load({
       'favorites.unknownSession': '会话已删除',
       'favorites.prune': '清理 {count} 项失效',
       'favorites.pruneTitle': '删除已失效的收藏，并清除它们在本地存储中的记录',
-      'favorites.clear': '清空',
-      'favorites.clearTitle': '删除全部收藏，并清除它们在本地存储中的记录',
-      'favorites.clearConfirm': '确认清空？',
-      'favorites.clearConfirmTitle': '再次点击以删除全部收藏',
       'artifact.turn': '第 {turn} 轮',
       'artifact.copy': '复制内容',
       'artifact.copyPath': '复制路径',
@@ -133,10 +129,6 @@ window.__ModuleLoader__.load({
       'favorites.unknownSession': 'Session removed',
       'favorites.prune': 'Clean up {count} stale',
       'favorites.pruneTitle': 'Remove the stale favorites and delete their local storage records',
-      'favorites.clear': 'Clear',
-      'favorites.clearTitle': 'Remove every favorite and delete their local storage records',
-      'favorites.clearConfirm': 'Confirm clear?',
-      'favorites.clearConfirmTitle': 'Click again to remove every favorite',
       'artifact.turn': 'Turn {turn}',
       'artifact.copy': 'Copy content',
       'artifact.copyPath': 'Copy path',
@@ -786,23 +778,6 @@ window.__ModuleLoader__.load({
 }
 .artifact-space-favPrune:hover{background:rgba(255,255,255,.46);color:var(--glass-text-primary)}
 .artifact-space-favPrune:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-/* 清空全部：默认安静，二次确认时才亮出警告色 */
-.artifact-space-favClear{
-  padding:2px 8px;
-  border:.5px solid transparent;
-  border-radius:7px;
-  background:transparent;
-  color:var(--glass-text-tertiary);font-size:11px;line-height:16px;cursor:pointer;
-  transition:background .12s ease-out,color .12s ease-out,border-color .12s ease-out;
-}
-.artifact-space-favClear:hover{background:rgba(255,255,255,.34);color:var(--glass-text-secondary)}
-.artifact-space-favClear:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-.artifact-space-favClear[data-confirming="true"]{
-  border-color:var(--glass-error);
-  background:rgba(255,255,255,.42);
-  color:var(--glass-error);
-  font-weight:500;
-}
 
 .artifact-space-favList{margin:0;padding:0 6px;list-style:none;display:flex;flex-direction:column;gap:1px}
 .artifact-space-favItem{
@@ -1118,13 +1093,10 @@ window.__ModuleLoader__.load({
 }
 `;
 
-    // The style tag is keyed by the package name so two versions of this
-    // plugin cannot fight over one stylesheet.
-    const PLUGIN_NAME = '@xxjxx/artifact-space';
-    const styleTagId = `${PLUGIN_NAME}/artifact-space.css`;
+    const styleTagId = '@local/artifact-space/artifact-space.css';
     if (typeof document !== 'undefined' && document.querySelector(`style[data-plugin-css=${JSON.stringify(styleTagId)}]`) === null) {
       const tag = document.createElement('style');
-      tag.dataset.plugin = PLUGIN_NAME;
+      tag.dataset.plugin = '@local/artifact-space';
       tag.dataset.pluginCss = styleTagId;
       tag.textContent = CSS;
       document.head.appendChild(tag);
@@ -2015,7 +1987,7 @@ window.__ModuleLoader__.load({
      * — the reader may want to know it is gone — but it cannot be opened,
      * and the reader can drop the stale entries in one go.
      */
-    function FavoritesList({ favorites, rows, onSelect, onToggleFavorite, onPrune, onClear, t, searchParts }) {
+    function FavoritesList({ favorites, rows, onSelect, onToggleFavorite, onPrune, t, searchParts }) {
       // The live rows, indexed by the same key the favorites use, so a
       // favorite can be matched back to the artifact it points at.
       const live = new Map();
@@ -2026,15 +1998,6 @@ window.__ModuleLoader__.load({
           }
         }
       }
-
-      // Clearing every favorite is destructive, so the button asks first and
-      // reverts to its quiet state when the reader looks away.
-      const [confirming, setConfirming] = React.useState(false);
-      React.useEffect(() => {
-        if (!confirming) return undefined;
-        const timer = setTimeout(() => setConfirming(false), 4000);
-        return () => clearTimeout(timer);
-      }, [confirming]);
 
       const entries = [];
       let staleCount = 0;
@@ -2067,24 +2030,6 @@ window.__ModuleLoader__.load({
             title: t('favorites.pruneTitle'),
             onClick: onPrune,
           }, t('favorites.prune', { count: String(staleCount) })) : null,
-          onClear !== null ? h('button', {
-            key: 'clear',
-            type: 'button',
-            className: cx('artifact-space-favClear'),
-            'data-confirming': confirming ? 'true' : 'false',
-            'aria-label': confirming ? t('favorites.clearConfirm') : t('favorites.clear'),
-            title: confirming ? t('favorites.clearConfirmTitle') : t('favorites.clearTitle'),
-            onClick: () => {
-              // The first click arms the action; the second one carries it out.
-              if (!confirming) {
-                setConfirming(true);
-                return;
-              }
-              setConfirming(false);
-              onClear();
-            },
-            onBlur: () => setConfirming(false),
-          }, confirming ? t('favorites.clearConfirm') : t('favorites.clear')) : null,
         ]),
         h('ul', { key: 'list', className: cx('artifact-space-favList') }, entries.map((entry) => {
         const { key, item, match, name } = entry;
@@ -2642,17 +2587,6 @@ window.__ModuleLoader__.load({
         favoritesStore.prune(liveKeys);
       }, [favoritesStore, liveKeys, rows.status]);
 
-      /**
-       * Drop every favorite.
-       *
-       * The store removes each storage key as it goes, so clearing the list
-       * leaves nothing behind on disk either.
-       */
-      const clearFavorites = React.useCallback(() => {
-        if (favoritesStore === null) return;
-        favoritesStore.clear();
-      }, [favoritesStore]);
-
       const filteredGroups = React.useMemo(() => {
         if (!searching) return safeGroups;
         const result = [];
@@ -2749,7 +2683,6 @@ window.__ModuleLoader__.load({
             onSelect: (artifact, sessionId) => setSelected({ sessionId, path: artifact.path }),
             onToggleFavorite: toggleFavorite,
             onPrune: pruneFavorites,
-            onClear: clearFavorites,
             t,
             searchParts,
           });
