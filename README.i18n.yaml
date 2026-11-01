@@ -1,54 +1,54 @@
-# Bilingual-pair consistency record for README.md: per heading section, a hash of its
-# English and Chinese blocks outside code blocks and generated regions.
-# Regenerate with: node gen-i18n-yaml.mjs
+# README 双语配对一致性记录：逐章节记录中文（默认）与英文的正文哈希，
+# 不含代码块内容与生成区域。
+# 重新生成：node gen-i18n-yaml.mjs
 1:
-  en: 4062ace5296b4cb5
-  zh: c45dc5620c609de3
+  zh: 6c81254b79a3cc55
+  en: 56bce628df69b54a
 1/2.1:
-  en: f7775a27d180f2fa
   zh: fc88923b6e07a4da
+  en: f7775a27d180f2fa
 1/2.2:
-  en: 65791ea87ce3e313
   zh: 506d126d15afff9d
+  en: 65791ea87ce3e313
 1/2.3:
-  en: f6c0d6e7edf2b0e8
   zh: 47e87ab586feae7e
+  en: f6c0d6e7edf2b0e8
 1/2.3/3.1:
-  en: c701580e09ca7201
   zh: 71bfd46c5eff7f11
+  en: c701580e09ca7201
 1/2.4:
-  en: fde89fec0014121d
   zh: 5ab1bcb0ea4211a4
+  en: fde89fec0014121d
 1/2.5:
-  en: 35f49768d297a1b8
   zh: 43d2d82935a2b0c2
+  en: 35f49768d297a1b8
 1/2.6:
-  en: 102be3d414983988
   zh: bcc6444e4f565cda
+  en: 102be3d414983988
 1/2.7:
-  en: b55f78920a72c33e
   zh: 795f15a5bd67e52d
+  en: b55f78920a72c33e
 1/2.8:
-  en: 0921e51b2e76a2fa
   zh: 7540127a8c3da821
+  en: 0921e51b2e76a2fa
 1/2.9:
-  en: 188470f011a82b6b
   zh: 7f8e19ff78e71ca6
+  en: 188470f011a82b6b
 1/2.10:
-  en: e3b0c44298fc1c14
   zh: e3b0c44298fc1c14
+  en: e3b0c44298fc1c14
 1/2.10/3.1:
-  en: fac27da693cbca02
   zh: 8cbb6136a50a5625
+  en: fac27da693cbca02
 1/2.10/3.2:
-  en: c5a969e2e247ae88
   zh: 99d19832b337b6be
+  en: c5a969e2e247ae88
 1/2.10/3.3:
-  en: 9eb239d7615c7554
   zh: 939f88eb99bc3553
+  en: 9eb239d7615c7554
 1/2.11:
-  en: 8d11fc3d806b2360
   zh: 7fa427cf304b1720
+  en: 8d11fc3d806b2360
 1/2.12:
-  en: d4a0de6ba72174bb
   zh: 88bc76e59d3273a0
+  en: d4a0de6ba72174bb
