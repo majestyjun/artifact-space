@@ -1,92 +1,30 @@
-# 更新日志
+# Changelog
 
-中文 | [English](CHANGELOG.en.md)
+All notable changes to this project are documented here.
 
-本文件记录本项目的所有重要变更。
-
-格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
-版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
-
-## [1.3.0] — 2026-11-06
-
-### 新增
-
-- **HTML 产物现在直接以页面方式预览**，不再把源码当代码逐行显示。文档里用相对
-  路径引用的图片、样式与字体都会正常加载，不再是一片裂图。
-- 预览区新增「在浏览器中打开」按钮，可把 HTML 产物拿到独立标签页查看。
-- 宿主新增 HTML 与资源两条只读路由：HTML 路由把文档里的相对引用改写成带会话
-  鉴权的资源地址，资源路由按扩展名提供对应的媒体类型。
-
-### 变更
-
-- HTML 文档改由宿主直接投递，响应带 `content-security-policy`，禁止内联脚本
-  与外网访问；预览框改用 `sandbox` 收敛权限，文档里的脚本不会执行。
-- 移除了旧的 `srcDoc` 预览分支。它没有 base URL，文档中的相对图片必然解析
-  失败，正是裂图的根因。
-
-## [1.2.0] — 2026-11-06
-
-### 新增
-
-- 工具栏新增「分类」快捷筛选：三档芯片「全部 / 交付 / 产出」，每档带实时数量。
-  点「交付」即隐藏产出、只显示会话明确交付给使用者的成果；再点一次回到「全部」。
-- 产物行与预览头部新增相对时间（如「2 分钟前」），鼠标悬停显示绝对时间，
-  便于判断哪个文件是刚生成的。
-
-### 变更
-
-- **会话内的产物改为按产生时间倒序排列**，最新的文件排在最上面。此前沿用
-  日志里的首次出现顺序，最新的产物反而沉在列表底部。
-- 分组与会话的「产物数」改为按当前可见条目统计，筛选后数字与列表一致，
-  不再显示与列表矛盾的总数。
-
-## [1.1.2] — 2026-11-05
-
-### 变更
-
-- README 的「安装」章节新增公开目录收录表，写明本插件已进入哪些公开渠道
-  （官方 `awesome-dsh-plugin` 市场 registry、1024 社区插件目录、社区插件精选），
-  以及各自的状态与官方目录的每日构建节奏。
-- 补上 `dsh plugin add @xxjxx/artifact-space` 这条命令，读者不必先手工
-  `npm install` 再改 profile 补丁。
-
-## [1.1.1] — 2026-11-04
-
-### 新增
-
-- 发布包内补上 `assets/icon-180.png`（市场目录用的 PNG 图标），此前只有仓库里有。
-
-### 变更
-
-- 发版前新增一道「更新说明」关卡：版本号必须在中英双语 CHANGELOG 里都有对应条目，
-  否则发布会被拦住。
-
-## [1.1.0] — 2026-11-04
-
-### 新增
-
-- **图片预览**：`png`、`jpg`、`jpeg`、`gif`、`webp`、`bmp`、`avif`、`ico`、`svg`
-  可在预览区直接显示。宿主按扩展名对应的媒体类型返回原始字节，浏览器负责渲染，
-  状态栏显示图片尺寸与体积。
-- 图片不再被归入「二进制文件不可预览」。
-
-### 变更
-
-- 图片改走宿主的一条独立路由，不再请求文本预览，因此不会占用文本预览的体积与行数上限。
-- SVG 以图片方式呈现，浏览器不会执行其中携带的脚本。
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.0.0] — 2026-11-01
 
-首个公开版本。
+First public release.
 
-### 新增
+### Added
 
-- **产物空间**侧栏入口，按工作区与会话两级列出每个会话最终产出的有效文件。
-- 分层玻璃界面，明暗双主题自适应。
-- 代码文件以编辑器形态预览：吸附式行号栏、语法高亮，以及显示语言、行数、体积与编码的状态栏。
-- 按扩展名适配的渲染：Markdown、HTML、YAML、JSON 各自渲染，无法识别时回落到纯文本。
-- 跨工作区、会话、产物三级的搜索；多个词是备选而非收窄，命中处高亮。
-- 收藏夹：产物行可标星，收藏汇总在收藏夹视图里。收藏可跨重启保留，取消收藏即从磁盘删除对应记录。
-- 会话折叠；默认只展开首屏放得下的会话。
-- 从预览区头部复制文件内容或绝对路径。
-- 产物来源：标明是「交付」还是顺手「产出」、来自第几轮、会话当时的说明。
+- **Artifact Space** sidebar entry listing every workspace's final session
+  artifacts, grouped by workspace and then by session.
+- Layered glass interface with a light and a dark theme.
+- Editor-style preview for code files: sticky line-number gutter, syntax
+  highlighting, and a status bar with language, line count, size and encoding.
+- Format-aware rendering for Markdown, HTML, YAML and JSON, each falling back to
+  plain text.
+- Search across workspaces, sessions and artifacts at once; multiple words are
+  alternatives, and matches are highlighted.
+- Favorites: star an artifact from its row, collect them in the Favorites view.
+  Favorites persist across restarts and each one is deleted from disk the
+  moment it is un-starred.
+- Session folding, with only the sessions that fit on the first screen open by
+  default.
+- Copy a file's content or its absolute path from the preview header.
+- Artifact provenance: whether a file was delivered or merely produced, the
+  turn it came from, and what the session said about it.

@@ -1,17 +1,10 @@
 {
-  "name": "@xxjxx/artifact-space",
-  "version": "1.3.0",
-  "description": "产物空间：为 DSH 侧栏增加一个入口，按工作区与会话隔离列出每个会话的最终有效产物，支持预览、搜索与收藏。",
+  "name": "@dushuai/artifact-space",
+  "version": "1.0.0",
+  "description": "Artifact Space: a sidebar entry that lists every workspace's final session artifacts, grouped by workspace and session, with a content preview, search, favorites and an editor-style viewer.",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://github.com/majestyjun/artifact-space#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/majestyjun/artifact-space.git"
-  },
-  "bugs": {
-    "url": "https://github.com/majestyjun/artifact-space/issues"
-  },
+  "icon": "./icon.svg",
   "keywords": [
     "artifact",
     "artifact-space",
@@ -21,7 +14,6 @@
     "favorites",
     "deliverables"
   ],
-  "icon": "./icon.svg",
   "publishConfig": {
     "access": "public"
   },
@@ -38,19 +30,12 @@
     "cordis.patch.yml",
     "locale/*.json",
     "icon.svg",
-    "assets/*.png",
     "README.md",
-    "README.en.md",
-    "README.i18n.yaml",
     "LICENSE",
-    "CHANGELOG.md",
-    "CHANGELOG.en.md",
     "docs/*.png"
   ],
   "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    },
+    "bundle": { "patch": "./cordis.patch.yml" },
     "client": {
       "platform": "web",
       "inject": [
@@ -62,7 +47,7 @@
     }
   },
   "engines": {
-    "dsh": ">=0.1.5-alpha.2"
+    "dsh": ">=0.2.1-rc.4"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.5",
@@ -75,30 +60,13 @@
     "@deepseek-ai/dsh-fs": "^0.2.1-alpha.2"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/cordis": {
-      "optional": true
-    },
-    "@deepseek-ai/dsh-session": {
-      "optional": true
-    },
-    "@deepseek-ai/dsh-session-query": {
-      "optional": true
-    },
-    "@deepseek-ai/dsh-workspace": {
-      "optional": true
-    },
-    "@deepseek-ai/dsh-api-workspace-files": {
-      "optional": true
-    },
-    "@deepseek-ai/dsh-session-persistence": {
-      "optional": true
-    },
-    "@deepseek-ai/dsh-sandbox-policy": {
-      "optional": true
-    },
-    "@deepseek-ai/dsh-fs": {
-      "optional": true
-    }
-  },
-  "author": "majestyjun"
+    "@deepseek-ai/cordis": { "optional": true },
+    "@deepseek-ai/dsh-session": { "optional": true },
+    "@deepseek-ai/dsh-session-query": { "optional": true },
+    "@deepseek-ai/dsh-workspace": { "optional": true },
+    "@deepseek-ai/dsh-api-workspace-files": { "optional": true },
+    "@deepseek-ai/dsh-session-persistence": { "optional": true },
+    "@deepseek-ai/dsh-sandbox-policy": { "optional": true },
+    "@deepseek-ai/dsh-fs": { "optional": true }
+  }
 }
