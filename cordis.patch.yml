@@ -1,0 +1,7 @@
+- insert:
+    # A `./`-relative specifier is resolved beside THIS patch file by the
+    # Include tree, so the row never depends on where the loader's own
+    # dependency closure sits. A bare package name is resolved against the
+    # host base instead, which does not reach a profile-local bundle.
+    - id: artifact-space
+      name: './index.js'

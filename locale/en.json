@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Artifact Space",
+    "description": "Adds an Artifact Space sidebar entry that lists every session's final artifacts grouped by workspace, with a content preview."
+  }
+}
