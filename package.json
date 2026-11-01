@@ -32,6 +32,7 @@
     "icon.svg",
     "README.md",
     "LICENSE",
+    "CHANGELOG.md",
     "docs/*.png"
   ],
   "dsh": {
