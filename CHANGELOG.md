@@ -1,24 +1,30 @@
-# 更新日志
+# Changelog
 
-中文 | [English](CHANGELOG.en.md)
+All notable changes to this project are documented here.
 
-本文件记录本项目的所有重要变更。
-
-格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
-版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.0.0] — 2026-11-01
 
-首个公开版本。
+First public release.
 
-### 新增
+### Added
 
-- **产物空间**侧栏入口，按工作区与会话两级列出每个会话最终产出的有效文件。
-- 分层玻璃界面，明暗双主题自适应。
-- 代码文件以编辑器形态预览：吸附式行号栏、语法高亮，以及显示语言、行数、体积与编码的状态栏。
-- 按扩展名适配的渲染：Markdown、HTML、YAML、JSON 各自渲染，无法识别时回落到纯文本。
-- 跨工作区、会话、产物三级的搜索；多个词是备选而非收窄，命中处高亮。
-- 收藏夹：产物行可标星，收藏汇总在收藏夹视图里。收藏可跨重启保留，取消收藏即从磁盘删除对应记录。
-- 会话折叠；默认只展开首屏放得下的会话。
-- 从预览区头部复制文件内容或绝对路径。
-- 产物来源：标明是「交付」还是顺手「产出」、来自第几轮、会话当时的说明。
+- **Artifact Space** sidebar entry listing every workspace's final session
+  artifacts, grouped by workspace and then by session.
+- Layered glass interface with a light and a dark theme.
+- Editor-style preview for code files: sticky line-number gutter, syntax
+  highlighting, and a status bar with language, line count, size and encoding.
+- Format-aware rendering for Markdown, HTML, YAML and JSON, each falling back to
+  plain text.
+- Search across workspaces, sessions and artifacts at once; multiple words are
+  alternatives, and matches are highlighted.
+- Favorites: star an artifact from its row, collect them in the Favorites view.
+  Favorites persist across restarts and each one is deleted from disk the
+  moment it is un-starred.
+- Session folding, with only the sessions that fit on the first screen open by
+  default.
+- Copy a file's content or its absolute path from the preview header.
+- Artifact provenance: whether a file was delivered or merely produced, the
+  turn it came from, and what the session said about it.
