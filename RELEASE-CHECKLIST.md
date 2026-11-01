@@ -16,9 +16,10 @@
 | 搜索逻辑 | ✅ | 三级匹配、高亮、多词 OR 语义 |
 | 收藏夹 | ✅ | 19 项，含"取消收藏后磁盘归零""重启后不复活" |
 | 复制功能 | ✅ | 10 项，含"完全不可用时不谎报成功" |
-| 发布包 | ✅ | `npm pack` 演练通过，11 个文件 |
+| 发布包 | ✅ | `npm pack` 演练通过，13 个文件 |
+| README 双语 | ✅ | 两版章节一一对应，配对记录未过期 |
 
-**总计 8 关卡全绿。**
+**总计 9 关卡全绿。**
 
 ---
 
@@ -87,7 +88,9 @@ artifact-space-publish/
 ├── .gitignore
 ├── CHANGELOG.md          # Keep a Changelog 格式
 ├── LICENSE               # MIT
-├── README.md             # 社区版：徽章 + 截图 + 功能表 + 安装 + 隐私说明
+├── README.md             # 英文版：徽章 + 截图 + 功能表 + 安装 + 隐私说明
+├── README.zh.md          # 中文版，与英文版章节一一对应
+├── README.i18n.yaml      # 双语配对一致性记录（每节英/中内容哈希）
 ├── client.js             # 浏览器半
 ├── cordis.patch.yml      # 加载补丁
 ├── docs/
@@ -98,7 +101,26 @@ artifact-space-publish/
 └── package.json
 ```
 
-Git 仓库已初始化，3 次提交。
+Git 仓库已初始化，5 次提交。
+
+### 双语 README 规范（对照官方 `dsh-experimental-plugin-market-bundle`）
+
+官方包采用三件套模式，本插件照搬：
+
+| 文件 | 作用 |
+| --- | --- |
+| `README.md` | 英文版，含 frontmatter（`description` + `kind: package-bundle`），顶部 `[English](README.md) | [中文](README.zh.md)` 互链 |
+| `README.zh.md` | 中文版，章节与英文版一一对应（14 个章节） |
+| `README.i18n.yaml` | 双语配对一致性记录：按章节记录英文与中文内容的哈希 |
+
+配套校验 `verify-readme-i18n.mjs`（第 9 关卡）检查：
+- 两版互链存在、frontmatter 齐全且 `kind` 一致
+- **章节数量与层级一一对应**
+- 围栏代码块数量、表格行数一致
+- 关键引用（截图路径、LICENSE、收藏存储键前缀、路由注册方式、交付事件、DSH 版本要求）两版都有
+- **`README.i18n.yaml` 未过期**（生成到临时文件再比对，不覆盖原文件）
+
+> 注意：`files` 白名单**优先于** `.npmignore`，所以仅靠 `.npmignore` 排除不掉文件。本插件按官方惯例把 `README.i18n.yaml` 一并打包。
 
 ---
 
