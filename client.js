@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@xxjxx/artifact-space',
+  id: '@local/artifact-space',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
@@ -31,7 +31,6 @@ window.__ModuleLoader__.load({
       'preview.loading': '正在读取文件…',
       'preview.empty': '（空文件）',
       'preview.binaryTitle': '二进制文件（{ext}，{size}）不可预览',
-      'preview.imageFailed': '图片无法加载（文件可能已被移动或超出预览大小上限）',
       'preview.outsideTitle': '该文件位于工作区之外，无法预览',
       'preview.missingTitle': '该文件已不存在',
       'preview.tooLargeTitle': '文件过大，无法预览（上限 512 KB）',
@@ -63,10 +62,6 @@ window.__ModuleLoader__.load({
       'favorites.unknownSession': '会话已删除',
       'favorites.prune': '清理 {count} 项失效',
       'favorites.pruneTitle': '删除已失效的收藏，并清除它们在本地存储中的记录',
-      'favorites.clear': '清空',
-      'favorites.clearTitle': '删除全部收藏，并清除它们在本地存储中的记录',
-      'favorites.clearConfirm': '确认清空？',
-      'favorites.clearConfirmTitle': '再次点击以删除全部收藏',
       'artifact.turn': '第 {turn} 轮',
       'artifact.copy': '复制内容',
       'artifact.copyPath': '复制路径',
@@ -103,7 +98,6 @@ window.__ModuleLoader__.load({
       'preview.loading': 'Reading file…',
       'preview.empty': '(empty file)',
       'preview.binaryTitle': 'Binary file ({ext}, {size}) cannot be previewed',
-      'preview.imageFailed': 'The image could not be loaded (the file may have moved or exceed the preview size limit)',
       'preview.outsideTitle': 'This file lies outside the workspace and cannot be previewed',
       'preview.missingTitle': 'This file no longer exists',
       'preview.tooLargeTitle': 'This file is too large to preview (limit 512 KB)',
@@ -135,10 +129,6 @@ window.__ModuleLoader__.load({
       'favorites.unknownSession': 'Session removed',
       'favorites.prune': 'Clean up {count} stale',
       'favorites.pruneTitle': 'Remove the stale favorites and delete their local storage records',
-      'favorites.clear': 'Clear',
-      'favorites.clearTitle': 'Remove every favorite and delete their local storage records',
-      'favorites.clearConfirm': 'Confirm clear?',
-      'favorites.clearConfirmTitle': 'Click again to remove every favorite',
       'artifact.turn': 'Turn {turn}',
       'artifact.copy': 'Copy content',
       'artifact.copyPath': 'Copy path',
@@ -648,26 +638,6 @@ window.__ModuleLoader__.load({
 /* 预览正文的玻璃内衬，强化层次 */
 .artifact-space-previewBody::selection{background:var(--glass-accent)}
 
-/* 图片预览：铺满可用区域，居中显示，图片本身不被裁切 */
-.artifact-space-previewImageWrap{
-  box-sizing:border-box;flex:1;min-height:0;
-  display:flex;align-items:center;justify-content:center;
-  margin:0;padding:12px;
-  overflow:auto;
-  background:
-    linear-gradient(45deg,rgba(255,255,255,.10) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.10) 75%),
-    linear-gradient(45deg,rgba(255,255,255,.10) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.10) 75%);
-  background-size:16px 16px;
-  background-position:0 0,8px 8px;
-}
-.artifact-space-previewImage{
-  display:block;max-width:100%;max-height:100%;
-  width:auto;height:auto;
-  object-fit:contain;
-  border-radius:6px;
-  box-shadow:0 6px 20px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.22) inset;
-}
-
 /* 富文本预览（Markdown / YAML）：代码区自带滚动，正文不再重复滚动 */
 .artifact-space-previewRich{
   padding:12px 14px 16px;
@@ -808,23 +778,6 @@ window.__ModuleLoader__.load({
 }
 .artifact-space-favPrune:hover{background:rgba(255,255,255,.46);color:var(--glass-text-primary)}
 .artifact-space-favPrune:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-/* 清空全部：默认安静，二次确认时才亮出警告色 */
-.artifact-space-favClear{
-  padding:2px 8px;
-  border:.5px solid transparent;
-  border-radius:7px;
-  background:transparent;
-  color:var(--glass-text-tertiary);font-size:11px;line-height:16px;cursor:pointer;
-  transition:background .12s ease-out,color .12s ease-out,border-color .12s ease-out;
-}
-.artifact-space-favClear:hover{background:rgba(255,255,255,.34);color:var(--glass-text-secondary)}
-.artifact-space-favClear:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-.artifact-space-favClear[data-confirming="true"]{
-  border-color:var(--glass-error);
-  background:rgba(255,255,255,.42);
-  color:var(--glass-error);
-  font-weight:500;
-}
 
 .artifact-space-favList{margin:0;padding:0 6px;list-style:none;display:flex;flex-direction:column;gap:1px}
 .artifact-space-favItem{
@@ -1140,13 +1093,10 @@ window.__ModuleLoader__.load({
 }
 `;
 
-    // The style tag is keyed by the package name so two versions of this
-    // plugin cannot fight over one stylesheet.
-    const PLUGIN_NAME = '@xxjxx/artifact-space';
-    const styleTagId = `${PLUGIN_NAME}/artifact-space.css`;
+    const styleTagId = '@local/artifact-space/artifact-space.css';
     if (typeof document !== 'undefined' && document.querySelector(`style[data-plugin-css=${JSON.stringify(styleTagId)}]`) === null) {
       const tag = document.createElement('style');
-      tag.dataset.plugin = PLUGIN_NAME;
+      tag.dataset.plugin = '@local/artifact-space';
       tag.dataset.pluginCss = styleTagId;
       tag.textContent = CSS;
       document.head.appendChild(tag);
@@ -1437,7 +1387,6 @@ window.__ModuleLoader__.load({
     /** Browser-relative form of a Host route; the page is served from an app base path. */
     const ROWS_ROUTE = 'api/artifact-space.rows';
     const READ_ROUTE = 'api/artifact-space.read';
-    const IMAGE_ROUTE = 'api/artifact-space.image';
 
     /**
      * Fetch-once cache of the grouped artifact rows.
@@ -1818,7 +1767,7 @@ window.__ModuleLoader__.load({
           }
         },
       }, [
-        h('span', { key: 'icon' }, artifact.image || artifact.binary ? imageIcon() : docIcon()),
+        h('span', { key: 'icon' }, artifact.binary ? imageIcon() : docIcon()),
         h('span', {
           key: 'name',
           className: cx('artifact-space-rowName'),
@@ -2038,7 +1987,7 @@ window.__ModuleLoader__.load({
      * — the reader may want to know it is gone — but it cannot be opened,
      * and the reader can drop the stale entries in one go.
      */
-    function FavoritesList({ favorites, rows, onSelect, onToggleFavorite, onPrune, onClear, t, searchParts }) {
+    function FavoritesList({ favorites, rows, onSelect, onToggleFavorite, onPrune, t, searchParts }) {
       // The live rows, indexed by the same key the favorites use, so a
       // favorite can be matched back to the artifact it points at.
       const live = new Map();
@@ -2049,15 +1998,6 @@ window.__ModuleLoader__.load({
           }
         }
       }
-
-      // Clearing every favorite is destructive, so the button asks first and
-      // reverts to its quiet state when the reader looks away.
-      const [confirming, setConfirming] = React.useState(false);
-      React.useEffect(() => {
-        if (!confirming) return undefined;
-        const timer = setTimeout(() => setConfirming(false), 4000);
-        return () => clearTimeout(timer);
-      }, [confirming]);
 
       const entries = [];
       let staleCount = 0;
@@ -2090,24 +2030,6 @@ window.__ModuleLoader__.load({
             title: t('favorites.pruneTitle'),
             onClick: onPrune,
           }, t('favorites.prune', { count: String(staleCount) })) : null,
-          onClear !== null ? h('button', {
-            key: 'clear',
-            type: 'button',
-            className: cx('artifact-space-favClear'),
-            'data-confirming': confirming ? 'true' : 'false',
-            'aria-label': confirming ? t('favorites.clearConfirm') : t('favorites.clear'),
-            title: confirming ? t('favorites.clearConfirmTitle') : t('favorites.clearTitle'),
-            onClick: () => {
-              // The first click arms the action; the second one carries it out.
-              if (!confirming) {
-                setConfirming(true);
-                return;
-              }
-              setConfirming(false);
-              onClear();
-            },
-            onBlur: () => setConfirming(false),
-          }, confirming ? t('favorites.clearConfirm') : t('favorites.clear')) : null,
         ]),
         h('ul', { key: 'list', className: cx('artifact-space-favList') }, entries.map((entry) => {
         const { key, item, match, name } = entry;
@@ -2198,12 +2120,9 @@ window.__ModuleLoader__.load({
      */
     function PreviewPane({ artifact, sessionId, store, onClose, t }) {
       const path = typeof artifact?.path === 'string' ? artifact.path : '';
-      // A picture is loaded straight from the image route as bytes, so it never
-      // asks the text route for a preview and never costs a text round trip.
-      const image = artifact?.image === true;
       const binary = artifact?.binary === true;
       const outside = artifact?.outsideWorkspace === true;
-      const readable = !binary && !outside && !image;
+      const readable = !binary && !outside;
 
       const state = React.useSyncExternalStore(
         store.subscribe,
@@ -2229,73 +2148,6 @@ window.__ModuleLoader__.load({
         }
         writeClipboard(text).then((ok) => setCopied(`${what}:${ok ? 'ok' : 'failed'}`));
       };
-
-      if (image && !outside) {
-        // The Host serves the picture's own bytes under its own media type, so
-        // the browser renders it without the preview ever holding the file.
-        const src = `${IMAGE_ROUTE}?${new URLSearchParams({ sessionId, path }).toString()}`;
-        const [imageState, setImageState] = React.useState('loading');
-        const [dimensions, setDimensions] = React.useState(null);
-        return h('div', { className: cx('artifact-space-preview'), 'data-state': 'image' }, [
-          h('div', { key: 'head', className: cx('artifact-space-previewHead') }, [
-            h('span', { key: 'title', className: cx('artifact-space-previewTitle') }, artifact.name),
-            h('span', { key: 'meta', className: cx('artifact-space-previewMeta') },
-              dimensions === null
-                ? formatBytes(artifact.bytes)
-                : `${dimensions.width}×${dimensions.height} · ${formatBytes(artifact.bytes)}`),
-            h('button', {
-              key: 'copyPath',
-              type: 'button',
-              className: cx('artifact-space-previewAction'),
-              'data-state': copied !== null && copied.startsWith('path:') ? copied.slice('path:'.length) : null,
-              'aria-label': t('artifact.copyPath'),
-              title: t('artifact.copyPath'),
-              onClick: () => copy(artifact.absolutePath ?? '', 'path'),
-            }, [
-              h('svg', {
-                key: 'icon',
-                viewBox: '0 0 16 16',
-                width: 12,
-                height: 12,
-                fill: 'none',
-                stroke: 'currentColor',
-                strokeWidth: 1.3,
-                strokeLinecap: 'round',
-                strokeLinejoin: 'round',
-                'aria-hidden': true,
-              }, [
-                h('path', { key: 'p', d: 'M6.4 9.6a2.6 2.6 0 003.9.3l2-2a2.6 2.6 0 00-3.7-3.7l-1.1 1.1' }),
-                h('path', { key: 'p2', d: 'M9.6 6.4a2.6 2.6 0 00-3.9-.3l-2 2a2.6 2.6 0 003.7 3.7l1.1-1.1' }),
-              ]),
-              copied !== null && copied.startsWith('path:')
-                ? h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') },
-                  copied === 'path:ok' ? t('artifact.copiedPath') : t('artifact.copyFailed'))
-                : null,
-            ]),
-          ]),
-          imageState === 'error'
-            ? h(PreviewState, {
-              key: 'state',
-              kind: 'binary',
-              title: t('preview.imageFailed'),
-              text: artifact.absolutePath,
-            })
-            : h('div', { key: 'body', className: cx('artifact-space-previewImageWrap') }, [
-              h('img', {
-                key: 'img',
-                className: cx('artifact-space-previewImage'),
-                src,
-                alt: artifact.name,
-                onLoad: (event) => {
-                  const node = event.currentTarget;
-                  setDimensions({ width: node.naturalWidth, height: node.naturalHeight });
-                  setImageState('ready');
-                },
-                onError: () => setImageState('error'),
-              }),
-            ]),
-        ]);
-      }
 
       if (binary) {
         return h('div', { className: cx('artifact-space-preview'), 'data-state': 'binary' }, [
@@ -2735,17 +2587,6 @@ window.__ModuleLoader__.load({
         favoritesStore.prune(liveKeys);
       }, [favoritesStore, liveKeys, rows.status]);
 
-      /**
-       * Drop every favorite.
-       *
-       * The store removes each storage key as it goes, so clearing the list
-       * leaves nothing behind on disk either.
-       */
-      const clearFavorites = React.useCallback(() => {
-        if (favoritesStore === null) return;
-        favoritesStore.clear();
-      }, [favoritesStore]);
-
       const filteredGroups = React.useMemo(() => {
         if (!searching) return safeGroups;
         const result = [];
@@ -2842,7 +2683,6 @@ window.__ModuleLoader__.load({
             onSelect: (artifact, sessionId) => setSelected({ sessionId, path: artifact.path }),
             onToggleFavorite: toggleFavorite,
             onPrune: pruneFavorites,
-            onClear: clearFavorites,
             t,
             searchParts,
           });
@@ -3053,8 +2893,6 @@ window.__ModuleLoader__.load({
     const HTML_EXTENSIONS = new Set(['html', 'htm', 'xhtml']);
     const YAML_EXTENSIONS = new Set(['yml', 'yaml']);
     const JSON_EXTENSIONS = new Set(['json', 'jsonc', 'json5']);
-    /** Pictures the preview can display; the Host serves their bytes itself. */
-    const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'avif', 'ico', 'svg']);
 
     /** The lowercase extension of a file name, without the dot. */
     function extensionOfName(name) {
@@ -3072,7 +2910,6 @@ window.__ModuleLoader__.load({
       const ext = (typeof artifact?.extension === 'string' && artifact.extension !== ''
         ? artifact.extension
         : extensionOfName(artifact?.name)).replace(/^\./, '').toLowerCase();
-      if (IMAGE_EXTENSIONS.has(ext)) return 'image';
       if (MARKDOWN_EXTENSIONS.has(ext)) return 'markdown';
       if (HTML_EXTENSIONS.has(ext)) return 'html';
       if (YAML_EXTENSIONS.has(ext)) return 'yaml';
