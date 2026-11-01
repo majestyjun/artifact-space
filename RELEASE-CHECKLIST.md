@@ -16,8 +16,8 @@
 | 搜索逻辑 | ✅ | 三级匹配、高亮、多词 OR 语义 |
 | 收藏夹 | ✅ | 19 项，含"取消收藏后磁盘归零""重启后不复活" |
 | 复制功能 | ✅ | 10 项，含"完全不可用时不谎报成功" |
-| 发布包 | ✅ | `npm pack` 演练通过，13 个文件 |
-| README 双语 | ✅ | 两版章节一一对应，配对记录未过期 |
+| 发布包 | ✅ | `npm pack` 演练通过，14 个文件 |
+| README 双语 | ✅ | 默认中文、英文附属，章节一一对应，配对记录未过期 |
 
 **总计 9 关卡全绿。**
 
@@ -82,15 +82,18 @@
 
 ## 四、仓库与交付物
 
+**默认语言：中文。** `README.md` 与 `CHANGELOG.md` 是中文版（GitHub / npm 默认展示的那一份），英文版作为附属放在 `README.en.md` / `CHANGELOG.en.md`。
+
 ```
 artifact-space-publish/
 ├── .gitattributes        # 统一 LF，避免跨平台 diff 噪声
 ├── .gitignore
-├── CHANGELOG.md          # Keep a Changelog 格式
+├── CHANGELOG.md          # 中文版（默认）
+├── CHANGELOG.en.md       # 英文版（附属）
 ├── LICENSE               # MIT
-├── README.md             # 英文版：徽章 + 截图 + 功能表 + 安装 + 隐私说明
-├── README.zh.md          # 中文版，与英文版章节一一对应
-├── README.i18n.yaml      # 双语配对一致性记录（每节英/中内容哈希）
+├── README.md             # 中文版（默认）：功能表 + 安装 + 隐私说明
+├── README.en.md          # 英文版（附属）
+├── README.i18n.yaml      # 双语配对一致性记录（每节中/英内容哈希）
 ├── client.js             # 浏览器半
 ├── cordis.patch.yml      # 加载补丁
 ├── docs/
@@ -101,24 +104,29 @@ artifact-space-publish/
 └── package.json
 ```
 
-Git 仓库已初始化，5 次提交。
+Git 仓库已初始化，7 次提交。
 
-### 双语 README 规范（对照官方 `dsh-experimental-plugin-market-bundle`）
+### 双语文档规范（对照官方 `dsh-experimental-plugin-market-bundle`）
 
-官方包采用三件套模式，本插件照搬：
+官方包采用三件套模式，本插件照搬并按「默认中文」调整了主次：
 
 | 文件 | 作用 |
 | --- | --- |
-| `README.md` | 英文版，含 frontmatter（`description` + `kind: package-bundle`），顶部 `[English](README.md) | [中文](README.zh.md)` 互链 |
-| `README.zh.md` | 中文版，章节与英文版一一对应（14 个章节） |
-| `README.i18n.yaml` | 双语配对一致性记录：按章节记录英文与中文内容的哈希 |
+| `README.md` | **中文版（默认展示）**，含 frontmatter（`description` + `kind: package-bundle`），顶部 `中文 | [English](README.en.md)` |
+| `README.en.md` | 英文版（附属），顶部 `[中文](README.md) | English` |
+| `README.i18n.yaml` | 双语配对一致性记录：按章节记录中文与英文内容的哈希 |
+
+> 宿主源码中对 `README.zh.md` **零引用** —— 那个文件名只是官方仓库自己的约定，不影响市场渲染。改用 `README.en.md` 是为了满足「默认中文」：GitHub 与 npm 都默认渲染 `README.md`。
 
 配套校验 `verify-readme-i18n.mjs`（第 9 关卡）检查：
-- 两版互链存在、frontmatter 齐全且 `kind` 一致
+- `README.md` 确实是中文版、`README.en.md` 确实是英文版
+- 两版互链存在，且**都不再引用 `README.zh.md`**
+- frontmatter 齐全、`kind` 一致、中文版 description 为中文
 - **章节数量与层级一一对应**
 - 围栏代码块数量、表格行数一致
 - 关键引用（截图路径、LICENSE、收藏存储键前缀、路由注册方式、交付事件、DSH 版本要求）两版都有
 - **`README.i18n.yaml` 未过期**（生成到临时文件再比对，不覆盖原文件）
+- **CHANGELOG 双语**：两版互链存在，版本条目完全一致
 
 > 注意：`files` 白名单**优先于** `.npmignore`，所以仅靠 `.npmignore` 排除不掉文件。本插件按官方惯例把 `README.i18n.yaml` 一并打包。
 
