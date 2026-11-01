@@ -1,159 +1,118 @@
 ---
-description: "Adds an Artifact Space sidebar entry to DSH, listing every session's final effective artifacts per workspace and session, with preview, search and favorites."
+description: "在 DSH 侧栏增加「产物空间」入口，按工作区与会话隔离列出每个会话的最终有效产物，并支持预览、搜索与收藏。"
 kind: "package-bundle"
 ---
 
-# Artifact Space (产物空间)
+# Artifact Space（产物空间）
 
-[English](README.md) | [中文](README.zh.md)
+中文 | [English](README.en.md)
 
 [![npm version](https://img.shields.io/npm/v/artifact-space.svg)](https://www.npmjs.com/package/artifact-space)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-A DSH plugin that adds an **产物空间** entry to the sidebar. It lists every
-workspace's final effective session artifacts — grouped by workspace, then by
-session — and previews the file content when a row is selected.
+一个为 DSH 增加**产物空间**侧栏入口的插件。它按「工作区 → 会话」两级列出每个会话最终产出的有效文件，点击即可预览内容。
 
-![Artifact Space panel](./docs/screenshot-panel.png)
+![产物空间面板](./docs/screenshot-panel.png)
 
-## Features
+## 功能
 
 | | |
 | --- | --- |
-| **玻璃界面** | A layered glass panel that adapts to the light and dark themes, with colored light behind it so the material actually refracts. |
-| **编辑器预览** | Code files open in an editor-style view: a sticky line-number gutter, syntax highlighting, and a status bar reporting language, line count, size and encoding. |
-| **多格式渲染** | Markdown, HTML, YAML and JSON each get their own renderer, with a plain-text fallback for anything unrecognised. |
-| **三级搜索** | Filter across workspaces, sessions and artifacts at once. Words separated by spaces are alternatives, so `client json` finds both `client.js` and `package.json`. |
-| **收藏夹** | Star the artifacts worth keeping. Favorites survive restarts, and each one leaves disk the moment you un-star it. |
-| **会话折叠** | Sessions fold to their header. By default only the ones that fit on the first screen are open. |
-| **一键带走** | Copy a file's content or its absolute path straight from the preview header. |
-| **来源可溯** | Each artifact says whether it was *delivered* or merely *produced*, in which turn, and what the session said about it. |
+| **玻璃界面** | 分层玻璃面板，随明暗主题自适应；面板下方铺有彩色光斑，玻璃才真的有折射感，而不是一张淡色卡片 |
+| **编辑器预览** | 代码文件以编辑器形态打开：行号栏随滚动吸附、语法高亮，底部状态栏显示语言、行数、体积与编码 |
+| **多格式渲染** | Markdown、HTML、YAML、JSON 各有专属渲染器，无法识别的格式一律回落到纯文本 |
+| **三级搜索** | 工作区 / 会话 / 产物同时匹配；空格分隔的多个词是「备选」而非「收窄」，所以搜 `client json` 能同时找到 `client.js` 和 `package.json` |
+| **收藏夹** | 把值得留意的产物标星，在收藏夹里集中查看。收藏可跨重启保留，**取消收藏即从磁盘删除对应记录** |
+| **会话折叠** | 会话可折叠成标题行；默认只展开首屏能看到的那些 |
+| **一键带走** | 在预览区头部直接复制文件内容或绝对路径 |
+| **来源可溯** | 每个产物都标明是「交付」还是顺手「产出」、来自第几轮对话、会话当时对它说了什么 |
 
-## What counts as an artifact
+## 什么算是一个产物
 
-The Host half folds each session's own log events and keeps:
+宿主半边（Host half）折叠每个会话自己的日志事件，保留：
 
-- files declared through `deliverables/presented` (kind `presented`),
-- files written or edited by a successful `write`, `edit` or `str_replace_editor`
-  call (kind `produced`).
+- 通过 `deliverables/presented` 声明的文件（类型 `presented`），
+- 由成功的 `write`、`edit` 或 `str_replace_editor` 调用写入或修改的文件（类型 `produced`）。
 
-Only files that still exist are listed, sessions without a surviving artifact are
-dropped, and both sessions and workspaces are ordered by last activity.
+只有**仍然存在**的文件才会被列出；没有任何存活产物的会话会被丢弃；会话与工作区都按最后活跃时间排序。
 
-## Architecture
+## 架构
 
-| Half | File | Role |
+| 半边 | 文件 | 职责 |
 | --- | --- | --- |
-| Host | `index.js` | Registers two authenticated routes: `GET /api/artifact-space.rows` and `GET /api/artifact-space.read`. |
-| Client | `client.js` | Registers the sidebar entry (`sidebar.panellist`) and the main panel (`main` slot key `artifact-space`). |
+| 宿主 | `index.js` | 注册两条需鉴权的路由：`GET /api/artifact-space.rows` 与 `GET /api/artifact-space.read` |
+| 浏览器 | `client.js` | 注册侧栏入口（`sidebar.panellist`）与主面板（`main` slot，键为 `artifact-space`） |
 
-The two halves talk over an authenticated Host route registered with
-`ctx.connection.fetch.register`, so no credentials leave the loopback host.
+两半边通过 `ctx.connection.fetch.register` 注册的鉴权宿主路由通信，凭证不会离开本机回环。
 
-### Routes
+### 路由
 
-- `GET /api/artifact-space.rows` — every workspace group with its sessions and
-  artifacts.
-- `GET /api/artifact-space.read?sessionId=…&path=…` — the text of one
-  artifact, bounded to 512 KB / 4000 lines. Refusals map to
-  `403 outside-workspace`, `404 not-a-file`, `413 too-large`, `415 binary-file`.
+- `GET /api/artifact-space.rows` — 所有工作区分组及其会话、产物。
+- `GET /api/artifact-space.read?sessionId=…&path=…` — 单个产物的文本内容，上限 512 KB / 4000 行。拒绝原因映射为 `403 outside-workspace`、`404 not-a-file`、`413 too-large`、`415 binary-file`。
 
-## Preview states
+## 预览状态
 
-`binary` and `outsideWorkspace` are decided from the row flags before any
-request is made (no network call, no loading flicker). The remaining states are
-`missing` (404), `error` (413 / other), and the rendered text.
+`binary` 与 `outsideWorkspace` 在发起请求**之前**就根据行上的标记判定（不发请求、不闪加载态）。其余状态为 `missing`（404）、`error`（413 / 其它）以及渲染出的正文。
 
-## Format rendering
+## 格式渲染
 
-The preview renders each artifact in the format its extension asks for, instead
-of dumping raw text:
+预览会按扩展名选择合适的呈现方式，而不是把原始文本直接甩出来：
 
-| Extension | Rendering |
+| 扩展名 | 渲染方式 |
 | --- | --- |
-| `md`, `markdown`, `mdown`, `mkd`, `mdx` | Markdown: headings, paragraphs, lists, tables, block quotes, thematic breaks, fenced code blocks with a language label, and inline code / strong / emphasis / strikethrough / links. |
-| `html`, `htm`, `xhtml` | Rendered in a sandboxed frame (`sandbox=""`), after script elements, inline event handlers and `javascript:` URLs are stripped. |
-| `yml`, `yaml` | An indented key/value outline that keeps the document's own nesting. |
-| `json`, `jsonc`, `json5` | Pretty-printed JSON; a malformed document falls back to its raw text. |
-| anything else | Plain text. |
+| `md`、`markdown`、`mdown`、`mkd`、`mdx` | Markdown：标题、段落、列表、表格、引用、分隔线、带语言标签的围栏代码块，以及行内代码 / 强调 / 删除线 / 链接 |
+| `html`、`htm`、`xhtml` | 在沙箱框架（`sandbox=""`）中渲染，先剥离脚本元素、行内事件处理器与 `javascript:` URL |
+| `yml`、`yaml` | 保留文档自身嵌套层级的缩进键值大纲 |
+| `json`、`jsonc`、`json5` | 格式化的 JSON；文档损坏时回落到原始文本 |
+| 其它 | 纯文本 |
 
-Every format falls back to plain text, so an unknown or malformed document still
-shows its content.
+任何格式都能回落到纯文本，所以无法识别或已损坏的文档照样能看到内容。
 
-Code files (`js`, `ts`, `py`, `json`, `yml`, …) open in an editor-style view:
-a sticky line-number gutter, syntax highlighting, and a status bar reporting the
-language, line count, size and encoding.
+代码文件（`js`、`ts`、`py`、`json`、`yml` 等）以编辑器形态打开：吸附式行号栏、语法高亮，以及报告语言、行数、体积与编码的状态栏。
 
-## Artifact provenance
+## 产物来源
 
-The Host folds three facts out of the session log for every artifact, and the
-panel shows them:
+宿主为每个产物从会话日志里折出三项事实，面板会展示它们：
 
-- **Delivered** or **produced** — a file the session explicitly handed over
-  (`deliverables/presented`) is marked as delivered; anything else is marked
-  as produced.
-- **Turn** — the conversation turn the delivery came from.
-- **Description** — what the session said about the file.
+- **交付** 或 **产出** —— 会话明确交付给用户的文件标记为「交付」，其余标记为「产出」。
+- **轮次** —— 这次交付来自对话的第几轮。
+- **说明** —— 会话当时对这个文件说了什么。
 
-A list row carries the badge alone, so the file name keeps its room; the
-preview header shows the turn and the description in full.
+列表行只带徽章，好让文件名保留自己的空间；预览区头部则完整展示轮次与说明。
 
-## Taking an artifact away
+## 把产物带走
 
-The preview header offers **copy content** and **copy path**. Copying uses the
-async Clipboard API and falls back to a hidden textarea and `execCommand('copy')`
-on hosts that omit it — the same order the Host's own primitives use. When the
-clipboard refuses the text, the button says so instead of pretending it worked.
+预览区头部提供**复制内容**与**复制路径**。复制优先走异步 Clipboard API，宿主不支持时（缺少该 API、权限被拒）回退到隐藏 textarea 加 `execCommand('copy')` —— 与宿主自身的原语顺序一致。剪贴板拒绝写入时，按钮会如实显示失败，而不是假装成功。
 
-Binary files and files outside the workspace have no content to copy, but
-their path can still be copied.
+二进制文件与工作区之外的文件没有内容可复制，但路径仍然可以复制。
 
-## Finding artifacts
+## 查找产物
 
-- **Search** filters across all three levels — workspace, session and artifact.
-  Words separated by spaces are alternatives rather than a narrowing filter, so
-  `client json` finds both `client.js` and `package.json`. Matches are
-  highlighted, the result count is shown next to the field, and `Ctrl`/`Cmd`+`F`
-  focuses it.
-- **Collapsing** folds a session away to its header. By default only the
-  sessions that fit on the first screen are open; a session the reader folds or
-  unfolds by hand keeps that choice.
+- **搜索**跨三个层级过滤 —— 工作区、会话、产物。空格分隔的多个词是备选而非收窄，所以 `client json` 既能找到 `client.js` 也能找到 `package.json`。命中的词会高亮，搜索框旁显示结果数，`Ctrl`/`Cmd`+`F` 可聚焦。
+- **折叠**把会话收成标题行。默认只展开首屏放得下的会话；被手动折叠或展开的会话会记住那个选择。
 
-## Favorites
+## 收藏夹
 
-An artifact can be starred from its row, and the stars are collected in the
-**Favorites** view (the star button in the header).
+产物行上的星标即可收藏，收藏项汇总在**收藏夹**视图里（头部那个星标按钮）。
 
-- A favorite is keyed by the session it came from **and** its path, because two
-  sessions can produce the same path and those are different artifacts.
-- Favorites persist across restarts in `localStorage` — the same channel the
-  Host's own client store uses. Each favorite is stored under its own key, so
-  unstarring removes that key outright and leaves nothing behind on disk. When
-  storage is unavailable (a private window, a full quota) the feature degrades
-  to memory for the session instead of failing.
-- A favorite outlives the session that produced it. If that session is deleted,
-  the entry is listed as stale and cannot be opened; the **Clean up** button in
-  the favorites header removes those entries and their storage keys.
-- Stale entries are never removed automatically: the Host drops a session from
-  its rows while its log is unreadable or awaits migration, so treating an
-  absent row as proof of deletion would throw away favorites the reader still
-  wants.
+- 收藏以「所属会话 + 路径」为键，因为两个会话可能产出同名路径，而那是不同的产物。
+- 收藏通过 `localStorage` 跨重启保留 —— 与宿主自己的客户端 store 用的是同一条通道。每条收藏各占一个键，所以取消收藏会直接删掉那个键，磁盘上不留任何东西。存储不可用时（隐私窗口、配额已满），功能降级为仅本次会话有效，而不是报错。
+- 收藏的生命周期可以比会话长。所属会话被删除后，该条目会被标记为失效且无法打开；收藏夹头部的**清理 N 项失效**按钮会删除这些条目，并同步删掉它们的存储记录。
+- 失效条目**绝不自动清理**：宿主会在会话日志不可读或等待迁移时把该行整个丢掉，所以「列表里没有」并不能证明「文件已删除」，据此自动清扫会误删用户仍想要的收藏。
 
-## Install
+## 安装
 
-### From the plugin market
+### 从插件市场安装
 
-Open **Settings → Plugins → Discover**, search for *Artifact Space*, and
-install it. The market installs the exact version named in the index and
-enables it through the profile patch.
+打开 **Settings → Plugins → Discover**，搜索 *Artifact Space* 并安装。市场会安装索引中指定的确切版本，并通过 profile 补丁启用它。
 
-### From a registry
+### 从 registry 安装
 
 ```bash
 npm install artifact-space
 ```
 
-Then enable it in your profile patch (`~/.dsh/profiles/desktop/cordis.patch.yml`):
+然后在自己的 profile 补丁（`~/.dsh/profiles/desktop/cordis.patch.yml`）中启用：
 
 ```yaml
 - insert:
@@ -161,29 +120,19 @@ Then enable it in your profile patch (`~/.dsh/profiles/desktop/cordis.patch.yml`
       name: 'artifact-space'
 ```
 
-### Requirements
+### 环境要求
 
-- DSH `>= 0.2.1-rc.4` — the plugin declares this range in `engines.dsh`, and the
-  Host refuses to load a plugin whose requirements the running version does not
-  meet.
-- No Host private APIs are used. The plugin talks to the public
-  `ctx.connection.fetch` route and persists favorites in `localStorage`.
+- DSH `>= 0.2.1-rc.4` —— 插件在 `engines.dsh` 中声明了该范围，运行版本不满足时宿主会拒绝加载。
+- **不使用任何宿主私有 API**。插件只通过公开的 `ctx.connection.fetch` 路由通信，收藏持久化在 `localStorage` 里。
 
-Client bundles hot-reload through `dsh-client-hmr`; changing the Host half
-requires the plugin to be re-enabled (or the app restarted) so the module is
-imported again.
+浏览器半边通过 `dsh-client-hmr` 热重载；改动宿主半边则需要重新启用插件（或重启应用），以便模块被重新导入。
 
-## Privacy
+## 隐私
 
-The plugin reads only the session logs and workspace files the Host already
-exposes to it. It makes no network request of its own and sends nothing
-anywhere.
+插件只读取宿主本就已开放给它的会话日志与工作区文件。它不发起任何自己的网络请求，也不向任何地方发送数据。
 
-Favorites are stored locally in your browser profile under
-`artifactSpace.favorite.v1.*`. Un-starring an artifact deletes its entry, and
-**Clear** in the favorites header removes every one of them together with their
-storage records.
+收藏保存在你浏览器的本地 profile 下，键名前缀为 `artifactSpace.favorite.v1.*`。取消收藏会删除对应条目，收藏夹头部的**清空**按钮会连同它们的存储记录一起删除全部收藏。
 
-## License
+## 许可证
 
-MIT — see [LICENSE](./LICENSE).
+MIT —— 见 [LICENSE](./LICENSE)。
