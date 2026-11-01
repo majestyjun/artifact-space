@@ -1,7 +1,7 @@
 {
   "name": "@dushuai/artifact-space",
   "version": "1.0.0",
-  "description": "Artifact Space: a sidebar entry that lists every workspace's final session artifacts, grouped by workspace and session, with a content preview, search, favorites and an editor-style viewer.",
+  "description": "产物空间：为 DSH 侧栏增加一个入口，按工作区与会话隔离列出每个会话的最终有效产物，支持预览、搜索与收藏。",
   "type": "module",
   "license": "MIT",
   "icon": "./icon.svg",
@@ -31,10 +31,11 @@
     "locale/*.json",
     "icon.svg",
     "README.md",
-    "README.zh.md",
+    "README.en.md",
     "README.i18n.yaml",
     "LICENSE",
     "CHANGELOG.md",
+    "CHANGELOG.en.md",
     "docs/*.png"
   ],
   "dsh": {
