@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@xxjxx/artifact-space',
+  id: '@local/artifact-space',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
@@ -20,14 +20,6 @@ window.__ModuleLoader__.load({
       'session.note.unreadable': '会话日志无法读取',
       'artifact.presented': '交付',
       'artifact.produced': '产出',
-      'filter.label': '分类',
-      'filter.all': '全部',
-      'filter.presented': '交付',
-      'filter.produced': '产出',
-      'filter.allCount': '{count}',
-      'filter.presentedCount': '{count}',
-      'filter.producedCount': '{count}',
-      'filter.empty': '当前分类下没有产物',
       'empty.title': '还没有产物',
       'empty.body': '当会话产出或交付文件后，它们会出现在这里。',
       'loading': '正在读取产物…',
@@ -39,7 +31,6 @@ window.__ModuleLoader__.load({
       'preview.loading': '正在读取文件…',
       'preview.empty': '（空文件）',
       'preview.binaryTitle': '二进制文件（{ext}，{size}）不可预览',
-      'preview.imageFailed': '图片无法加载（文件可能已被移动或超出预览大小上限）',
       'preview.outsideTitle': '该文件位于工作区之外，无法预览',
       'preview.missingTitle': '该文件已不存在',
       'preview.tooLargeTitle': '文件过大，无法预览（上限 512 KB）',
@@ -48,37 +39,6 @@ window.__ModuleLoader__.load({
       'preview.bytes': '{bytes}',
       'preview.lines': '{count} 行',
       'preview.close': '关闭预览',
-      'preview.openInBrowser': '在浏览器中打开',
-      'preview.fullscreen': '全屏查看',
-      'preview.download': '下载',
-      'preview.downloaded': '已下载',
-      'preview.downloadFailed': '下载失败',
-      'lightbox.zoomIn': '放大',
-      'lightbox.zoomOut': '缩小',
-      'lightbox.zoomReset': '还原',
-      'lightbox.zoomLevel': '缩放比例',
-      'version.badge': '版本 {version}',
-      'version.check': '检查更新',
-      'version.checking': '正在检查更新…',
-      'version.latest': '最新版本 {version}',
-      'version.ahead': '本地版本 {version}',
-      'version.aheadNote': 'npm 上尚未发布此版本（已发布的是 {version}）',
-      'version.upToDate': '已是最新版本',
-      'version.available': '发现新版本 {version}',
-      'version.download': '下载并安装',
-      'version.downloading': '正在下载并安装…',
-      'version.installed': '已更新到 {version}，重启 DSH 后生效',
-      'version.failed': '更新失败',
-      'version.hostOutdated': '宿主未加载新版',
-      'version.hostOutdatedNote': '当前运行的宿主半边还没有版本路由，重启 DSH 后即可使用版本检测',
-      'version.restart': '重启 DSH 后生效',
-      'version.rollback': '回滚到上一版本',
-      'version.rolledBack': '已回滚，重启 DSH 后生效',
-      'version.close': '关闭',
-      'version.unknown': '未知版本',
-      'version.detail': '版本更新',
-      'version.notes': '查看更新说明',
-      'version.notesHint': '在浏览器中打开发布说明',
       'refresh': '刷新',
       'refresh.aria': '刷新产物列表',
       'refresh.busy': '刷新中…',
@@ -102,10 +62,6 @@ window.__ModuleLoader__.load({
       'favorites.unknownSession': '会话已删除',
       'favorites.prune': '清理 {count} 项失效',
       'favorites.pruneTitle': '删除已失效的收藏，并清除它们在本地存储中的记录',
-      'favorites.clear': '清空',
-      'favorites.clearTitle': '删除全部收藏，并清除它们在本地存储中的记录',
-      'favorites.clearConfirm': '确认清空？',
-      'favorites.clearConfirmTitle': '再次点击以删除全部收藏',
       'artifact.turn': '第 {turn} 轮',
       'artifact.copy': '复制内容',
       'artifact.copyPath': '复制路径',
@@ -131,14 +87,6 @@ window.__ModuleLoader__.load({
       'session.note.unreadable': 'This session log cannot be read',
       'artifact.presented': 'Delivered',
       'artifact.produced': 'Produced',
-      'filter.label': 'Kind',
-      'filter.all': 'All',
-      'filter.presented': 'Delivered',
-      'filter.produced': 'Produced',
-      'filter.allCount': '{count}',
-      'filter.presentedCount': '{count}',
-      'filter.producedCount': '{count}',
-      'filter.empty': 'No artifacts in this category',
       'empty.title': 'No artifacts yet',
       'empty.body': 'Files your sessions produce or deliver will appear here.',
       'loading': 'Reading artifacts…',
@@ -150,7 +98,6 @@ window.__ModuleLoader__.load({
       'preview.loading': 'Reading file…',
       'preview.empty': '(empty file)',
       'preview.binaryTitle': 'Binary file ({ext}, {size}) cannot be previewed',
-      'preview.imageFailed': 'The image could not be loaded (the file may have moved or exceed the preview size limit)',
       'preview.outsideTitle': 'This file lies outside the workspace and cannot be previewed',
       'preview.missingTitle': 'This file no longer exists',
       'preview.tooLargeTitle': 'This file is too large to preview (limit 512 KB)',
@@ -159,37 +106,6 @@ window.__ModuleLoader__.load({
       'preview.bytes': '{bytes}',
       'preview.lines': '{count} lines',
       'preview.close': 'Close preview',
-      'preview.openInBrowser': 'Open in browser',
-      'preview.fullscreen': 'Full screen',
-      'preview.download': 'Download',
-      'preview.downloaded': 'Downloaded',
-      'preview.downloadFailed': 'Download failed',
-      'lightbox.zoomIn': 'Zoom in',
-      'lightbox.zoomOut': 'Zoom out',
-      'lightbox.zoomReset': 'Reset',
-      'lightbox.zoomLevel': 'Zoom level',
-      'version.badge': 'Version {version}',
-      'version.check': 'Check for updates',
-      'version.checking': 'Checking for updates…',
-      'version.latest': 'Latest version {version}',
-      'version.ahead': 'Local build {version}',
-      'version.aheadNote': 'This version is not published on the registry yet ({version} is the latest release there).',
-      'version.upToDate': 'Up to date',
-      'version.available': 'Version {version} is available',
-      'version.download': 'Download and install',
-      'version.downloading': 'Downloading and installing…',
-      'version.installed': 'Updated to {version}. Restart DSH to apply.',
-      'version.failed': 'Update failed',
-      'version.hostOutdated': 'The Host has not loaded the new version',
-      'version.hostOutdatedNote': 'The Host half that is running has no version route yet. Restart DSH to enable the version check.',
-      'version.restart': 'Restart DSH to apply',
-      'version.rollback': 'Roll back to the previous version',
-      'version.rolledBack': 'Rolled back. Restart DSH to apply.',
-      'version.close': 'Close',
-      'version.unknown': 'Unknown version',
-      'version.detail': 'Version updates',
-      'version.notes': 'View release notes',
-      'version.notesHint': 'Open the release notes in your browser',
       'refresh': 'Refresh',
       'refresh.aria': 'Refresh the artifact list',
       'refresh.busy': 'Refreshing…',
@@ -213,10 +129,6 @@ window.__ModuleLoader__.load({
       'favorites.unknownSession': 'Session removed',
       'favorites.prune': 'Clean up {count} stale',
       'favorites.pruneTitle': 'Remove the stale favorites and delete their local storage records',
-      'favorites.clear': 'Clear',
-      'favorites.clearTitle': 'Remove every favorite and delete their local storage records',
-      'favorites.clearConfirm': 'Confirm clear?',
-      'favorites.clearConfirmTitle': 'Click again to remove every favorite',
       'artifact.turn': 'Turn {turn}',
       'artifact.copy': 'Copy content',
       'artifact.copyPath': 'Copy path',
@@ -410,82 +322,6 @@ window.__ModuleLoader__.load({
 .artifact-space-title{margin:0;font-size:13px;font-weight:500;line-height:18px;white-space:nowrap}
 .artifact-space-subtitle{margin:0;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .artifact-space-headSpacer{flex:1;min-width:8px}
-/* ── 版本徽章 ────────────────────────────────────────────── */
-.artifact-space-version{
-  flex:none;
-  display:inline-flex;align-items:center;gap:5px;
-  height:22px;padding:0 8px;
-  border:0;border-radius:7px;
-  background:rgba(255,255,255,.30);
-  color:var(--glass-text-tertiary);
-  font-size:11px;line-height:22px;
-  font-variant-numeric:tabular-nums;
-  white-space:nowrap;
-  cursor:pointer;
-  box-shadow:0 1px 0 rgba(255,255,255,.45) inset;
-  transition:background .12s ease-out,color .12s ease-out;
-}
-.artifact-space-version:hover{background:rgba(255,255,255,.48);color:var(--glass-text-primary)}
-.artifact-space-version:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:2px}
-/* 有新版：橙色提示，一眼可见 */
-.artifact-space-version[data-update="true"]{
-  background:rgba(255,169,77,.22);
-  color:#c2700a;
-  font-weight:500;
-}
-.artifact-space-version[data-busy="true"]{cursor:progress;opacity:.72}
-.artifact-space-versionDot{
-  width:5px;height:5px;border-radius:50%;
-  background:currentColor;flex:none;
-}
-.artifact-space-version[data-update="true"] .artifact-space-versionDot{
-  animation:artifact-space-pulse 1.6s ease-in-out infinite;
-}
-@keyframes artifact-space-pulse{0%,100%{opacity:1}50%{opacity:.35}}
-/* ── 更新卡片（展开在头部下方，不挤压头部高度） ────────── */
-.artifact-space-updateCard{
-  flex:none;
-  display:flex;align-items:center;gap:10px;
-  padding:9px 14px;
-  border-bottom:.5px solid var(--glass-edge-soft);
-  background:var(--glass-header);
-  -webkit-backdrop-filter:blur(10px) saturate(140%);
-  backdrop-filter:blur(10px) saturate(140%);
-}
-.artifact-space-updateText{
-  display:flex;flex-direction:column;gap:2px;
-  min-width:0;flex:1;
-}
-.artifact-space-updateTitle{
-  font-size:12px;font-weight:500;line-height:17px;
-  color:var(--glass-text-primary);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.artifact-space-updateNote{
-  font-size:11px;line-height:16px;
-  color:var(--glass-text-tertiary);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.artifact-space-updateActions{display:flex;align-items:center;gap:6px;flex:none}
-.artifact-space-updateBtn{
-  height:24px;padding:0 11px;
-  border:0;border-radius:7px;
-  font-size:11px;line-height:24px;
-  white-space:nowrap;cursor:pointer;
-  background:rgba(255,255,255,.42);
-  color:var(--glass-text-primary);
-  box-shadow:0 1px 0 rgba(255,255,255,.45) inset;
-  transition:background .12s ease-out,opacity .12s ease-out;
-}
-.artifact-space-updateBtn:hover{background:rgba(255,255,255,.62)}
-.artifact-space-updateBtn:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:2px}
-.artifact-space-updateBtn[data-primary="true"]{
-  background:linear-gradient(180deg,#4a8cff,#3a76e8);
-  color:#fff;font-weight:500;
-  box-shadow:0 1px 0 rgba(255,255,255,.28) inset;
-}
-.artifact-space-updateBtn[data-primary="true"]:hover{background:linear-gradient(180deg,#5597ff,#3f7ef0)}
-.artifact-space-updateBtn:disabled{opacity:.5;cursor:not-allowed}
 .artifact-space-tool{
   width:26px;height:26px;flex:none;
   display:inline-flex;align-items:center;justify-content:center;
@@ -515,53 +351,6 @@ window.__ModuleLoader__.load({
   min-width:0;
 }
 .artifact-space-refreshStamp[data-busy="true"]{color:var(--glass-accent-icon)}
-
-/* ── 分类筛选（全部 / 交付 / 产出） ─────────────────────── */
-.artifact-space-filter{
-  flex:none;
-  display:inline-flex;
-  align-items:center;
-  gap:1px;
-  height:26px;
-  padding:2px;
-  border-radius:9px;
-  background:rgba(255,255,255,.22);
-  box-shadow:0 1px 0 rgba(255,255,255,.32) inset;
-}
-.artifact-space-filterBtn{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  height:100%;
-  padding:0 8px;
-  border:0;border-radius:7px;
-  background:transparent;
-  color:var(--glass-text-tertiary);
-  font-family:var(--dsw-font-markdown-base);
-  font-size:11px;
-  line-height:14px;
-  white-space:nowrap;
-  cursor:pointer;
-  transition:background .12s ease-out,color .12s ease-out;
-}
-.artifact-space-filterBtn:hover{color:var(--glass-text-primary)}
-.artifact-space-filterBtn:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:-1px}
-/* 选中档：玻璃底 + 主色文字，一眼看出当前分类 */
-.artifact-space-filterBtn[aria-pressed="true"]{
-  background:rgba(255,255,255,.46);
-  color:var(--glass-text-primary);
-  box-shadow:0 1px 0 rgba(255,255,255,.5) inset;
-}
-.artifact-space-filterBtn[data-kind="presented"][aria-pressed="true"]{color:var(--glass-accent-icon)}
-.artifact-space-filterCount{
-  font-size:10px;
-  font-variant-numeric:tabular-nums;
-  color:var(--glass-text-tertiary);
-}
-.artifact-space-filterBtn[aria-pressed="true"] .artifact-space-filterCount{
-  color:inherit;
-  opacity:.75;
-}
 
 /* ── 搜索框 ────────────────────────────────────────────── */
 .artifact-space-search{
@@ -775,21 +564,7 @@ window.__ModuleLoader__.load({
 }
 .artifact-space-rowName[data-outside="true"]{color:var(--glass-text-secondary)}
 .artifact-space-row[data-selected="true"] .artifact-space-rowName{font-weight:500}
-.artifact-space-rowSize{flex:none;text-align:right;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);font-variant-numeric:tabular-nums;white-space:nowrap}
-/* 产物时间：与「最新的在最上面」的排序对应，鼠标悬停给出绝对时间 */
-.artifact-space-rowTime{
-  flex:none;
-  font-size:10px;
-  line-height:16px;
-  color:var(--glass-text-tertiary);
-  font-variant-numeric:tabular-nums;
-  white-space:nowrap;
-  opacity:.8;
-}
-/* 空间紧张时（窄面板 / 长文件名）先让位给文件名与大小 */
-@container (max-width:420px){
-  .artifact-space-rowTime{display:none}
-}
+.artifact-space-rowSize{flex:none;text-align:right;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);font-variant-numeric:tabular-nums}
 .artifact-space-rowMore{
   box-sizing:border-box;height:25px;
   display:flex;align-items:center;gap:6px;
@@ -818,7 +593,7 @@ window.__ModuleLoader__.load({
   backdrop-filter:blur(18px) saturate(160%);
 }
 .artifact-space-previewHead{
-  box-sizing:border-box;height:38px;flex:none;
+  box-sizing:border-box;height:32px;flex:none;
   display:flex;align-items:center;gap:8px;
   padding:0 9px 0 11px;
   border-bottom:.5px solid var(--glass-edge-soft);
@@ -863,36 +638,6 @@ window.__ModuleLoader__.load({
 /* 预览正文的玻璃内衬，强化层次 */
 .artifact-space-previewBody::selection{background:var(--glass-accent)}
 
-/* 图片预览：铺满可用区域，居中显示，图片本身不被裁切 */
-.artifact-space-previewImageWrap{
-  box-sizing:border-box;flex:1;min-height:0;
-  display:flex;align-items:center;justify-content:center;
-  margin:0;padding:12px;
-  overflow:auto;
-  background:
-    linear-gradient(45deg,rgba(255,255,255,.10) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.10) 75%),
-    linear-gradient(45deg,rgba(255,255,255,.10) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.10) 75%);
-  background-size:16px 16px;
-  background-position:0 0,8px 8px;
-}
-.artifact-space-previewImage{
-  display:block;max-width:100%;max-height:100%;
-  width:auto;height:auto;
-  object-fit:contain;
-  border-radius:6px;
-  box-shadow:0 6px 20px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.22) inset;
-}
-/* HTML 预览：文档在自己的框里滚动，边框把预览区和面板区分开 */
-.artifact-space-previewFrame{
-  box-sizing:border-box;flex:1;min-height:0;
-  width:100%;
-  border:0;
-  border-top:.5px solid var(--glass-edge-soft);
-  border-radius:var(--dsw-radius-md);
-  background:#fff;
-  box-shadow:0 1px 0 rgba(255,255,255,.45) inset;
-}
-
 /* 富文本预览（Markdown / YAML）：代码区自带滚动，正文不再重复滚动 */
 .artifact-space-previewRich{
   padding:12px 14px 16px;
@@ -906,6 +651,15 @@ window.__ModuleLoader__.load({
   box-shadow:0 1px 0 rgba(255,255,255,.35) inset;
 }
 .artifact-space-previewRich .artifact-space-mdCodeBlock{overflow-x:auto}
+
+/* HTML 预览：iframe 填满可用区域 */
+.artifact-space-previewFrame{
+  box-sizing:border-box;flex:1;min-height:0;width:100%;
+  border:0;
+  border-radius:var(--dsw-radius-md);
+  background:var(--glass-surface-strong);
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset;
+}
 
 /* 预览状态 */
 .artifact-space-previewState{
@@ -1024,23 +778,6 @@ window.__ModuleLoader__.load({
 }
 .artifact-space-favPrune:hover{background:rgba(255,255,255,.46);color:var(--glass-text-primary)}
 .artifact-space-favPrune:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-/* 清空全部：默认安静，二次确认时才亮出警告色 */
-.artifact-space-favClear{
-  padding:2px 8px;
-  border:.5px solid transparent;
-  border-radius:7px;
-  background:transparent;
-  color:var(--glass-text-tertiary);font-size:11px;line-height:16px;cursor:pointer;
-  transition:background .12s ease-out,color .12s ease-out,border-color .12s ease-out;
-}
-.artifact-space-favClear:hover{background:rgba(255,255,255,.34);color:var(--glass-text-secondary)}
-.artifact-space-favClear:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-.artifact-space-favClear[data-confirming="true"]{
-  border-color:var(--glass-error);
-  background:rgba(255,255,255,.42);
-  color:var(--glass-error);
-  font-weight:500;
-}
 
 .artifact-space-favList{margin:0;padding:0 6px;list-style:none;display:flex;flex-direction:column;gap:1px}
 .artifact-space-favItem{
@@ -1138,38 +875,31 @@ window.__ModuleLoader__.load({
   font-size:11px;line-height:16px;
   color:var(--glass-text-secondary);
 }
-.artifact-space-metaTime{
-  flex:none;
-  font-size:10px;line-height:15px;
-  color:var(--glass-text-tertiary);
-  font-variant-numeric:tabular-nums;
-  white-space:nowrap;
-}
 
 /* ═══════════════════════════════════════════════════════════
    预览区操作（复制内容 / 复制路径）
    ═══════════════════════════════════════════════════════════ */
 .artifact-space-previewActions{
-  display:inline-flex;align-items:center;gap:5px;
+  display:inline-flex;align-items:center;gap:4px;
   flex:none;
 }
 .artifact-space-previewAction{
   box-sizing:border-box;
-  height:27px;
-  display:inline-flex;align-items:center;gap:5px;
-  padding:0 9px;
+  height:22px;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:0 6px;
   border:.5px solid transparent;
-  border-radius:8px;
+  border-radius:7px;
   background:rgba(255,255,255,.26);
   color:var(--glass-text-secondary);
   cursor:pointer;
-  font-size:12px;line-height:18px;
+  font-size:11px;line-height:16px;
   white-space:nowrap;
   transition:background .12s ease-out,color .12s ease-out,border-color .12s ease-out;
 }
 .artifact-space-previewAction:hover{background:rgba(255,255,255,.46);color:var(--glass-text-primary)}
 .artifact-space-previewAction:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-.artifact-space-previewAction svg{width:13.5px;height:13.5px;flex:none}
+.artifact-space-previewAction svg{width:12px;height:12px;flex:none}
 .artifact-space-previewAction[data-state="ok"]{
   border-color:var(--glass-accent-edge);
   background:var(--glass-accent);
@@ -1179,108 +909,7 @@ window.__ModuleLoader__.load({
   border-color:var(--glass-error);
   color:var(--glass-error);
 }
-.artifact-space-previewActionLabel{font-size:12px;line-height:18px}
-
-/* 图片灯箱：全屏查看时覆盖整个视口 */
-.artifact-space-lightbox{
-  position:fixed;inset:0;z-index:2147483000;
-  display:flex;align-items:center;justify-content:center;
-  padding:32px;
-  background:rgba(16,18,32,.72);
-  -webkit-backdrop-filter:blur(6px);
-  backdrop-filter:blur(6px);
-  cursor:zoom-out;
-}
-.artifact-space-lightboxImage{
-  max-width:100%;max-height:100%;
-  width:auto;height:auto;
-  object-fit:contain;
-  border-radius:8px;
-  box-shadow:0 20px 60px rgba(0,0,0,.5);
-  cursor:default;
-  /* The zoom is applied as a transform so the picture keeps its natural
-     resolution while the scale readout stays cheap to update. */
-  transform:scale(1);
-  transform-origin:center center;
-  transition:transform .12s ease-out;
-  will-change:transform;
-}
-.artifact-space-lightbox[data-zooming="true"] .artifact-space-lightboxImage{
-  transition:none;
-}
-.artifact-space-lightbox[data-zoomed="true"]{
-  cursor:grab;
-}
-.artifact-space-lightbox[data-zoomed="true"] .artifact-space-lightboxImage{
-  cursor:grab;
-}
-.artifact-space-lightbox[data-panning="true"]{
-  cursor:grabbing;
-}
-.artifact-space-lightbox[data-panning="true"] .artifact-space-lightboxImage{
-  cursor:grabbing;
-}
-.artifact-space-lightboxBar{
-  position:absolute;top:0;left:0;right:0;
-  display:flex;align-items:center;gap:12px;
-  padding:14px 18px;
-  color:#fff;
-}
-.artifact-space-lightboxTitle{
-  flex:1;min-width:0;
-  font-size:13px;line-height:18px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  text-shadow:0 1px 4px rgba(0,0,0,.6);
-}
-.artifact-space-lightboxMeta{
-  flex:none;
-  font-size:12px;line-height:18px;
-  opacity:.78;
-  text-shadow:0 1px 4px rgba(0,0,0,.6);
-}
-.artifact-space-lightboxZoom{
-  flex:none;
-  display:inline-flex;align-items:center;gap:4px;
-}
-.artifact-space-lightboxZoomButton{
-  flex:none;
-  width:30px;height:30px;
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:0;
-  border:.5px solid rgba(255,255,255,.28);
-  border-radius:8px;
-  background:rgba(255,255,255,.14);
-  color:#fff;
-  cursor:pointer;
-}
-.artifact-space-lightboxZoomButton:hover{background:rgba(255,255,255,.28)}
-.artifact-space-lightboxZoomButton:focus-visible{outline:2px solid rgba(255,255,255,.7);outline-offset:1px}
-.artifact-space-lightboxZoomButton:disabled{opacity:.4;cursor:default}
-.artifact-space-lightboxZoomButton:disabled:hover{background:rgba(255,255,255,.14)}
-.artifact-space-lightboxZoomButton svg{width:14px;height:14px;flex:none}
-.artifact-space-lightboxZoomLevel{
-  flex:none;
-  min-width:46px;
-  text-align:center;
-  font-size:12px;line-height:18px;
-  font-variant-numeric:tabular-nums;
-  opacity:.86;
-  text-shadow:0 1px 4px rgba(0,0,0,.6);
-}
-.artifact-space-lightboxClose{
-  flex:none;
-  width:30px;height:30px;
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:0;
-  border:.5px solid rgba(255,255,255,.28);
-  border-radius:8px;
-  background:rgba(255,255,255,.14);
-  color:#fff;
-  cursor:pointer;
-}
-.artifact-space-lightboxClose:hover{background:rgba(255,255,255,.28)}
-.artifact-space-lightboxClose:focus-visible{outline:2px solid rgba(255,255,255,.7);outline-offset:1px}
-.artifact-space-lightboxClose svg{width:14px;height:14px;flex:none}
+.artifact-space-previewActionLabel{font-size:11px;line-height:16px}
 
 /* ═══════════════════════════════════════════════════════════
    编辑器样式代码区（对齐 WorkBuddy 的 sc-code-* 规范：
@@ -1464,13 +1093,10 @@ window.__ModuleLoader__.load({
 }
 `;
 
-    // The style tag is keyed by the package name so two versions of this
-    // plugin cannot fight over one stylesheet.
-    const PLUGIN_NAME = '@xxjxx/artifact-space';
-    const styleTagId = `${PLUGIN_NAME}/artifact-space.css`;
+    const styleTagId = '@local/artifact-space/artifact-space.css';
     if (typeof document !== 'undefined' && document.querySelector(`style[data-plugin-css=${JSON.stringify(styleTagId)}]`) === null) {
       const tag = document.createElement('style');
-      tag.dataset.plugin = PLUGIN_NAME;
+      tag.dataset.plugin = '@local/artifact-space';
       tag.dataset.pluginCss = styleTagId;
       tag.textContent = CSS;
       document.head.appendChild(tag);
@@ -1479,229 +1105,6 @@ window.__ModuleLoader__.load({
     const cx = (...parts) => parts.filter(Boolean).join(' ');
 
     /* ── Clipboard ─────────────────────────────────────────────────────── */
-
-    /**
-     * Open an HTML preview in a real browser tab.
-     *
-     * The panel renders the document inside a sandboxed frame, which is right
-     * for reading but wrong for a document the reader wants to print, share or
-     * open at full width. The URL is the same authenticated route the frame
-     * uses, so the tab shows the same document the panel shows.
-     *
-     * @param {string} url - the browser-relative document URL.
-     * @returns {void}
-     */
-    function openInBrowser(url) {
-      if (typeof url !== 'string' || url === '') return;
-      if (typeof window === 'undefined' || typeof window.open !== 'function') return;
-      // `noopener` keeps the opened tab from reaching back into the panel.
-      window.open(url, '_blank', 'noopener');
-    }
-
-    /**
-     * Collect the labels the lightbox needs from the panel's translator.
-     *
-     * The overlay is built with plain DOM calls, so it cannot read the
-     * translation hook itself; the caller hands the strings over instead.
-     *
-     * @param {(key: string) => string} t - the panel's translator.
-     * @returns {{ zoomIn: string, zoomOut: string, zoomReset: string, zoomLevel: string }}
-     */
-    function lightboxLabels(t) {
-      const read = (key) => {
-        try {
-          const value = typeof t === 'function' ? t(key) : '';
-          return typeof value === 'string' ? value : '';
-        } catch (error) {
-          return '';
-        }
-      };
-      return {
-        zoomIn: read('lightbox.zoomIn'),
-        zoomOut: read('lightbox.zoomOut'),
-        zoomReset: read('lightbox.zoomReset'),
-        zoomLevel: read('lightbox.zoomLevel'),
-      };
-    }
-
-    /**
-     * Show a picture full screen.
-     *
-     * The overlay is built with the DOM directly and hung off `document.body`
-     * rather than rendered by React inside the panel. The panel's own shell
-     * carries a `backdrop-filter`, and such an element becomes the containing
-     * block for `position: fixed` descendants — a React-rendered overlay
-     * would be clipped to the panel instead of covering the window.
-     *
-     * @param {string} src - the picture's URL.
-     * @param {string} name - the file name, shown in the overlay bar.
-     * @param {string} meta - the dimensions and size, shown in the overlay bar.
-     * @param {{ zoomIn: string, zoomOut: string, zoomReset: string, zoomLevel: string }} labels
-     *   Localised labels for the zoom controls.
-     * @returns {void}
-     */
-    function openLightbox(src, name, meta, labels) {
-      if (typeof document === 'undefined' || typeof document.createElement !== 'function') return;
-      if (typeof src !== 'string' || src === '') return;
-
-      const text = labels && typeof labels === 'object' ? labels : {};
-
-      const overlay = document.createElement('div');
-      overlay.className = 'artifact-space-lightbox';
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-modal', 'true');
-      overlay.setAttribute('aria-label', typeof name === 'string' ? name : 'image');
-
-      const bar = document.createElement('div');
-      bar.className = 'artifact-space-lightboxBar';
-
-      const title = document.createElement('span');
-      title.className = 'artifact-space-lightboxTitle';
-      title.textContent = typeof name === 'string' ? name : '';
-
-      const info = document.createElement('span');
-      info.className = 'artifact-space-lightboxMeta';
-      info.textContent = typeof meta === 'string' ? meta : '';
-
-      /* ── Zoom controls ────────────────────────────────────────────────
-         The picture is scaled with a transform instead of width/height so
-         the original resolution is kept and zooming stays cheap. */
-
-      const zoom = document.createElement('div');
-      zoom.className = 'artifact-space-lightboxZoom';
-
-      const MIN_SCALE = 0.2;
-      const MAX_SCALE = 8;
-      const STEP = 1.25;
-      let scale = 1;
-
-      const makeZoomButton = (label, ariaLabel, path, onClick) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'artifact-space-lightboxZoomButton';
-        button.setAttribute('aria-label', ariaLabel);
-        button.title = ariaLabel;
-        button.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="${path}"/></svg>`;
-        button.addEventListener('click', (event) => {
-          event.stopPropagation();
-          onClick();
-        });
-        zoom.appendChild(button);
-        return button;
-      };
-
-      const level = document.createElement('span');
-      level.className = 'artifact-space-lightboxZoomLevel';
-      level.setAttribute('aria-label', typeof text.zoomLevel === 'string' ? text.zoomLevel : 'Zoom level');
-
-      const zoomOutButton = makeZoomButton(
-        text.zoomOut, text.zoomOut,
-        'M3 8h10',
-        () => setScale(scale / STEP),
-      );
-      makeZoomButton(
-        text.zoomIn, text.zoomIn,
-        'M8 3v10M3 8h10',
-        () => setScale(scale * STEP),
-      );
-      makeZoomButton(
-        text.zoomReset, text.zoomReset,
-        'M3 8a5 5 0 1 0 1.6-3.7M3 3v3h3',
-        () => setScale(1),
-      );
-      zoom.appendChild(level);
-
-      const close = document.createElement('button');
-      close.type = 'button';
-      close.className = 'artifact-space-lightboxClose';
-      close.setAttribute('aria-label', 'Close');
-      close.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
-
-      const picture = document.createElement('img');
-      picture.className = 'artifact-space-lightboxImage';
-      picture.src = src;
-      picture.alt = typeof name === 'string' ? name : 'image';
-
-      function setScale(next) {
-        const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Number(next) || 1));
-        scale = clamped;
-        picture.style.transform = `scale(${scale})`;
-        level.textContent = `${Math.round(scale * 100)}%`;
-        overlay.setAttribute('data-zoomed', scale > 1 ? 'true' : 'false');
-        zoomOutButton.disabled = scale <= MIN_SCALE + 1e-6;
-      }
-
-      bar.appendChild(title);
-      bar.appendChild(info);
-      bar.appendChild(zoom);
-      bar.appendChild(close);
-      overlay.appendChild(bar);
-      overlay.appendChild(picture);
-
-      const dismiss = () => {
-        overlay.remove();
-        document.removeEventListener('keydown', onKeyDown);
-      };
-      const onKeyDown = (event) => {
-        if (event.key === 'Escape') dismiss();
-        else if (event.key === '+' || event.key === '=') setScale(scale * STEP);
-        else if (event.key === '-') setScale(scale / STEP);
-        else if (event.key === '0') setScale(1);
-      };
-      // Clicking the backdrop closes it; clicking the picture does not, so the
-      // picture can be looked at closely without dismissing it by accident.
-      overlay.addEventListener('click', (event) => {
-        if (event.target === overlay) dismiss();
-      });
-      close.addEventListener('click', dismiss);
-      document.addEventListener('keydown', onKeyDown);
-
-      // The wheel zooms around the pointer, so the spot under the cursor stays
-      // put — the behaviour every image viewer has.
-      overlay.addEventListener('wheel', (event) => {
-        event.preventDefault();
-        const factor = event.deltaY < 0 ? STEP : 1 / STEP;
-        setScale(scale * factor);
-      }, { passive: false });
-
-      setScale(1);
-      document.body.appendChild(overlay);
-    }
-
-    /**
-     * Save a picture to the local disk.
-     *
-     * The bytes are fetched from the Host's own image route and handed to the
-     * browser as an object URL, so the file keeps its real name and type
-     * instead of arriving as a numbered download.
-     *
-     * @param {string} url - the image route URL.
-     * @param {string} name - the file name to save under.
-     * @returns {Promise<boolean>} whether the download was started.
-     */
-    async function downloadArtifact(url, name) {
-      if (typeof url !== 'string' || url === '') return false;
-      if (typeof fetch !== 'function' || typeof document === 'undefined') return false;
-      try {
-        const response = await fetch(url);
-        if (!response.ok) return false;
-        const blob = await response.blob();
-        if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return false;
-        const objectUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = objectUrl;
-        link.download = typeof name === 'string' && name !== '' ? name : 'artifact';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        // The object URL is released on the next tick, once the browser has
-        // picked the download up.
-        setTimeout(() => URL.revokeObjectURL(objectUrl), 4000);
-        return true;
-      } catch {
-        return false;
-      }
-    }
 
     /**
      * Put text on the clipboard.
@@ -1921,8 +1324,7 @@ window.__ModuleLoader__.load({
       const description = typeof artifact?.description === 'string' && artifact.description.trim() !== ''
         ? artifact.description.trim()
         : null;
-      const producedAt = Number.isFinite(artifact?.producedAt) ? artifact.producedAt : null;
-      if (kind === null && turn === null && description === null && producedAt === null) return null;
+      if (kind === null && turn === null && description === null) return null;
 
       return h('span', { className: cx('artifact-space-meta') }, [
         kind !== null
@@ -1935,13 +1337,6 @@ window.__ModuleLoader__.load({
         turn !== null
           ? h('span', { key: 'turn', className: cx('artifact-space-metaTurn') },
             t('artifact.turn', { turn: String(turn) }))
-          : null,
-        producedAt !== null
-          ? h('span', {
-            key: 'time',
-            className: cx('artifact-space-metaTime'),
-            title: absoluteTime(producedAt),
-          }, relativeTime(t, producedAt))
           : null,
         description !== null
           ? h('span', { key: 'desc', className: cx('artifact-space-metaDesc'), title: description }, description)
@@ -1992,11 +1387,6 @@ window.__ModuleLoader__.load({
     /** Browser-relative form of a Host route; the page is served from an app base path. */
     const ROWS_ROUTE = 'api/artifact-space.rows';
     const READ_ROUTE = 'api/artifact-space.read';
-    const IMAGE_ROUTE = 'api/artifact-space.image';
-    const HTML_ROUTE = 'api/artifact-space.html';
-    const VERSION_ROUTE = 'api/artifact-space.version';
-    const UPDATE_ROUTE = 'api/artifact-space.update';
-    const ROLLBACK_ROUTE = 'api/artifact-space.rollback';
 
     /**
      * Fetch-once cache of the grouped artifact rows.
@@ -2065,167 +1455,6 @@ window.__ModuleLoader__.load({
         reload() {
           if (inflight !== null) return inflight;
           return read('refresh');
-        },
-        dispose() {
-          lifetime.abort();
-        },
-      };
-    }
-
-    /**
-     * Should opening the update card consult the registry right now?
-     *
-     * The registry is consulted the first time the card is opened, and again
-     * after a failed attempt — a reader who clicks again means to try again.
-     * Two situations are excluded:
-     *
-     * - the registry has already answered, so the answer is still good;
-     * - the Host half is stale, because only a restart can fix that, and
-     *   retrying would merely repeat the same failure.
-     *
-     * @param {object} version - the version state.
-     * @param {boolean} opening - whether this click opens the card.
-     * @returns {boolean} true when a registry check should be started.
-     */
-    function shouldCheckForUpdates(version, opening) {
-      if (!opening) return false;
-      if (version?.checked === true) return false;
-      if (version?.error === 'host-outdated') return false;
-      return true;
-    }
-
-    /**
-     * The installed version and, when it was asked for, the newest published one.
-     *
-     * The registry is only consulted on an explicit check: the panel opens
-     * without touching the network, and the reader decides when to look.
-     */
-    function createVersionStore() {
-      const listeners = new Set();
-      const lifetime = new AbortController();
-      let state = {
-        status: 'idle',
-        current: null,
-        latest: null,
-        updateAvailable: false,
-        // True when the running build is newer than what the registry
-        // publishes — a version installed before it went out.
-        ahead: false,
-        checked: false,
-        error: null,
-      };
-      let inflight = null;
-
-      const publish = () => {
-        for (const listener of [...listeners]) listener();
-      };
-      const set = (next) => {
-        state = next;
-        publish();
-      };
-
-      /** Ask the Host for the version, optionally consulting the registry. */
-      const read = (check) => {
-        if (inflight !== null) return inflight;
-        const marker = {};
-        inflight = marker;
-        const url = check ? `${VERSION_ROUTE}?check=1` : VERSION_ROUTE;
-        const task = fetch(url, { signal: lifetime.signal, cache: 'no-store' })
-          .then(async (response) => {
-            // 404 means the Host half that is running predates the version
-            // routes — the browser half hot-reloaded but the Host did not.
-            // That is a restart, not a failure, and the reader has to be told.
-            if (response.status === 404) {
-              set({ ...state, status: 'error', error: 'host-outdated' });
-              return;
-            }
-            if (!response.ok) throw new Error(`version read failed: ${response.status}`);
-            const value = await response.json();
-            set({
-              status: 'ready',
-              current: typeof value?.current === 'string' ? value.current : null,
-              latest: typeof value?.latest === 'string' ? value.latest : null,
-              updateAvailable: value?.updateAvailable === true,
-              ahead: value?.ahead === true,
-              checked: value?.checked === true,
-              error: typeof value?.error === 'string' ? value.error : null,
-            });
-          })
-          .catch(() => {
-            if (!lifetime.signal.aborted) {
-              set({ ...state, status: 'error', error: 'version-unavailable' });
-            }
-          })
-          .finally(() => {
-            if (inflight === marker) inflight = null;
-          });
-        return task;
-      };
-
-      /** Run an operation on the Host and fold its answer into the state. */
-      const run = (route, busy) => {
-        if (inflight !== null) return inflight;
-        const marker = {};
-        inflight = marker;
-        set({ ...state, status: busy });
-        const task = fetch(route, { signal: lifetime.signal, cache: 'no-store' })
-          .then(async (response) => {
-            const value = await response.json().catch(() => null);
-            if (!response.ok) {
-              set({ ...state, status: 'error', error: value?.error ?? 'update-failed' });
-              return;
-            }
-            if (value?.restored === true) {
-              set({ ...state, status: 'rolled-back' });
-              return;
-            }
-            if (value?.updated === true) {
-              set({
-                ...state,
-                status: 'updated',
-                current: typeof value?.version === 'string' ? value.version : state.current,
-                latest: typeof value?.version === 'string' ? value.version : state.latest,
-                updateAvailable: false,
-                error: null,
-              });
-              return;
-            }
-            if (value?.reason === 'already-current') {
-              set({ ...state, status: 'ready', updateAvailable: false, error: null });
-              return;
-            }
-            set({ ...state, status: 'error', error: value?.error ?? 'update-failed' });
-          })
-          .catch(() => {
-            if (!lifetime.signal.aborted) set({ ...state, status: 'error', error: 'update-failed' });
-          })
-          .finally(() => {
-            if (inflight === marker) inflight = null;
-          });
-        return task;
-      };
-
-      return {
-        getSnapshot: () => state,
-        subscribe: (listener) => {
-          listeners.add(listener);
-          return () => { listeners.delete(listener); };
-        },
-        /** Read the installed version without touching the network. */
-        load() {
-          return read(false);
-        },
-        /** Ask the registry whether a newer version exists. */
-        check() {
-          return read(true);
-        },
-        /** Download and install the newest published version. */
-        install() {
-          return run(UPDATE_ROUTE, 'updating');
-        },
-        /** Restore the installation from the backup the last upgrade left. */
-        rollback() {
-          return run(ROLLBACK_ROUTE, 'rolling-back');
         },
         dispose() {
           lifetime.abort();
@@ -2317,17 +1546,6 @@ window.__ModuleLoader__.load({
 
     /** The snapshot used when no favorites store is available. */
     const EMPTY_FAVORITES = new Map();
-
-    /** The version state a panel renders before the Host has answered. */
-    const EMPTY_VERSION = {
-      status: 'idle',
-      current: null,
-      latest: null,
-      updateAvailable: false,
-      ahead: false,
-      checked: false,
-      error: null,
-    };
 
     /**
      * The favorites store: artifacts the reader marked worth keeping.
@@ -2549,7 +1767,7 @@ window.__ModuleLoader__.load({
           }
         },
       }, [
-        h('span', { key: 'icon' }, artifact.image || artifact.binary ? imageIcon() : docIcon()),
+        h('span', { key: 'icon' }, artifact.binary ? imageIcon() : docIcon()),
         h('span', {
           key: 'name',
           className: cx('artifact-space-rowName'),
@@ -2558,13 +1776,6 @@ window.__ModuleLoader__.load({
           ? h('mark', { key: `m${index}`, className: cx('artifact-space-hit') }, piece.text)
           : h('span', { key: `t${index}` }, piece.text)))),
         artifactKind(artifact, t),
-        Number.isFinite(artifact.producedAt)
-          ? h('span', {
-            key: 'time',
-            className: cx('artifact-space-rowTime'),
-            title: absoluteTime(artifact.producedAt),
-          }, relativeTime(t, artifact.producedAt))
-          : null,
         h('span', { key: 'size', className: cx('artifact-space-rowSize') }, formatBytes(artifact.bytes)),
         onToggleFavorite === null ? null : h('button', {
           key: 'star',
@@ -2709,10 +1920,6 @@ window.__ModuleLoader__.load({
     function WorkspaceGroup({ group, open, onToggle, selected, onSelect, t, expandedSessions, onToggleSession, foldedSessions, onToggleFolded, searchParts, favorites, onToggleFavorite }) {
       const title = group.grouped ? group.title : t('group.ungrouped');
       const toggle = () => onToggle(group.workspaceId || 'ungrouped');
-      // The count follows what the group actually shows, so a category filter
-      // narrows the number instead of contradicting the list below it.
-      const visibleCount = (Array.isArray(group.sessions) ? group.sessions : [])
-        .reduce((sum, session) => sum + session.artifacts.length, 0);
       return h('section', { className: cx('artifact-space-group'), 'data-workspace-group': group.workspaceId || 'ungrouped' }, [
         h('div', {
           key: 'head',
@@ -2747,7 +1954,7 @@ window.__ModuleLoader__.load({
               ? h('mark', { key: `m${index}`, className: cx('artifact-space-hit') }, piece.text)
               : h('span', { key: `t${index}` }, piece.text)))),
           h('span', { key: 'meta', className: cx('artifact-space-groupMeta') },
-            t('group.count', { count: String(visibleCount) })),
+            t('group.count', { count: String(group.artifactCount ?? 0) })),
           h('span', {
             key: 'time',
             className: cx('artifact-space-groupTime'),
@@ -2780,7 +1987,7 @@ window.__ModuleLoader__.load({
      * — the reader may want to know it is gone — but it cannot be opened,
      * and the reader can drop the stale entries in one go.
      */
-    function FavoritesList({ favorites, rows, onSelect, onToggleFavorite, onPrune, onClear, t, searchParts }) {
+    function FavoritesList({ favorites, rows, onSelect, onToggleFavorite, onPrune, t, searchParts }) {
       // The live rows, indexed by the same key the favorites use, so a
       // favorite can be matched back to the artifact it points at.
       const live = new Map();
@@ -2791,15 +1998,6 @@ window.__ModuleLoader__.load({
           }
         }
       }
-
-      // Clearing every favorite is destructive, so the button asks first and
-      // reverts to its quiet state when the reader looks away.
-      const [confirming, setConfirming] = React.useState(false);
-      React.useEffect(() => {
-        if (!confirming) return undefined;
-        const timer = setTimeout(() => setConfirming(false), 4000);
-        return () => clearTimeout(timer);
-      }, [confirming]);
 
       const entries = [];
       let staleCount = 0;
@@ -2832,24 +2030,6 @@ window.__ModuleLoader__.load({
             title: t('favorites.pruneTitle'),
             onClick: onPrune,
           }, t('favorites.prune', { count: String(staleCount) })) : null,
-          onClear !== null ? h('button', {
-            key: 'clear',
-            type: 'button',
-            className: cx('artifact-space-favClear'),
-            'data-confirming': confirming ? 'true' : 'false',
-            'aria-label': confirming ? t('favorites.clearConfirm') : t('favorites.clear'),
-            title: confirming ? t('favorites.clearConfirmTitle') : t('favorites.clearTitle'),
-            onClick: () => {
-              // The first click arms the action; the second one carries it out.
-              if (!confirming) {
-                setConfirming(true);
-                return;
-              }
-              setConfirming(false);
-              onClear();
-            },
-            onBlur: () => setConfirming(false),
-          }, confirming ? t('favorites.clearConfirm') : t('favorites.clear')) : null,
         ]),
         h('ul', { key: 'list', className: cx('artifact-space-favList') }, entries.map((entry) => {
         const { key, item, match, name } = entry;
@@ -2940,17 +2120,9 @@ window.__ModuleLoader__.load({
      */
     function PreviewPane({ artifact, sessionId, store, onClose, t }) {
       const path = typeof artifact?.path === 'string' ? artifact.path : '';
-      // A picture is loaded straight from the image route as bytes, so it never
-      // asks the text route for a preview and never costs a text round trip.
-      const image = artifact?.image === true;
       const binary = artifact?.binary === true;
       const outside = artifact?.outsideWorkspace === true;
-      // An HTML document is rendered as a page rather than read as source, so
-      // it never asks the text route for a preview. The host marks the row as
-      // HTML, and the extension is checked as well, so the page keeps working
-      // even when the host is older than the panel and sends no such mark.
-      const html = artifact?.html === true || detectFormat(artifact) === 'html';
-      const readable = !binary && !outside && !image && !html;
+      const readable = !binary && !outside;
 
       const state = React.useSyncExternalStore(
         store.subscribe,
@@ -2976,240 +2148,6 @@ window.__ModuleLoader__.load({
         }
         writeClipboard(text).then((ok) => setCopied(`${what}:${ok ? 'ok' : 'failed'}`));
       };
-
-      if (image && !outside) {
-        // The Host serves the picture's own bytes under its own media type, so
-        // the browser renders it without the preview ever holding the file.
-        const src = `${IMAGE_ROUTE}?${new URLSearchParams({ sessionId, path }).toString()}`;
-        const [imageState, setImageState] = React.useState('loading');
-        const [dimensions, setDimensions] = React.useState(null);
-        const sizeLabel = dimensions === null
-          ? formatBytes(artifact.bytes)
-          : `${dimensions.width}×${dimensions.height} · ${formatBytes(artifact.bytes)}`;
-        return h('div', { className: cx('artifact-space-preview'), 'data-state': 'image' }, [
-          h('div', { key: 'head', className: cx('artifact-space-previewHead') }, [
-            h('span', { key: 'title', className: cx('artifact-space-previewTitle') }, artifact.name),
-            h('span', { key: 'meta', className: cx('artifact-space-previewMeta') }, sizeLabel),
-            h('div', { key: 'actions', className: cx('artifact-space-previewActions') }, [
-              h('button', {
-                key: 'fullscreen',
-                type: 'button',
-                className: cx('artifact-space-previewAction'),
-                'aria-label': t('preview.fullscreen'),
-                title: t('preview.fullscreen'),
-                onClick: () => openLightbox(src, artifact.name, sizeLabel, lightboxLabels(t)),
-              }, [
-                h('svg', {
-                  key: 'icon',
-                  viewBox: '0 0 16 16',
-                  width: 13.5,
-                  height: 13.5,
-                  fill: 'none',
-                  stroke: 'currentColor',
-                  strokeWidth: 1.3,
-                  strokeLinecap: 'round',
-                  strokeLinejoin: 'round',
-                  'aria-hidden': true,
-                }, [
-                  h('path', { key: 'p', d: 'M6 2H2v4M10 2h4v4M6 14H2v-4M10 14h4v-4' }),
-                ]),
-                h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') }, t('preview.fullscreen')),
-              ]),
-              h('button', {
-                key: 'download',
-                type: 'button',
-                className: cx('artifact-space-previewAction'),
-                'data-state': copied !== null && copied.startsWith('download:') ? copied.slice('download:'.length) : null,
-                'aria-label': t('preview.download'),
-                title: t('preview.download'),
-                onClick: async () => {
-                  const ok = await downloadArtifact(src, artifact.name);
-                  setCopied(`download:${ok ? 'ok' : 'failed'}`);
-                },
-              }, [
-                h('svg', {
-                  key: 'icon',
-                  viewBox: '0 0 16 16',
-                  width: 13.5,
-                  height: 13.5,
-                  fill: 'none',
-                  stroke: 'currentColor',
-                  strokeWidth: 1.3,
-                  strokeLinecap: 'round',
-                  strokeLinejoin: 'round',
-                  'aria-hidden': true,
-                }, [
-                  h('path', { key: 'p', d: 'M8 2v8M5 7l3 3 3-3M3 13h10' }),
-                ]),
-                h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') },
-                  copied !== null && copied.startsWith('download:')
-                    ? (copied === 'download:ok' ? t('preview.downloaded') : t('preview.downloadFailed'))
-                    : t('preview.download')),
-              ]),
-              h('button', {
-                key: 'copyPath',
-                type: 'button',
-                className: cx('artifact-space-previewAction'),
-                'data-state': copied !== null && copied.startsWith('path:') ? copied.slice('path:'.length) : null,
-                'aria-label': t('artifact.copyPath'),
-                title: t('artifact.copyPath'),
-                onClick: () => copy(artifact.absolutePath ?? '', 'path'),
-              }, [
-                h('svg', {
-                  key: 'icon',
-                  viewBox: '0 0 16 16',
-                  width: 13.5,
-                  height: 13.5,
-                  fill: 'none',
-                  stroke: 'currentColor',
-                  strokeWidth: 1.3,
-                  strokeLinecap: 'round',
-                  strokeLinejoin: 'round',
-                  'aria-hidden': true,
-                }, [
-                  h('path', { key: 'p', d: 'M6.4 9.6a2.6 2.6 0 003.9.3l2-2a2.6 2.6 0 00-3.7-3.7l-1.1 1.1' }),
-                  h('path', { key: 'p2', d: 'M9.6 6.4a2.6 2.6 0 00-3.9-.3l-2 2a2.6 2.6 0 003.7 3.7l1.1-1.1' }),
-                ]),
-                copied !== null && copied.startsWith('path:')
-                  ? h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') },
-                    copied === 'path:ok' ? t('artifact.copiedPath') : t('artifact.copyFailed'))
-                  : null,
-              ]),
-            ]),
-            h('button', {
-              key: 'close',
-              type: 'button',
-              className: cx('artifact-space-previewClose'),
-              'aria-label': t('preview.close'),
-              onClick: onClose,
-            }, h('svg', {
-              viewBox: '0 0 16 16',
-              width: 12,
-              height: 12,
-              fill: 'none',
-              stroke: 'currentColor',
-              strokeWidth: 1.4,
-              strokeLinecap: 'round',
-              'aria-hidden': true,
-            }, h('path', { key: 'p', d: 'M4 4l8 8M12 4l-8 8' }))),
-          ]),
-          imageState === 'error'
-            ? h(PreviewState, {
-              key: 'state',
-              kind: 'binary',
-              title: t('preview.imageFailed'),
-              text: artifact.absolutePath,
-            })
-            : h('div', { key: 'body', className: cx('artifact-space-previewImageWrap') }, [
-              h('img', {
-                key: 'img',
-                className: cx('artifact-space-previewImage'),
-                src,
-                alt: artifact.name,
-                title: t('preview.fullscreen'),
-                onClick: () => openLightbox(src, artifact.name, sizeLabel, lightboxLabels(t)),
-                onLoad: (event) => {
-                  const node = event.currentTarget;
-                  setDimensions({ width: node.naturalWidth, height: node.naturalHeight });
-                  setImageState('ready');
-                },
-                onError: () => setImageState('error'),
-              }),
-            ]),
-        ]);
-      }
-
-      if (html && !outside) {
-        // The Host serves the document with its relative references rewritten
-        // into authenticated asset URLs, so the page renders inside the panel
-        // exactly as it does in a browser tab — pictures and all.
-        const src = `${HTML_ROUTE}?${new URLSearchParams({ sessionId, path }).toString()}`;
-        return h('div', { className: cx('artifact-space-preview'), 'data-state': 'html' }, [
-          h('div', { key: 'head', className: cx('artifact-space-previewHead') }, [
-            h('span', { key: 'title', className: cx('artifact-space-previewTitle'), title: artifact.absolutePath }, artifact.name),
-            artifactMeta(artifact, t),
-            h('span', { key: 'meta', className: cx('artifact-space-previewMeta') },
-              formatBytes(artifact.bytes)),
-            h('div', { key: 'actions', className: cx('artifact-space-previewActions') }, [
-              h('button', {
-                key: 'open',
-                type: 'button',
-                className: cx('artifact-space-previewAction'),
-                'aria-label': t('preview.openInBrowser'),
-                title: t('preview.openInBrowser'),
-                onClick: () => openInBrowser(src),
-              }, [
-                h('svg', {
-                  key: 'icon',
-                  viewBox: '0 0 16 16',
-                  width: 12,
-                  height: 12,
-                  fill: 'none',
-                  stroke: 'currentColor',
-                  strokeWidth: 1.3,
-                  strokeLinecap: 'round',
-                  strokeLinejoin: 'round',
-                  'aria-hidden': true,
-                }, h('path', { key: 'p', d: 'M6.5 3H3.8a1.3 1.3 0 00-1.3 1.3v7.4A1.3 1.3 0 003.8 13h7.4a1.3 1.3 0 001.3-1.3V9M9.2 2.6h4.2v4.2M13.4 2.6L7.6 8.4' })),
-                h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') }, t('preview.openInBrowser')),
-              ]),
-              h('button', {
-                key: 'copyPath',
-                type: 'button',
-                className: cx('artifact-space-previewAction'),
-                'data-state': copied !== null && copied.startsWith('path:') ? copied.slice('path:').slice(0) : null,
-                'aria-label': t('artifact.copyPath'),
-                title: t('artifact.copyPath'),
-                onClick: () => copy(artifact.absolutePath ?? '', 'path'),
-              }, [
-                h('svg', {
-                  key: 'icon',
-                  viewBox: '0 0 16 16',
-                  width: 12,
-                  height: 12,
-                  fill: 'none',
-                  stroke: 'currentColor',
-                  strokeWidth: 1.3,
-                  strokeLinecap: 'round',
-                  strokeLinejoin: 'round',
-                  'aria-hidden': true,
-                }, [
-                  h('path', { key: 'p', d: 'M6.4 9.6a2.6 2.6 0 003.9.3l2-2a2.6 2.6 0 00-3.7-3.7l-1.1 1.1' }),
-                  h('path', { key: 'p2', d: 'M9.6 6.4a2.6 2.6 0 00-3.9-.3l-2 2a2.6 2.6 0 003.7 3.7l1.1-1.1' }),
-                ]),
-                copied !== null && copied.startsWith('path:')
-                  ? h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') },
-                    copied === 'path:ok' ? t('artifact.copiedPath') : t('artifact.copyFailed'))
-                  : null,
-              ]),
-            ]),
-            h('button', {
-              key: 'close',
-              type: 'button',
-              className: cx('artifact-space-previewClose'),
-              'aria-label': t('preview.close'),
-              onClick: onClose,
-            }, h('svg', {
-              viewBox: '0 0 16 16',
-              width: 12,
-              height: 12,
-              fill: 'none',
-              stroke: 'currentColor',
-              strokeWidth: 1.4,
-              strokeLinecap: 'round',
-              'aria-hidden': true,
-            }, h('path', { key: 'p', d: 'M4 4l8 8M12 4l-8 8' }))),
-          ]),
-          h('iframe', {
-            key: 'frame',
-            className: cx('artifact-space-previewFrame'),
-            src,
-            title: artifact.name,
-            sandbox: 'allow-same-origin',
-            referrerPolicy: 'no-referrer',
-          }),
-        ]);
-      }
 
       if (binary) {
         return h('div', { className: cx('artifact-space-preview'), 'data-state': 'binary' }, [
@@ -3451,132 +2389,6 @@ window.__ModuleLoader__.load({
     }
 
     /**
-     * The version badge in the panel header.
-     *
-     * It shows the version that is running, and turns to an accent as soon as
-     * a newer one is published. Clicking it unfolds the update card.
-     */
-    function VersionBadge({ version, busy, open, onToggle, t }) {
-      const available = version.updateAvailable === true;
-      // Without a version there is nothing to prefix, so the badge says only
-      // "unknown" instead of the awkward "version unknown version".
-      const label = available
-        ? t('version.available', { version: version.latest ?? '' })
-        : typeof version.current === 'string'
-          ? t('version.badge', { version: version.current })
-          : t('version.unknown');
-      return h('button', {
-        type: 'button',
-        className: cx('artifact-space-version'),
-        'data-update': available ? 'true' : 'false',
-        'data-busy': busy ? 'true' : 'false',
-        'aria-expanded': open ? 'true' : 'false',
-        'aria-label': label,
-        title: label,
-        onClick: onToggle,
-      }, [
-        available ? h('span', { key: 'dot', className: cx('artifact-space-versionDot') }) : null,
-        h('span', { key: 'text' }, label),
-      ]);
-    }
-
-    /**
-     * The update card unfolded below the header.
-     *
-     * What it says and what it offers follow the state the Host last
-     * reported: a newer version offers a download, a finished upgrade offers
-     * a rollback, and an installed upgrade says that DSH must be restarted.
-     */
-    function VersionCard({ version, busy, onInstall, onRollback, onClose, t }) {
-      // A stale Host half is its own situation: the reader needs a restart,
-      // not a stack trace.
-      const staleHost = version.status === 'error' && version.error === 'host-outdated';
-      // The running build is newer than the registry's latest. There is
-      // nothing to download, and calling the older registry version "latest"
-      // would read like a downgrade is waiting to happen.
-      const ahead = version.status !== 'error' && version.ahead === true;
-      const title = version.status === 'updating'
-        ? t('version.downloading')
-        : version.status === 'rolling-back'
-          ? t('version.rollback')
-          : version.status === 'updated'
-            ? t('version.installed', { version: version.current ?? '' })
-            : version.status === 'rolled-back'
-              ? t('version.rolledBack')
-              : version.status === 'error'
-                ? (staleHost ? t('version.hostOutdated') : t('version.failed'))
-                : version.updateAvailable
-                  ? t('version.available', { version: version.latest ?? '' })
-                  : ahead
-                    ? t('version.ahead', { version: version.current ?? '' })
-                    : t('version.latest', { version: version.latest ?? version.current ?? t('version.unknown') });
-      const note = version.status === 'updated' || version.status === 'rolled-back'
-        ? t('version.restart')
-        : version.status === 'error'
-          ? (staleHost ? t('version.hostOutdatedNote') : String(version.error ?? ''))
-          : version.updateAvailable
-            ? t('version.badge', { version: version.current ?? t('version.unknown') })
-            : ahead
-              ? t('version.aheadNote', { version: version.latest ?? '' })
-              : t('version.upToDate');
-      // The download button stays put while the download runs — it turns into
-      // a disabled "downloading" label — so the reader sees that something is
-      // happening instead of the button vanishing under their cursor.
-      const canInstall = version.updateAvailable === true && version.status !== 'updated';
-      const canRollback = version.status === 'updated' || version.status === 'rolled-back';
-      // The release notes live on GitHub, one page per tag. The card offers a
-      // way there so a reader can see what a version actually changed before
-      // deciding to install it.
-      const notesVersion = version.latest ?? version.current ?? '';
-      const notesUrl = notesVersion === ''
-        ? ''
-        : `https://github.com/majestyjun/artifact-space/releases/tag/v${notesVersion}`;
-
-      return h('div', { className: cx('artifact-space-updateCard') }, [
-        h('div', { key: 'text', className: cx('artifact-space-updateText') }, [
-          h('span', { key: 'title', className: cx('artifact-space-updateTitle') }, title),
-          h('span', { key: 'note', className: cx('artifact-space-updateNote') }, note),
-        ]),
-        h('div', { key: 'actions', className: cx('artifact-space-updateActions') }, [
-          notesUrl === ''
-            ? null
-            : h('button', {
-              key: 'notes',
-              type: 'button',
-              className: cx('artifact-space-updateBtn'),
-              title: t('version.notesHint'),
-              onClick: () => openInBrowser(notesUrl),
-            }, t('version.notes')),
-          canInstall
-            ? h('button', {
-              key: 'install',
-              type: 'button',
-              className: cx('artifact-space-updateBtn'),
-              'data-primary': 'true',
-              disabled: busy,
-              onClick: onInstall,
-            }, version.status === 'updating' ? t('version.downloading') : t('version.download'))
-            : null,
-          canRollback
-            ? h('button', {
-              key: 'rollback',
-              type: 'button',
-              className: cx('artifact-space-updateBtn'),
-              disabled: busy,
-              onClick: onRollback,
-            }, t('version.rollback'))
-            : null,
-          h('button', {
-            key: 'close',
-            type: 'button',
-            className: cx('artifact-space-updateBtn'),
-            onClick: onClose,
-          }, t('version.close')),
-        ]),
-      ]);
-    }
-
-    /**
      * The Artifact Space page: a workspace tree on the left, the selected
      * file's preview on the right. Data flows through the store the Host
      * serves, so the page subscribes to the smallest slice it renders.
@@ -3594,11 +2406,6 @@ window.__ModuleLoader__.load({
       const [query, setQuery] = React.useState('');
       // Whether the panel shows every artifact or only the starred ones.
       const [showFavorites, setShowFavorites] = React.useState(false);
-      // The quick category filter: every artifact, only the delivered ones, or
-      // only the ones produced along the way.
-      const [kindFilter, setKindFilter] = React.useState('all');
-      // Whether the version card is unfolded below the header.
-      const [versionOpen, setVersionOpen] = React.useState(false);
       const primedGroups = React.useRef(false);
       const treeRef = React.useRef(null);
       // The viewport height the tree was measured against, so the automatic
@@ -3616,21 +2423,6 @@ window.__ModuleLoader__.load({
       );
       React.useEffect(() => { props.rows.load(); }, [props.rows]);
 
-      // The installed version, and whether a newer one is published.
-      const versionStore = props.version;
-      const version = React.useSyncExternalStore(
-        versionStore !== null ? versionStore.subscribe : () => () => {},
-        versionStore !== null ? versionStore.getSnapshot : () => EMPTY_VERSION,
-      );
-      const versionBusy = version.status === 'checking'
-        || version.status === 'updating'
-        || version.status === 'rolling-back';
-      React.useEffect(() => {
-        // The installed version is read from the Host on mount; the registry
-        // is left alone until the reader asks for it.
-        if (versionStore !== null) versionStore.load();
-      }, [versionStore]);
-
       // Defensive reads: the Host's payload is the only shape authority, and a
       // malformed row must degrade to a smaller list, never crash the panel.
       const groups = Array.isArray(rows?.groups) ? rows.groups : [];
@@ -3641,20 +2433,7 @@ window.__ModuleLoader__.load({
           ...session,
           title: typeof session?.title === 'string' && session.title !== '' ? session.title : String(session?.sessionId ?? ''),
           note: session?.note ?? null,
-          artifacts: (Array.isArray(session?.artifacts) ? session.artifacts : [])
-            .filter((a) => a && typeof a.path === 'string')
-            // Newest first: the file the reader just made leads the list.
-            .map((artifact, index) => ({ artifact, index }))
-            .sort((left, right) => {
-              const leftAt = Number.isFinite(left.artifact.producedAt) ? left.artifact.producedAt : null;
-              const rightAt = Number.isFinite(right.artifact.producedAt) ? right.artifact.producedAt : null;
-              if (leftAt === null && rightAt === null) return left.index - right.index;
-              if (leftAt === null) return 1;
-              if (rightAt === null) return -1;
-              if (rightAt !== leftAt) return rightAt - leftAt;
-              return left.index - right.index;
-            })
-            .map((entry) => entry.artifact),
+          artifacts: (Array.isArray(session?.artifacts) ? session.artifacts : []).filter((a) => a && typeof a.path === 'string'),
         })),
       })), [groups]);
 
@@ -3808,57 +2587,10 @@ window.__ModuleLoader__.load({
         favoritesStore.prune(liveKeys);
       }, [favoritesStore, liveKeys, rows.status]);
 
-      /**
-       * Drop every favorite.
-       *
-       * The store removes each storage key as it goes, so clearing the list
-       * leaves nothing behind on disk either.
-       */
-      const clearFavorites = React.useCallback(() => {
-        if (favoritesStore === null) return;
-        favoritesStore.clear();
-      }, [favoritesStore]);
-
-      // How many artifacts each category holds, for the filter chips.
-      const kindCounts = React.useMemo(() => {
-        let all = 0;
-        let presented = 0;
-        let produced = 0;
-        for (const group of safeGroups) {
-          for (const session of group.sessions) {
-            for (const artifact of session.artifacts) {
-              all += 1;
-              if (artifact.kind === 'presented') presented += 1;
-              else produced += 1;
-            }
-          }
-        }
-        return { all, presented, produced };
-      }, [safeGroups]);
-
-      // The category filter runs before the text filter: a reader who asked
-      // for delivered artifacts only sees the delivered ones, and the search
-      // then narrows that set further.
-      const kindGroups = React.useMemo(() => {
-        if (kindFilter === 'all') return safeGroups;
-        const result = [];
-        for (const group of safeGroups) {
-          const sessions = [];
-          for (const session of group.sessions) {
-            const artifacts = session.artifacts.filter((artifact) => artifact.kind === kindFilter);
-            if (artifacts.length === 0) continue;
-            sessions.push({ ...session, artifacts });
-          }
-          if (sessions.length === 0) continue;
-          result.push({ ...group, sessions });
-        }
-        return result;
-      }, [safeGroups, kindFilter]);
-
       const filteredGroups = React.useMemo(() => {
-        if (!searching) return kindGroups;
+        if (!searching) return safeGroups;
         const result = [];
-        for (const group of kindGroups) {
+        for (const group of safeGroups) {
           const groupHit = labelMatches(group.title, searchParts);
           const sessions = [];
           for (const session of group.sessions) {
@@ -3873,7 +2605,7 @@ window.__ModuleLoader__.load({
           result.push({ ...group, sessions });
         }
         return result;
-      }, [kindGroups, searchParts, searching]);
+      }, [safeGroups, searchParts, searching]);
 
       // While a search is active every match is shown, so nothing that
       // matched stays hidden behind a folded session. A session the reader
@@ -3902,14 +2634,14 @@ window.__ModuleLoader__.load({
       const totals = React.useMemo(() => {
         let sessions = 0;
         let artifacts = 0;
-        for (const group of kindGroups) {
+        for (const group of safeGroups) {
           for (const session of group.sessions) {
             sessions += 1;
             artifacts += session.artifacts.length;
           }
         }
-        return { groups: kindGroups.length, sessions, artifacts };
-      }, [kindGroups]);
+        return { groups: safeGroups.length, sessions, artifacts };
+      }, [safeGroups]);
 
       const selectedSession = React.useMemo(() => {
         if (selected === null) return null;
@@ -3951,12 +2683,11 @@ window.__ModuleLoader__.load({
             onSelect: (artifact, sessionId) => setSelected({ sessionId, path: artifact.path }),
             onToggleFavorite: toggleFavorite,
             onPrune: pruneFavorites,
-            onClear: clearFavorites,
             t,
             searchParts,
           });
         }
-        if (kindCounts.all === 0) {
+        if (totals.artifacts === 0) {
           return h('div', { key: 'empty', className: cx('artifact-space-status') }, [
             h('span', { key: 'title', className: cx('artifact-space-statusTitle') }, t('empty.title')),
             h('span', { key: 'body', className: cx('artifact-space-statusBody') }, t('empty.body')),
@@ -3965,12 +2696,6 @@ window.__ModuleLoader__.load({
         if (searching && filteredGroups.length === 0) {
           return h('div', { key: 'noHits', className: cx('artifact-space-status') }, [
             h('span', { key: 'title', className: cx('artifact-space-statusTitle') }, t('search.none', { query: query.trim() })),
-            h('span', { key: 'body', className: cx('artifact-space-statusBody') }, t('search.noneHint')),
-          ]);
-        }
-        if (kindFilter !== 'all' && kindGroups.length === 0) {
-          return h('div', { key: 'noKind', className: cx('artifact-space-status') }, [
-            h('span', { key: 'title', className: cx('artifact-space-statusTitle') }, t('filter.empty')),
             h('span', { key: 'body', className: cx('artifact-space-statusBody') }, t('search.noneHint')),
           ]);
         }
@@ -4034,23 +2759,6 @@ window.__ModuleLoader__.load({
             artifacts: String(totals.artifacts),
           })),
           h('div', { key: 'spacer', className: cx('artifact-space-headSpacer') }),
-          h(VersionBadge, {
-            key: 'version',
-            version,
-            busy: versionBusy,
-            open: versionOpen,
-            onToggle: () => {
-              const opening = !versionOpen;
-              setVersionOpen(opening);
-              // Opening the card for the first time is the moment a reader
-              // wants to know whether anything newer exists, so the registry
-              // is consulted then — and only then.
-              if (shouldCheckForUpdates(version, opening)) {
-                versionStore?.check();
-              }
-            },
-            t,
-          }),
           h('button', {
             key: 'favorites',
             type: 'button',
@@ -4075,51 +2783,6 @@ window.__ModuleLoader__.load({
             favorites.size > 0
               ? h('span', { key: 'count', className: cx('artifact-space-favCount') }, String(favorites.size))
               : null,
-          ]),
-          h('div', {
-            key: 'filter',
-            className: cx('artifact-space-filter'),
-            role: 'group',
-            'aria-label': t('filter.label'),
-          }, [
-            h('button', {
-              key: 'all',
-              type: 'button',
-              className: cx('artifact-space-filterBtn'),
-              'data-kind': 'all',
-              'aria-pressed': kindFilter === 'all' ? 'true' : 'false',
-              onClick: () => setKindFilter('all'),
-            }, [
-              h('span', { key: 'label' }, t('filter.all')),
-              h('span', { key: 'count', className: cx('artifact-space-filterCount') },
-                t('filter.allCount', { count: String(kindCounts.all) })),
-            ]),
-            h('button', {
-              key: 'presented',
-              type: 'button',
-              className: cx('artifact-space-filterBtn'),
-              'data-kind': 'presented',
-              'aria-pressed': kindFilter === 'presented' ? 'true' : 'false',
-              title: t('artifact.presented'),
-              onClick: () => setKindFilter(kindFilter === 'presented' ? 'all' : 'presented'),
-            }, [
-              h('span', { key: 'label' }, t('filter.presented')),
-              h('span', { key: 'count', className: cx('artifact-space-filterCount') },
-                t('filter.presentedCount', { count: String(kindCounts.presented) })),
-            ]),
-            h('button', {
-              key: 'produced',
-              type: 'button',
-              className: cx('artifact-space-filterBtn'),
-              'data-kind': 'produced',
-              'aria-pressed': kindFilter === 'produced' ? 'true' : 'false',
-              title: t('artifact.produced'),
-              onClick: () => setKindFilter(kindFilter === 'produced' ? 'all' : 'produced'),
-            }, [
-              h('span', { key: 'label' }, t('filter.produced')),
-              h('span', { key: 'count', className: cx('artifact-space-filterCount') },
-                t('filter.producedCount', { count: String(kindCounts.produced) })),
-            ]),
           ]),
           h('div', {
             key: 'search',
@@ -4206,15 +2869,6 @@ window.__ModuleLoader__.load({
             'aria-hidden': true,
           }, h('path', { d: 'M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5V5h-2.5' }))),
         ]),
-        versionOpen ? h(VersionCard, {
-          key: 'update',
-          version,
-          busy: versionBusy,
-          onInstall: () => { versionStore?.install(); },
-          onRollback: () => { versionStore?.rollback(); },
-          onClose: () => setVersionOpen(false),
-          t,
-        }) : null,
         h('div', { key: 'body', className: cx('artifact-space-body') }, [
           h('nav', { key: 'tree', ref: treeRef, className: cx('artifact-space-tree'), 'aria-label': t('page.title') }, tree()),
           h('section', { key: 'pane', className: cx('artifact-space-pane') },
@@ -4239,8 +2893,6 @@ window.__ModuleLoader__.load({
     const HTML_EXTENSIONS = new Set(['html', 'htm', 'xhtml']);
     const YAML_EXTENSIONS = new Set(['yml', 'yaml']);
     const JSON_EXTENSIONS = new Set(['json', 'jsonc', 'json5']);
-    /** Pictures the preview can display; the Host serves their bytes itself. */
-    const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'avif', 'ico', 'svg']);
 
     /** The lowercase extension of a file name, without the dot. */
     function extensionOfName(name) {
@@ -4258,7 +2910,6 @@ window.__ModuleLoader__.load({
       const ext = (typeof artifact?.extension === 'string' && artifact.extension !== ''
         ? artifact.extension
         : extensionOfName(artifact?.name)).replace(/^\./, '').toLowerCase();
-      if (IMAGE_EXTENSIONS.has(ext)) return 'image';
       if (MARKDOWN_EXTENSIONS.has(ext)) return 'markdown';
       if (HTML_EXTENSIONS.has(ext)) return 'html';
       if (YAML_EXTENSIONS.has(ext)) return 'yaml';
@@ -4802,9 +3453,14 @@ window.__ModuleLoader__.load({
       switch (detectFormat(artifact)) {
         case 'markdown':
           return h('div', { key: 'body', className: cx('artifact-space-previewBody', 'artifact-space-previewRich') }, renderMarkdown(text));
-        // An HTML document never reaches here: the preview pane serves it from
-        // the HTML route instead. A `srcDoc` frame has no base URL, so the
-        // relative pictures in such a document would all come out broken.
+        case 'html':
+          return h('iframe', {
+            key: 'body',
+            className: cx('artifact-space-previewFrame'),
+            title: typeof artifact?.name === 'string' ? artifact.name : 'preview',
+            sandbox: '',
+            srcDoc: sanitizeHtml(text),
+          });
         case 'yaml':
         case 'json':
           return h('div', { key: 'body', className: cx('artifact-space-previewBody') }, renderCode(text, detectLanguage(artifact)));
@@ -4824,18 +3480,15 @@ window.__ModuleLoader__.load({
         // every read still in flight and no stale response can publish.
         const stores = createRowsStore();
         const preview = createPreviewStore();
-        // The version store lives here too: an upgrade in flight must not
-        // outlive the plugin that started it.
-        const version = createVersionStore();
         // The favorites store outlives the panel: it is created once with the
         // plugin, so the starred artifacts are shared by every view and
         // survive the panel being closed and reopened.
         const favorites = createFavoritesStore();
         ctx.effect(() => async () => {
-          await Promise.all([stores.dispose(), preview.dispose(), version.dispose()]);
+          await Promise.all([stores.dispose(), preview.dispose()]);
         }, 'artifact-space: stores');
 
-        const injectFace = () => ({ rows: stores, preview, favorites, version });
+        const injectFace = () => ({ rows: stores, preview, favorites });
 
         // The sidebar entry and the central panel it opens share one id.
         ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({

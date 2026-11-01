@@ -1,157 +1,30 @@
-# 更新日志
+# Changelog
 
-中文 | [English](CHANGELOG.en.md)
+All notable changes to this project are documented here.
 
-本文件记录本项目的所有重要变更。
-
-格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
-版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
-
-## [1.6.1] — 2026-11-07
-
-### 新增
-
-- 更新卡片新增**「查看更新说明」**按钮，直接打开发布说明页面（GitHub Release），让人在点「下载并安装」之前先看清这一版到底改了什么。
-
-### 变更
-
-- 提交守卫新增**凭据拦截**：暂存区文件里出现 npm token 或私钥头即阻止提交；`.gitignore` 补上 `.npmrc` 与 `.env`。
-
-## [1.6.0] — 2026-11-07
-
-### 新增
-
-- 面板头部常驻**版本徽章**，显示当前安装版本（如 `v1.6.0`）。有新版时徽章转为橙色并提示可更新，点击展开**更新卡片**。
-- 更新卡片提供**版本对比**、**下载并安装**按钮与**一键回滚**按钮；下载完成后提示「重启 DSH 生效」。
-- 新增宿主端 `updater.js`：从 npm registry 查询最新版本，下载 tarball 并校验 `sha512` 完整性，通过后**就地替换**插件目录 —— 替换前自动备份，出问题可一键回滚。
-- 新增三条宿主路由：`GET /api/artifact-space.version`（版本检测）、`GET /api/artifact-space.update`（下载安装）、`GET /api/artifact-space.rollback`（回滚）。
-- 新增 `verify-version-update.mjs`（131 项断言，覆盖宿主端结构、沙盒真实下载替换、客户端渲染、发布包内容）与 `smoke-render-version-update.mjs`（18 个渲染场景），并接入发布前流水线。
-
-### 变更
-
-- 版本检测**不触碰** profile 的 `package.json` 与 lockfile，也不执行 `pnpm install` —— 插件文件的替换对 DSH 的完整性校验不可见，因此不会触发启动拒绝。
-- 下载的包在替换前会**先解包到临时目录验证**，校验失败或解包异常一律不动现有安装；替换采用「先 `unlink` 再写入」的方式，避免污染 pnpm 的内容寻址存储。
-- 更新文案中英文各一份（`version.*` 共 18 个键），徽章与卡片样式随明暗主题自适应。
-- 宿主半边尚未加载新版时（例如只热重载了浏览器半边），界面明确提示「宿主未加载新版，请重启 DSH」，而不是笼统的「更新失败」——重启是唯一的处置方式，指错方向比不提示更糟。
-- 读不到版本号时徽章只显示「未知版本」，不再出现「版本 未知版本」这样的重复措辞。
-- 本地版本比 npm 上的已发布版本更新时（如发版前装的那一版），卡片如实说明「本地版本 {version} / npm 上尚未发布此版本」，不再出现「最新版本 1.5.0」配「已是最新版本」这种自相矛盾、看着像要降级的表述。
-- 查询失败后再次点击徽章可以重试，不会因为一次网络抖动就永久关闭更新入口；唯独「宿主半边未加载新版」这一种不重试 —— 那个只能靠重启。
-
-## [1.5.0] — 2026-11-06
-
-### 新增
-
-- 全屏查看（灯箱）支持缩放：工具栏新增「放大 / 缩小 / 还原」三个按钮与实时比例读数（20%–800%），图片以 `transform` 缩放，原始分辨率不受影响。
-- 鼠标滚轮可在灯箱内直接缩放，滚轮事件被拦截，页面不会跟着滚动。
-- 键盘快捷键：`+` 放大、`-` 缩小、`0` 还原、`Esc` 关闭。
-- 新增 `smoke-render-lightbox-zoom.mjs` 缩放专项验证脚本（38 项断言），并接入发布前流水线。
-
-### 变更
-
-- 灯箱缩放按钮沿用面板的玻璃质感样式，与其它操作按钮保持一致；缩放按钮文案中英文各一份（`lightbox.zoomIn` / `zoomOut` / `zoomReset` / `zoomLevel`）。
-- 图片放大后光标切换为抓手样式，缩放过程关闭过渡动画以保证跟手。
-
-## [1.4.0] — 2026-11-06
-
-### 新增
-
-- 图片预览新增**全屏查看**：图片放大至覆盖整个窗口，点击图片或预览区内的
-  「全屏查看」按钮均可触发，按 `Esc` 或点击遮罩关闭。灯箱直接挂在 `document.body`
-  上，绕开面板 `backdrop-filter` 造成的包含块限制。
-- 图片预览新增**下载**：从宿主图片路由取回字节，以原始文件名存入本地，
-  下载结果（成功或失败）如实显示在按钮上。
-- 预览区操作按钮尺寸放大：高度由 22px 提升至 27px，图标由 12px 提升至 13.5px，
-  字号由 11px 提升至 12px，预览头部高度相应由 32px 调整为 38px。
-
-### 变更
-
-- README 措辞调整为书面表述：移除第二人称「你」与口语化表达（如「点击即可」
-  「拿到的是」），中英文两版同步修改。
-- 英文 README 的功能表格此前仍用中文标签，现已全部译出（如「玻璃界面」→ Glass
-  interface、「三级搜索」→ Three-level search）；正文中的产品名引用改为
-  Artifact Space 并附中文原名。发版校验新增「英文版不含中文、中文标点」一道关卡，
-  避免此类混排再次出现。
-
-## [1.3.0] — 2026-11-06
-
-### 新增
-
-- **HTML 产物现在直接以页面方式预览**，不再把源码当代码逐行显示。文档里用相对
-  路径引用的图片、样式与字体都会正常加载，不再是一片裂图。
-- 预览区新增「在浏览器中打开」按钮，可把 HTML 产物拿到独立标签页查看。
-- 宿主新增 HTML 与资源两条只读路由：HTML 路由把文档里的相对引用改写成带会话
-  鉴权的资源地址，资源路由按扩展名提供对应的媒体类型。
-
-### 变更
-
-- HTML 文档改由宿主直接投递，响应带 `content-security-policy`，禁止内联脚本
-  与外网访问；预览框改用 `sandbox` 收敛权限，文档里的脚本不会执行。
-- 移除了旧的 `srcDoc` 预览分支。它没有 base URL，文档中的相对图片必然解析
-  失败，正是裂图的根因。
-
-## [1.2.0] — 2026-11-06
-
-### 新增
-
-- 工具栏新增「分类」快捷筛选：三档芯片「全部 / 交付 / 产出」，每档带实时数量。
-  点「交付」即隐藏产出、只显示会话明确交付给使用者的成果；再点一次回到「全部」。
-- 产物行与预览头部新增相对时间（如「2 分钟前」），鼠标悬停显示绝对时间，
-  便于判断哪个文件是刚生成的。
-
-### 变更
-
-- **会话内的产物改为按产生时间倒序排列**，最新的文件排在最上面。此前沿用
-  日志里的首次出现顺序，最新的产物反而沉在列表底部。
-- 分组与会话的「产物数」改为按当前可见条目统计，筛选后数字与列表一致，
-  不再显示与列表矛盾的总数。
-
-## [1.1.2] — 2026-11-05
-
-### 变更
-
-- README 的「安装」章节新增公开目录收录表，写明本插件已进入哪些公开渠道
-  （官方 `awesome-dsh-plugin` 市场 registry、1024 社区插件目录、社区插件精选），
-  以及各自的状态与官方目录的每日构建节奏。
-- 补上 `dsh plugin add @xxjxx/artifact-space` 这条命令，读者不必先手工
-  `npm install` 再改 profile 补丁。
-
-## [1.1.1] — 2026-11-04
-
-### 新增
-
-- 发布包内补上 `assets/icon-180.png`（市场目录用的 PNG 图标），此前只有仓库里有。
-
-### 变更
-
-- 发版前新增一道「更新说明」关卡：版本号必须在中英双语 CHANGELOG 里都有对应条目，
-  否则发布会被拦住。
-
-## [1.1.0] — 2026-11-04
-
-### 新增
-
-- **图片预览**：`png`、`jpg`、`jpeg`、`gif`、`webp`、`bmp`、`avif`、`ico`、`svg`
-  可在预览区直接显示。宿主按扩展名对应的媒体类型返回原始字节，浏览器负责渲染，
-  状态栏显示图片尺寸与体积。
-- 图片不再被归入「二进制文件不可预览」。
-
-### 变更
-
-- 图片改走宿主的一条独立路由，不再请求文本预览，因此不会占用文本预览的体积与行数上限。
-- SVG 以图片方式呈现，浏览器不会执行其中携带的脚本。
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.0.0] — 2026-11-01
 
-首个公开版本。
+First public release.
 
-### 新增
+### Added
 
-- **产物空间**侧栏入口，按工作区与会话两级列出每个会话最终产出的有效文件。
-- 分层玻璃界面，明暗双主题自适应。
-- 代码文件以编辑器形态预览：吸附式行号栏、语法高亮，以及显示语言、行数、体积与编码的状态栏。
-- 按扩展名适配的渲染：Markdown、HTML、YAML、JSON 各自渲染，无法识别时回落到纯文本。
-- 跨工作区、会话、产物三级的搜索；多个词是备选而非收窄，命中处高亮。
-- 收藏夹：产物行可标星，收藏汇总在收藏夹视图里。收藏可跨重启保留，取消收藏即从磁盘删除对应记录。
-- 会话折叠；默认只展开首屏放得下的会话。
-- 从预览区头部复制文件内容或绝对路径。
-- 产物来源：标明是「交付」还是顺手「产出」、来自第几轮、会话当时的说明。
+- **Artifact Space** sidebar entry listing every workspace's final session
+  artifacts, grouped by workspace and then by session.
+- Layered glass interface with a light and a dark theme.
+- Editor-style preview for code files: sticky line-number gutter, syntax
+  highlighting, and a status bar with language, line count, size and encoding.
+- Format-aware rendering for Markdown, HTML, YAML and JSON, each falling back to
+  plain text.
+- Search across workspaces, sessions and artifacts at once; multiple words are
+  alternatives, and matches are highlighted.
+- Favorites: star an artifact from its row, collect them in the Favorites view.
+  Favorites persist across restarts and each one is deleted from disk the
+  moment it is un-starred.
+- Session folding, with only the sessions that fit on the first screen open by
+  default.
+- Copy a file's content or its absolute path from the preview header.
+- Artifact provenance: whether a file was delivered or merely produced, the
+  turn it came from, and what the session said about it.
