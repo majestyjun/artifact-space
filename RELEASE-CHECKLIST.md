@@ -32,24 +32,30 @@
 - 运行时版本 = 宿主 `app-boot/package.json` 的 `version`。
   ⚠️ **不同机器上的 DSH 版本可能不同** —— 门槛按打包者本机版本定，会挡住别人。
 
-用**宿主自带的同一份 semver** 验证：
+**门槛由 `check-min-version-full.mjs` 逐版本实测得出**，不是估计的。每个候选版本下载其宿主包，
+验证三件事：
+
+1. **宿主 API** —— `readTitleSnapshots`、`readSession`、`list`、`stat`、`contains`、`resolve`、`read`
+2. **客户端 slot** —— `sidebar.panellist`（侧栏入口）、`main`（主面板）
+3. **客户端插件机制** —— `dsh.client.inject`、`platform`、`__ModuleLoader__`
+
+实测结果：
 
 | 范围 | 判定 |
 | --- | --- |
-| **`>=0.2.1-rc.3`（本插件采用）** | ✅ rc.3 / rc.4 / rc.5 / 0.2.1 / 0.2.2 / 0.3.0 / 1.0.0 全部可安装 |
-| `>=0.2.1-rc.4`（初版，**已废弃**） | ❌ 在 DSH 0.2.1-rc.3 的机器上被直接拒绝 |
-| `^0.2.1` | ❌ 不兼容（不含 prerelease 的 range 不匹配 rc 版本） |
+| **`>=0.1.5-alpha.2`（本插件采用）** | ✅ 覆盖 0.1.5-alpha.2 起至 1.0.0 的全部版本 |
+| `>=0.1.5-alpha.1` | ❌ 客户端包缺 `sidebar.panellist`，无法注册侧栏入口 |
+| `>=0.1.2` | ❌ `dsh-api-workspace-files` 包不存在，`dsh-client-ui-sidebar` 缺 slot |
 
-> **踩坑记录（两处）**
+> **踩坑记录（三次）**
 >
 > 1. 初判 `^0.2.1-alpha.2` 是"阻塞问题"，实测 semver 后发现**它实际兼容**（同 minor 内 prerelease 都满足）。
-> 2. 初版把 `engines.dsh` 定成 `>=0.2.1-rc.4` —— 那是**打包者本机**的版本。
->    在 DSH 0.2.1-rc.3 的机器上安装被直接拒绝（"与 DSH 0.2.1-rc.3 不兼容"）。
->    逐个下载 rc.3 的宿主包验证过，插件用到的每个 API 在 rc.3 里都存在，
->    门槛因此下调为 `>=0.2.1-rc.3`。
+> 2. 初版门槛 `>=0.2.1-rc.4` —— 那是**打包者本机**的版本。
+>    在 DSH 0.2.1-rc.3 的机器上被直接拒绝。
+> 3. 下调到 `>=0.2.1-rc.3` 后仍嫌保守，继续下调 —— 最终由逐版本实测得出 `>=0.1.5-alpha.2`。
 >
-> **教训：`engines.dsh` 必须按插件真正需要的最低版本定，不能按本机版本定。**
-> `verify-publish.mjs` 现在会拿已发布过的宿主版本清单逐一验证覆盖范围。
+> **教训：`engines.dsh` 必须按插件真正需要的最低版本定，不能按本机版本定，也不能凭感觉下调。**
+> `verify-publish.mjs` 会拿实测清单逐一验证覆盖范围，并要求拒绝未验证的旧版本。
 
 ### 市场索引格式（`dsh-plugin-market-index`）
 
@@ -75,7 +81,7 @@
 | `dsh.bundle.patch` | ✅ `./cordis.patch.yml` |
 | `dsh.client.platform` + `inject` | ✅ `web` + 4 项 |
 | `peerDependencies` + `peerDependenciesMeta` | ✅ 全部 optional |
-| `engines.dsh` | ✅ `>=0.2.1-rc.3` |
+| `engines.dsh` | ✅ `>=0.1.5-alpha.2` |
 
 ---
 
@@ -176,7 +182,7 @@ npm publish --access public
       "version": "1.0.0",
       "publishTimestamp": 1793000000,
       "source": { "type": "npm" },
-      "engines": { "dsh": ">=0.2.1-rc.3" }
+      "engines": { "dsh": ">=0.1.5-alpha.2" }
     }]
   }]
 }
