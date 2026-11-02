@@ -29,16 +29,27 @@
 
 宿主 `dsh-app-boot` 的 `unmetRequirements` 逻辑：
 - `engines.dsh` 存在时**它决定一切**，`peerDependencies` 被忽略。
-- 运行时版本：`0.2.1-rc.4`（DSH NEXT）。
+- 运行时版本 = 宿主 `app-boot/package.json` 的 `version`。
+  ⚠️ **不同机器上的 DSH 版本可能不同** —— 门槛按打包者本机版本定，会挡住别人。
 
 用**宿主自带的同一份 semver** 验证：
 
 | 范围 | 判定 |
 | --- | --- |
-| `>=0.2.1-rc.4`（本插件采用） | ✅ 当前兼容，未来 0.2.2 / 0.3.0 / 1.0.0 均可安装 |
+| **`>=0.2.1-rc.3`（本插件采用）** | ✅ rc.3 / rc.4 / rc.5 / 0.2.1 / 0.2.2 / 0.3.0 / 1.0.0 全部可安装 |
+| `>=0.2.1-rc.4`（初版，**已废弃**） | ❌ 在 DSH 0.2.1-rc.3 的机器上被直接拒绝 |
 | `^0.2.1` | ❌ 不兼容（不含 prerelease 的 range 不匹配 rc 版本） |
 
-> 踩坑记录：初判 `^0.2.1-alpha.2` 是"阻塞问题"，实测 semver 后发现**它实际兼容**（同 minor 内 prerelease 都满足）。纠正认知后才选定 `>=0.2.1-rc.4`。
+> **踩坑记录（两处）**
+>
+> 1. 初判 `^0.2.1-alpha.2` 是"阻塞问题"，实测 semver 后发现**它实际兼容**（同 minor 内 prerelease 都满足）。
+> 2. 初版把 `engines.dsh` 定成 `>=0.2.1-rc.4` —— 那是**打包者本机**的版本。
+>    在 DSH 0.2.1-rc.3 的机器上安装被直接拒绝（"与 DSH 0.2.1-rc.3 不兼容"）。
+>    逐个下载 rc.3 的宿主包验证过，插件用到的每个 API 在 rc.3 里都存在，
+>    门槛因此下调为 `>=0.2.1-rc.3`。
+>
+> **教训：`engines.dsh` 必须按插件真正需要的最低版本定，不能按本机版本定。**
+> `verify-publish.mjs` 现在会拿已发布过的宿主版本清单逐一验证覆盖范围。
 
 ### 市场索引格式（`dsh-plugin-market-index`）
 
@@ -64,7 +75,7 @@
 | `dsh.bundle.patch` | ✅ `./cordis.patch.yml` |
 | `dsh.client.platform` + `inject` | ✅ `web` + 4 项 |
 | `peerDependencies` + `peerDependenciesMeta` | ✅ 全部 optional |
-| `engines.dsh` | ✅ `>=0.2.1-rc.4` |
+| `engines.dsh` | ✅ `>=0.2.1-rc.3` |
 
 ---
 
@@ -165,7 +176,7 @@ npm publish --access public
       "version": "1.0.0",
       "publishTimestamp": 1793000000,
       "source": { "type": "npm" },
-      "engines": { "dsh": ">=0.2.1-rc.4" }
+      "engines": { "dsh": ">=0.2.1-rc.3" }
     }]
   }]
 }
