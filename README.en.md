@@ -163,7 +163,7 @@ Then enable it in your profile patch (`~/.dsh/profiles/desktop/cordis.patch.yml`
 
 ### Requirements
 
-- DSH `>= 0.2.1-rc.3` — the plugin declares this range in `engines.dsh`, and the
+- DSH `>= 0.1.5-alpha.2` — the plugin declares this range in `engines.dsh`, and the
   Host refuses to load a plugin whose requirements the running version does not
   meet.
 - No Host private APIs are used. The plugin talks to the public
