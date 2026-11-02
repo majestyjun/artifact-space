@@ -122,7 +122,7 @@ npm install artifact-space
 
 ### 环境要求
 
-- DSH `>= 0.2.1-rc.4` —— 插件在 `engines.dsh` 中声明了该范围，运行版本不满足时宿主会拒绝加载。
+- DSH `>= 0.2.1-rc.3` —— 插件在 `engines.dsh` 中声明了该范围，运行版本不满足时宿主会拒绝加载。
 - **不使用任何宿主私有 API**。插件只通过公开的 `ctx.connection.fetch` 路由通信，收藏持久化在 `localStorage` 里。
 
 浏览器半边通过 `dsh-client-hmr` 热重载；改动宿主半边则需要重新启用插件（或重启应用），以便模块被重新导入。
