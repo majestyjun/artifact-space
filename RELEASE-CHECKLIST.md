@@ -61,7 +61,7 @@
 
 | 规则 | 本插件 |
 | --- | --- |
-| `name` 必须是合法 npm 包名（`PACKAGE_NAME` 正则，≤214 字符） | ✅ `@dushuai/artifact-space` |
+| `name` 必须是合法 npm 包名（`PACKAGE_NAME` 正则，≤214 字符） | ✅ `@xxjxx/artifact-space` |
 | 不得占用 `@deepseek-ai/` 官方 scope | ✅ 未占用 |
 | `version` 必须是精确 SemVer | ✅ `1.0.0` |
 | `icon` 须为合法 SVG/PNG/JPEG/WebP（内联 ≤32 KiB） | ✅ `./icon.svg`，306 B |
@@ -174,7 +174,7 @@ npm publish --access public
 ```json
 {
   "plugins": [{
-    "name": "@dushuai/artifact-space",
+    "name": "@xxjxx/artifact-space",
     "title": { "en": "Artifact Space", "zh": "产物空间" },
     "description": { "en": "...", "zh": "..." },
     "icon": "https://…/icon.svg",
