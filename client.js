@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@dushuai/artifact-space',
+  id: '@xxjxx/artifact-space',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
@@ -1120,7 +1120,7 @@ window.__ModuleLoader__.load({
 
     // The style tag is keyed by the package name so two versions of this
     // plugin cannot fight over one stylesheet.
-    const PLUGIN_NAME = '@dushuai/artifact-space';
+    const PLUGIN_NAME = '@xxjxx/artifact-space';
     const styleTagId = `${PLUGIN_NAME}/artifact-space.css`;
     if (typeof document !== 'undefined' && document.querySelector(`style[data-plugin-css=${JSON.stringify(styleTagId)}]`) === null) {
       const tag = document.createElement('style');
