@@ -9,6 +9,7 @@ English | [中文](README.md)
 
 [![npm version](https://img.shields.io/npm/v/@xxjxx/artifact-space.svg)](https://www.npmjs.com/package/@xxjxx/artifact-space)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![dsh-plugin](https://img.shields.io/badge/DSH--plugin-8A5CF5.svg)](https://github.com/topics/dsh-plugin)
 
 A DSH plugin that adds an **产物空间** entry to the sidebar. It lists every
 workspace's final effective session artifacts — grouped by workspace, then by
