@@ -7,7 +7,7 @@ kind: "package-bundle"
 
 中文 | [English](README.en.md)
 
-[![npm version](https://img.shields.io/npm/v/artifact-space.svg)](https://www.npmjs.com/package/artifact-space)
+[![npm version](https://img.shields.io/npm/v/@xxjxx/artifact-space.svg)](https://www.npmjs.com/package/@xxjxx/artifact-space)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 一个为 DSH 增加**产物空间**侧栏入口的插件。它按「工作区 → 会话」两级列出每个会话最终产出的有效文件，点击即可预览内容。
@@ -109,7 +109,7 @@ kind: "package-bundle"
 ### 从 registry 安装
 
 ```bash
-npm install artifact-space
+npm install @xxjxx/artifact-space
 ```
 
 然后在自己的 profile 补丁（`~/.dsh/profiles/desktop/cordis.patch.yml`）中启用：
