@@ -9,6 +9,7 @@ kind: "package-bundle"
 
 [![npm version](https://img.shields.io/npm/v/@xxjxx/artifact-space.svg)](https://www.npmjs.com/package/@xxjxx/artifact-space)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![dsh-plugin](https://img.shields.io/badge/DSH--plugin-8A5CF5.svg)](https://github.com/topics/dsh-plugin)
 
 一个为 DSH 增加**产物空间**侧栏入口的插件。它按「工作区 → 会话」两级列出每个会话最终产出的有效文件，点击即可预览内容。
 
