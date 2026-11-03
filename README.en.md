@@ -7,7 +7,7 @@ kind: "package-bundle"
 
 English | [中文](README.md)
 
-[![npm version](https://img.shields.io/npm/v/artifact-space.svg)](https://www.npmjs.com/package/artifact-space)
+[![npm version](https://img.shields.io/npm/v/@xxjxx/artifact-space.svg)](https://www.npmjs.com/package/@xxjxx/artifact-space)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 A DSH plugin that adds an **产物空间** entry to the sidebar. It lists every
@@ -150,7 +150,7 @@ enables it through the profile patch.
 ### From a registry
 
 ```bash
-npm install artifact-space
+npm install @xxjxx/artifact-space
 ```
 
 Then enable it in your profile patch (`~/.dsh/profiles/desktop/cordis.patch.yml`):
