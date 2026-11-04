@@ -72,11 +72,19 @@ of dumping raw text:
 
 | Extension | Rendering |
 | --- | --- |
+| `png`, `jpg`, `jpeg`, `gif`, `webp`, `bmp`, `avif`, `ico`, `svg` | Image: the Host returns the file's own bytes under the media type that matches its extension, the browser renders it, and the status bar reports the picture's dimensions and size. |
 | `md`, `markdown`, `mdown`, `mkd`, `mdx` | Markdown: headings, paragraphs, lists, tables, block quotes, thematic breaks, fenced code blocks with a language label, and inline code / strong / emphasis / strikethrough / links. |
 | `html`, `htm`, `xhtml` | Rendered in a sandboxed frame (`sandbox=""`), after script elements, inline event handlers and `javascript:` URLs are stripped. |
 | `yml`, `yaml` | An indented key/value outline that keeps the document's own nesting. |
 | `json`, `jsonc`, `json5` | Pretty-printed JSON; a malformed document falls back to its raw text. |
 | anything else | Plain text. |
+
+Pictures never take the text path. The Host keeps a separate image route that
+returns bytes only when the file lives inside its own workspace, its extension
+names a picture, and it is within 16 MB — and it serves them under the exact
+`Content-Type` that extension maps to. SVG is shown the same way, so the browser
+never runs any script it carries. When a picture fails to load, the preview says
+so instead of showing an empty pane.
 
 Every format falls back to plain text, so an unknown or malformed document still
 shows its content.
