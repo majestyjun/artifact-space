@@ -31,6 +31,7 @@ window.__ModuleLoader__.load({
       'preview.loading': '正在读取文件…',
       'preview.empty': '（空文件）',
       'preview.binaryTitle': '二进制文件（{ext}，{size}）不可预览',
+      'preview.imageFailed': '图片无法加载（文件可能已被移动或超出预览大小上限）',
       'preview.outsideTitle': '该文件位于工作区之外，无法预览',
       'preview.missingTitle': '该文件已不存在',
       'preview.tooLargeTitle': '文件过大，无法预览（上限 512 KB）',
@@ -102,6 +103,7 @@ window.__ModuleLoader__.load({
       'preview.loading': 'Reading file…',
       'preview.empty': '(empty file)',
       'preview.binaryTitle': 'Binary file ({ext}, {size}) cannot be previewed',
+      'preview.imageFailed': 'The image could not be loaded (the file may have moved or exceed the preview size limit)',
       'preview.outsideTitle': 'This file lies outside the workspace and cannot be previewed',
       'preview.missingTitle': 'This file no longer exists',
       'preview.tooLargeTitle': 'This file is too large to preview (limit 512 KB)',
@@ -645,6 +647,26 @@ window.__ModuleLoader__.load({
 }
 /* 预览正文的玻璃内衬，强化层次 */
 .artifact-space-previewBody::selection{background:var(--glass-accent)}
+
+/* 图片预览：铺满可用区域，居中显示，图片本身不被裁切 */
+.artifact-space-previewImageWrap{
+  box-sizing:border-box;flex:1;min-height:0;
+  display:flex;align-items:center;justify-content:center;
+  margin:0;padding:12px;
+  overflow:auto;
+  background:
+    linear-gradient(45deg,rgba(255,255,255,.10) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.10) 75%),
+    linear-gradient(45deg,rgba(255,255,255,.10) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.10) 75%);
+  background-size:16px 16px;
+  background-position:0 0,8px 8px;
+}
+.artifact-space-previewImage{
+  display:block;max-width:100%;max-height:100%;
+  width:auto;height:auto;
+  object-fit:contain;
+  border-radius:6px;
+  box-shadow:0 6px 20px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.22) inset;
+}
 
 /* 富文本预览（Markdown / YAML）：代码区自带滚动，正文不再重复滚动 */
 .artifact-space-previewRich{
@@ -1415,6 +1437,7 @@ window.__ModuleLoader__.load({
     /** Browser-relative form of a Host route; the page is served from an app base path. */
     const ROWS_ROUTE = 'api/artifact-space.rows';
     const READ_ROUTE = 'api/artifact-space.read';
+    const IMAGE_ROUTE = 'api/artifact-space.image';
 
     /**
      * Fetch-once cache of the grouped artifact rows.
@@ -1795,7 +1818,7 @@ window.__ModuleLoader__.load({
           }
         },
       }, [
-        h('span', { key: 'icon' }, artifact.binary ? imageIcon() : docIcon()),
+        h('span', { key: 'icon' }, artifact.image || artifact.binary ? imageIcon() : docIcon()),
         h('span', {
           key: 'name',
           className: cx('artifact-space-rowName'),
@@ -2175,9 +2198,12 @@ window.__ModuleLoader__.load({
      */
     function PreviewPane({ artifact, sessionId, store, onClose, t }) {
       const path = typeof artifact?.path === 'string' ? artifact.path : '';
+      // A picture is loaded straight from the image route as bytes, so it never
+      // asks the text route for a preview and never costs a text round trip.
+      const image = artifact?.image === true;
       const binary = artifact?.binary === true;
       const outside = artifact?.outsideWorkspace === true;
-      const readable = !binary && !outside;
+      const readable = !binary && !outside && !image;
 
       const state = React.useSyncExternalStore(
         store.subscribe,
@@ -2203,6 +2229,73 @@ window.__ModuleLoader__.load({
         }
         writeClipboard(text).then((ok) => setCopied(`${what}:${ok ? 'ok' : 'failed'}`));
       };
+
+      if (image && !outside) {
+        // The Host serves the picture's own bytes under its own media type, so
+        // the browser renders it without the preview ever holding the file.
+        const src = `${IMAGE_ROUTE}?${new URLSearchParams({ sessionId, path }).toString()}`;
+        const [imageState, setImageState] = React.useState('loading');
+        const [dimensions, setDimensions] = React.useState(null);
+        return h('div', { className: cx('artifact-space-preview'), 'data-state': 'image' }, [
+          h('div', { key: 'head', className: cx('artifact-space-previewHead') }, [
+            h('span', { key: 'title', className: cx('artifact-space-previewTitle') }, artifact.name),
+            h('span', { key: 'meta', className: cx('artifact-space-previewMeta') },
+              dimensions === null
+                ? formatBytes(artifact.bytes)
+                : `${dimensions.width}×${dimensions.height} · ${formatBytes(artifact.bytes)}`),
+            h('button', {
+              key: 'copyPath',
+              type: 'button',
+              className: cx('artifact-space-previewAction'),
+              'data-state': copied !== null && copied.startsWith('path:') ? copied.slice('path:'.length) : null,
+              'aria-label': t('artifact.copyPath'),
+              title: t('artifact.copyPath'),
+              onClick: () => copy(artifact.absolutePath ?? '', 'path'),
+            }, [
+              h('svg', {
+                key: 'icon',
+                viewBox: '0 0 16 16',
+                width: 12,
+                height: 12,
+                fill: 'none',
+                stroke: 'currentColor',
+                strokeWidth: 1.3,
+                strokeLinecap: 'round',
+                strokeLinejoin: 'round',
+                'aria-hidden': true,
+              }, [
+                h('path', { key: 'p', d: 'M6.4 9.6a2.6 2.6 0 003.9.3l2-2a2.6 2.6 0 00-3.7-3.7l-1.1 1.1' }),
+                h('path', { key: 'p2', d: 'M9.6 6.4a2.6 2.6 0 00-3.9-.3l-2 2a2.6 2.6 0 003.7 3.7l1.1-1.1' }),
+              ]),
+              copied !== null && copied.startsWith('path:')
+                ? h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') },
+                  copied === 'path:ok' ? t('artifact.copiedPath') : t('artifact.copyFailed'))
+                : null,
+            ]),
+          ]),
+          imageState === 'error'
+            ? h(PreviewState, {
+              key: 'state',
+              kind: 'binary',
+              title: t('preview.imageFailed'),
+              text: artifact.absolutePath,
+            })
+            : h('div', { key: 'body', className: cx('artifact-space-previewImageWrap') }, [
+              h('img', {
+                key: 'img',
+                className: cx('artifact-space-previewImage'),
+                src,
+                alt: artifact.name,
+                onLoad: (event) => {
+                  const node = event.currentTarget;
+                  setDimensions({ width: node.naturalWidth, height: node.naturalHeight });
+                  setImageState('ready');
+                },
+                onError: () => setImageState('error'),
+              }),
+            ]),
+        ]);
+      }
 
       if (binary) {
         return h('div', { className: cx('artifact-space-preview'), 'data-state': 'binary' }, [
@@ -2960,6 +3053,8 @@ window.__ModuleLoader__.load({
     const HTML_EXTENSIONS = new Set(['html', 'htm', 'xhtml']);
     const YAML_EXTENSIONS = new Set(['yml', 'yaml']);
     const JSON_EXTENSIONS = new Set(['json', 'jsonc', 'json5']);
+    /** Pictures the preview can display; the Host serves their bytes itself. */
+    const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'avif', 'ico', 'svg']);
 
     /** The lowercase extension of a file name, without the dot. */
     function extensionOfName(name) {
@@ -2977,6 +3072,7 @@ window.__ModuleLoader__.load({
       const ext = (typeof artifact?.extension === 'string' && artifact.extension !== ''
         ? artifact.extension
         : extensionOfName(artifact?.name)).replace(/^\./, '').toLowerCase();
+      if (IMAGE_EXTENSIONS.has(ext)) return 'image';
       if (MARKDOWN_EXTENSIONS.has(ext)) return 'markdown';
       if (HTML_EXTENSIONS.has(ext)) return 'html';
       if (YAML_EXTENSIONS.has(ext)) return 'yaml';
