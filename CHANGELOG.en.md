@@ -7,6 +7,19 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] — 2026-11-04
+
+### Added
+
+- The published package now carries `assets/icon-180.png` (the PNG icon the
+  catalog uses); previously it only existed in the repository.
+
+### Changed
+
+- A new "release notes" gate runs before every publish: the version must have a
+  matching entry in both the Chinese and the English changelog, or the publish
+  is refused.
+
 ## [1.1.0] — 2026-11-04
 
 ### Added
