@@ -4,13 +4,13 @@
   "description": "产物空间：为 DSH 侧栏增加一个入口，按工作区与会话隔离列出每个会话的最终有效产物，支持预览、搜索与收藏。",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://github.com/XXJXX/artifact-space#readme",
+  "homepage": "https://github.com/majestyjun/artifact-space#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XXJXX/artifact-space.git"
+    "url": "git+https://github.com/majestyjun/artifact-space.git"
   },
   "bugs": {
-    "url": "https://github.com/XXJXX/artifact-space/issues"
+    "url": "https://github.com/majestyjun/artifact-space/issues"
   },
   "keywords": [
     "artifact",
@@ -99,5 +99,5 @@
       "optional": true
     }
   },
-  "author": "XXJXX"
+  "author": "majestyjun"
 }
