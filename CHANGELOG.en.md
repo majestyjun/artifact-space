@@ -7,6 +7,26 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-11-06
+
+### Added
+
+- A quick category filter in the toolbar: three chips — All, Delivered, and
+  Produced — each showing a live count. Picking "Delivered" hides the
+  incidentally produced files and leaves only what the session actually
+  delivered to the reader; picking it again returns to "All".
+- Artifact rows and the preview header now show a relative time ("2 min ago"),
+  with the absolute time on hover, so it is obvious which file was just made.
+
+### Changed
+
+- **Artifacts inside a session are now sorted newest first.** They used to keep
+  the order in which the log first mentioned them, which left the freshest
+  file at the bottom of the list.
+- The group and session artifact counts now follow the entries actually on
+  screen, so a filtered list and its number agree instead of contradicting
+  each other.
+
 ## [1.1.2] — 2026-11-05
 
 ### Changed
