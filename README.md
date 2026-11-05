@@ -112,10 +112,26 @@ SVG 同样以图片方式呈现，浏览器不会执行其中的脚本。图片�
 
 打开 **Settings → Plugins → Discover**，搜索 *Artifact Space* 并安装。市场会安装索引中指定的确切版本，并通过 profile 补丁启用它。
 
+本插件已被以下公开目录收录：
+
+| 目录 | 位置 | 状态 |
+| --- | --- | --- |
+| 官方插件市场（`awesome-dsh-plugin` registry） | [awesome-dsh-plugin.com](https://awesome-dsh-plugin.com) · DSH 内置的「插件市场」插件读的就是它 | 收录 PR 已提交 |
+| 1024 社区插件目录 | [deepseek1024.com](https://deepseek1024.com) | 已收录并同步上线 |
+| 社区插件精选 | [kejixiaoliang/awesome-dsh-plugins](https://github.com/kejixiaoliang/awesome-dsh-plugins) | 收录 PR 已提交 |
+
+官方目录每日构建一次，合并后约一天内自动出现在 DSH 内置市场的搜索结果里。
+
 ### 从 registry 安装
 
 ```bash
 npm install @xxjxx/artifact-space
+```
+
+或者直接用 DSH 的命令：
+
+```bash
+dsh plugin add @xxjxx/artifact-space
 ```
 
 然后在自己的 profile 补丁（`~/.dsh/profiles/desktop/cordis.patch.yml`）中启用：
