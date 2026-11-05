@@ -299,9 +299,10 @@ function isAppendSurfaceEvent(event) {
  * Fold one session's final artifacts from its complete event log.
  *
  * Mirrors the turn-scoped deliverables derivation at session scope: the last
- * delivery of each path wins its description, produced paths keep first-seen
- * order, and a path both produced and delivered is one entry whose kind is
- * `presented`. The turn of the latest `workspace/changes` announcement is
+ * delivery of each path wins its description, a path both produced and
+ * delivered is one entry whose kind is `presented`, and every row carries the
+ * moment it last appeared in the log so the list can be read newest first.
+ * The turn of the latest `workspace/changes` announcement is
  * carried so the preview can resolve it through the same Host recorder. The
  * final event timestamp is returned as the session's last activity.
  *
@@ -331,10 +332,10 @@ function foldSessionArtifacts(events) {
         const argumentPath = calls.get(String(event.data.message.source.callId));
         if (argumentPath === null || argumentPath === undefined) break;
         const path = mutationResultPath(argumentPath, event.data.meta);
-        if (path === null || seen.has(path)) break;
-        seen.add(path);
-        produced.push(path);
-        break;
+if (path === null || seen.has(path)) break;
+            seen.add(path);
+            produced.push({ path, at });
+            break;
       }
       case 'deliverables/presented': {
         if (!isPresentedData(event.data)) break;
@@ -345,6 +346,7 @@ function foldSessionArtifacts(events) {
             path: file.path,
             description: typeof file.description === 'string' ? file.description : undefined,
             turn,
+            at,
           });
         }
         break;
@@ -359,14 +361,18 @@ function foldSessionArtifacts(events) {
     }
   }
 
+  // Every row carries the moment its file last appeared in the log: the write
+  // for a produced file, the delivery for a presented one, or the later of the
+  // two when a path is both written and delivered.
   const rows = [];
-  for (const path of produced) {
-    const delivery = presented.get(path);
+  for (const entry of produced) {
+    const delivery = presented.get(entry.path);
     rows.push({
-      path,
+      path: entry.path,
       description: delivery?.description,
       turn: delivery?.turn ?? null,
       kind: delivery === undefined ? 'produced' : 'presented',
+      producedAt: laterTime(entry.at, delivery?.at ?? null),
     });
   }
   for (const [path, delivery] of presented) {
@@ -376,9 +382,20 @@ function foldSessionArtifacts(events) {
       description: delivery.description,
       turn: delivery.turn,
       kind: 'presented',
+      producedAt: delivery.at,
     });
   }
+  // Newest first, so the file the reader just made is the first one they see.
+  rows.sort((left, right) => (right.producedAt ?? 0) - (left.producedAt ?? 0)
+    || left.path.localeCompare(right.path));
   return { rows, changesTurn, lastActivity };
+}
+
+/** The later of two optional epoch-millisecond stamps, or the one that exists. */
+function laterTime(left, right) {
+  if (left === null || left === undefined) return right ?? null;
+  if (right === null || right === undefined) return left;
+  return Math.max(left, right);
 }
 
 /**
@@ -553,6 +570,7 @@ async function collectSessionRow(ctx, sessionId, snapshotsById, titles, signal) 
       kind: row.kind,
       description: row.description ?? null,
       turn: row.turn,
+      producedAt: row.producedAt ?? null,
       bytes: resolved.info.size ?? 0,
       extension: extensionOf(absolutePath),
       binary: isBinaryPath(absolutePath),
