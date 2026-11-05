@@ -1,0 +1,22 @@
+{
+  "manifestVersion": "1.0.0",
+  "providerId": "io.github.majestyjun",
+  "name": "Artifact Space",
+  "description": "Artifact Space 的官方目录源，收录该插件本身。",
+  "homepage": "https://github.com/majestyjun/artifact-space",
+  "attribution": {
+    "name": "Artifact Space by XXJXX",
+    "url": "https://github.com/majestyjun/artifact-space"
+  },
+  "transport": {
+    "kind": "https-json",
+    "endpoint": "https://raw.githubusercontent.com/majestyjun/artifact-space/main/catalog/v1/plugins",
+    "method": "GET"
+  },
+  "query": {
+    "supported": ["q", "category", "cursor", "limit"],
+    "defaultLimit": 50,
+    "maxLimit": 200,
+    "sorts": []
+  }
+}
