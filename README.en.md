@@ -156,10 +156,27 @@ Open **Settings → Plugins → Discover**, search for *Artifact Space*, and
 install it. The market installs the exact version named in the index and
 enables it through the profile patch.
 
+The plugin is listed in these public catalogs:
+
+| Catalog | Where | State |
+| --- | --- | --- |
+| Official plugin market (`awesome-dsh-plugin` registry) | [awesome-dsh-plugin.com](https://awesome-dsh-plugin.com) — the source the in-app DSH plugin market reads | Listing PR submitted |
+| 1024 community plugin catalog | [deepseek1024.com](https://deepseek1024.com) | Listed and synced live |
+| Community plugin picks | [kejixiaoliang/awesome-dsh-plugins](https://github.com/kejixiaoliang/awesome-dsh-plugins) | Listing PR submitted |
+
+The official catalog rebuilds daily, so the plugin appears in the in-app market
+search roughly a day after the listing merges.
+
 ### From a registry
 
 ```bash
 npm install @xxjxx/artifact-space
+```
+
+Or straight from DSH:
+
+```bash
+dsh plugin add @xxjxx/artifact-space
 ```
 
 Then enable it in your profile patch (`~/.dsh/profiles/desktop/cordis.patch.yml`):
