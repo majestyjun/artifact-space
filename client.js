@@ -20,6 +20,14 @@ window.__ModuleLoader__.load({
       'session.note.unreadable': '会话日志无法读取',
       'artifact.presented': '交付',
       'artifact.produced': '产出',
+      'filter.label': '分类',
+      'filter.all': '全部',
+      'filter.presented': '交付',
+      'filter.produced': '产出',
+      'filter.allCount': '{count}',
+      'filter.presentedCount': '{count}',
+      'filter.producedCount': '{count}',
+      'filter.empty': '当前分类下没有产物',
       'empty.title': '还没有产物',
       'empty.body': '当会话产出或交付文件后，它们会出现在这里。',
       'loading': '正在读取产物…',
@@ -92,6 +100,14 @@ window.__ModuleLoader__.load({
       'session.note.unreadable': 'This session log cannot be read',
       'artifact.presented': 'Delivered',
       'artifact.produced': 'Produced',
+      'filter.label': 'Kind',
+      'filter.all': 'All',
+      'filter.presented': 'Delivered',
+      'filter.produced': 'Produced',
+      'filter.allCount': '{count}',
+      'filter.presentedCount': '{count}',
+      'filter.producedCount': '{count}',
+      'filter.empty': 'No artifacts in this category',
       'empty.title': 'No artifacts yet',
       'empty.body': 'Files your sessions produce or deliver will appear here.',
       'loading': 'Reading artifacts…',
@@ -362,6 +378,53 @@ window.__ModuleLoader__.load({
 }
 .artifact-space-refreshStamp[data-busy="true"]{color:var(--glass-accent-icon)}
 
+/* ── 分类筛选（全部 / 交付 / 产出） ─────────────────────── */
+.artifact-space-filter{
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  gap:1px;
+  height:26px;
+  padding:2px;
+  border-radius:9px;
+  background:rgba(255,255,255,.22);
+  box-shadow:0 1px 0 rgba(255,255,255,.32) inset;
+}
+.artifact-space-filterBtn{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  height:100%;
+  padding:0 8px;
+  border:0;border-radius:7px;
+  background:transparent;
+  color:var(--glass-text-tertiary);
+  font-family:var(--dsw-font-markdown-base);
+  font-size:11px;
+  line-height:14px;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:background .12s ease-out,color .12s ease-out;
+}
+.artifact-space-filterBtn:hover{color:var(--glass-text-primary)}
+.artifact-space-filterBtn:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:-1px}
+/* 选中档：玻璃底 + 主色文字，一眼看出当前分类 */
+.artifact-space-filterBtn[aria-pressed="true"]{
+  background:rgba(255,255,255,.46);
+  color:var(--glass-text-primary);
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset;
+}
+.artifact-space-filterBtn[data-kind="presented"][aria-pressed="true"]{color:var(--glass-accent-icon)}
+.artifact-space-filterCount{
+  font-size:10px;
+  font-variant-numeric:tabular-nums;
+  color:var(--glass-text-tertiary);
+}
+.artifact-space-filterBtn[aria-pressed="true"] .artifact-space-filterCount{
+  color:inherit;
+  opacity:.75;
+}
+
 /* ── 搜索框 ────────────────────────────────────────────── */
 .artifact-space-search{
   box-sizing:border-box;
@@ -574,7 +637,21 @@ window.__ModuleLoader__.load({
 }
 .artifact-space-rowName[data-outside="true"]{color:var(--glass-text-secondary)}
 .artifact-space-row[data-selected="true"] .artifact-space-rowName{font-weight:500}
-.artifact-space-rowSize{flex:none;text-align:right;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);font-variant-numeric:tabular-nums}
+.artifact-space-rowSize{flex:none;text-align:right;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* 产物时间：与「最新的在最上面」的排序对应，鼠标悬停给出绝对时间 */
+.artifact-space-rowTime{
+  flex:none;
+  font-size:10px;
+  line-height:16px;
+  color:var(--glass-text-tertiary);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+  opacity:.8;
+}
+/* 空间紧张时（窄面板 / 长文件名）先让位给文件名与大小 */
+@container (max-width:420px){
+  .artifact-space-rowTime{display:none}
+}
 .artifact-space-rowMore{
   box-sizing:border-box;height:25px;
   display:flex;align-items:center;gap:6px;
@@ -921,6 +998,13 @@ window.__ModuleLoader__.load({
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font-size:11px;line-height:16px;
   color:var(--glass-text-secondary);
+}
+.artifact-space-metaTime{
+  flex:none;
+  font-size:10px;line-height:15px;
+  color:var(--glass-text-tertiary);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1374,7 +1458,8 @@ window.__ModuleLoader__.load({
       const description = typeof artifact?.description === 'string' && artifact.description.trim() !== ''
         ? artifact.description.trim()
         : null;
-      if (kind === null && turn === null && description === null) return null;
+      const producedAt = Number.isFinite(artifact?.producedAt) ? artifact.producedAt : null;
+      if (kind === null && turn === null && description === null && producedAt === null) return null;
 
       return h('span', { className: cx('artifact-space-meta') }, [
         kind !== null
@@ -1387,6 +1472,13 @@ window.__ModuleLoader__.load({
         turn !== null
           ? h('span', { key: 'turn', className: cx('artifact-space-metaTurn') },
             t('artifact.turn', { turn: String(turn) }))
+          : null,
+        producedAt !== null
+          ? h('span', {
+            key: 'time',
+            className: cx('artifact-space-metaTime'),
+            title: absoluteTime(producedAt),
+          }, relativeTime(t, producedAt))
           : null,
         description !== null
           ? h('span', { key: 'desc', className: cx('artifact-space-metaDesc'), title: description }, description)
@@ -1827,6 +1919,13 @@ window.__ModuleLoader__.load({
           ? h('mark', { key: `m${index}`, className: cx('artifact-space-hit') }, piece.text)
           : h('span', { key: `t${index}` }, piece.text)))),
         artifactKind(artifact, t),
+        Number.isFinite(artifact.producedAt)
+          ? h('span', {
+            key: 'time',
+            className: cx('artifact-space-rowTime'),
+            title: absoluteTime(artifact.producedAt),
+          }, relativeTime(t, artifact.producedAt))
+          : null,
         h('span', { key: 'size', className: cx('artifact-space-rowSize') }, formatBytes(artifact.bytes)),
         onToggleFavorite === null ? null : h('button', {
           key: 'star',
@@ -1971,6 +2070,10 @@ window.__ModuleLoader__.load({
     function WorkspaceGroup({ group, open, onToggle, selected, onSelect, t, expandedSessions, onToggleSession, foldedSessions, onToggleFolded, searchParts, favorites, onToggleFavorite }) {
       const title = group.grouped ? group.title : t('group.ungrouped');
       const toggle = () => onToggle(group.workspaceId || 'ungrouped');
+      // The count follows what the group actually shows, so a category filter
+      // narrows the number instead of contradicting the list below it.
+      const visibleCount = (Array.isArray(group.sessions) ? group.sessions : [])
+        .reduce((sum, session) => sum + session.artifacts.length, 0);
       return h('section', { className: cx('artifact-space-group'), 'data-workspace-group': group.workspaceId || 'ungrouped' }, [
         h('div', {
           key: 'head',
@@ -2005,7 +2108,7 @@ window.__ModuleLoader__.load({
               ? h('mark', { key: `m${index}`, className: cx('artifact-space-hit') }, piece.text)
               : h('span', { key: `t${index}` }, piece.text)))),
           h('span', { key: 'meta', className: cx('artifact-space-groupMeta') },
-            t('group.count', { count: String(group.artifactCount ?? 0) })),
+            t('group.count', { count: String(visibleCount) })),
           h('span', {
             key: 'time',
             className: cx('artifact-space-groupTime'),
@@ -2554,6 +2657,9 @@ window.__ModuleLoader__.load({
       const [query, setQuery] = React.useState('');
       // Whether the panel shows every artifact or only the starred ones.
       const [showFavorites, setShowFavorites] = React.useState(false);
+      // The quick category filter: every artifact, only the delivered ones, or
+      // only the ones produced along the way.
+      const [kindFilter, setKindFilter] = React.useState('all');
       const primedGroups = React.useRef(false);
       const treeRef = React.useRef(null);
       // The viewport height the tree was measured against, so the automatic
@@ -2581,7 +2687,20 @@ window.__ModuleLoader__.load({
           ...session,
           title: typeof session?.title === 'string' && session.title !== '' ? session.title : String(session?.sessionId ?? ''),
           note: session?.note ?? null,
-          artifacts: (Array.isArray(session?.artifacts) ? session.artifacts : []).filter((a) => a && typeof a.path === 'string'),
+          artifacts: (Array.isArray(session?.artifacts) ? session.artifacts : [])
+            .filter((a) => a && typeof a.path === 'string')
+            // Newest first: the file the reader just made leads the list.
+            .map((artifact, index) => ({ artifact, index }))
+            .sort((left, right) => {
+              const leftAt = Number.isFinite(left.artifact.producedAt) ? left.artifact.producedAt : null;
+              const rightAt = Number.isFinite(right.artifact.producedAt) ? right.artifact.producedAt : null;
+              if (leftAt === null && rightAt === null) return left.index - right.index;
+              if (leftAt === null) return 1;
+              if (rightAt === null) return -1;
+              if (rightAt !== leftAt) return rightAt - leftAt;
+              return left.index - right.index;
+            })
+            .map((entry) => entry.artifact),
         })),
       })), [groups]);
 
@@ -2746,10 +2865,46 @@ window.__ModuleLoader__.load({
         favoritesStore.clear();
       }, [favoritesStore]);
 
-      const filteredGroups = React.useMemo(() => {
-        if (!searching) return safeGroups;
+      // How many artifacts each category holds, for the filter chips.
+      const kindCounts = React.useMemo(() => {
+        let all = 0;
+        let presented = 0;
+        let produced = 0;
+        for (const group of safeGroups) {
+          for (const session of group.sessions) {
+            for (const artifact of session.artifacts) {
+              all += 1;
+              if (artifact.kind === 'presented') presented += 1;
+              else produced += 1;
+            }
+          }
+        }
+        return { all, presented, produced };
+      }, [safeGroups]);
+
+      // The category filter runs before the text filter: a reader who asked
+      // for delivered artifacts only sees the delivered ones, and the search
+      // then narrows that set further.
+      const kindGroups = React.useMemo(() => {
+        if (kindFilter === 'all') return safeGroups;
         const result = [];
         for (const group of safeGroups) {
+          const sessions = [];
+          for (const session of group.sessions) {
+            const artifacts = session.artifacts.filter((artifact) => artifact.kind === kindFilter);
+            if (artifacts.length === 0) continue;
+            sessions.push({ ...session, artifacts });
+          }
+          if (sessions.length === 0) continue;
+          result.push({ ...group, sessions });
+        }
+        return result;
+      }, [safeGroups, kindFilter]);
+
+      const filteredGroups = React.useMemo(() => {
+        if (!searching) return kindGroups;
+        const result = [];
+        for (const group of kindGroups) {
           const groupHit = labelMatches(group.title, searchParts);
           const sessions = [];
           for (const session of group.sessions) {
@@ -2764,7 +2919,7 @@ window.__ModuleLoader__.load({
           result.push({ ...group, sessions });
         }
         return result;
-      }, [safeGroups, searchParts, searching]);
+      }, [kindGroups, searchParts, searching]);
 
       // While a search is active every match is shown, so nothing that
       // matched stays hidden behind a folded session. A session the reader
@@ -2793,14 +2948,14 @@ window.__ModuleLoader__.load({
       const totals = React.useMemo(() => {
         let sessions = 0;
         let artifacts = 0;
-        for (const group of safeGroups) {
+        for (const group of kindGroups) {
           for (const session of group.sessions) {
             sessions += 1;
             artifacts += session.artifacts.length;
           }
         }
-        return { groups: safeGroups.length, sessions, artifacts };
-      }, [safeGroups]);
+        return { groups: kindGroups.length, sessions, artifacts };
+      }, [kindGroups]);
 
       const selectedSession = React.useMemo(() => {
         if (selected === null) return null;
@@ -2847,7 +3002,7 @@ window.__ModuleLoader__.load({
             searchParts,
           });
         }
-        if (totals.artifacts === 0) {
+        if (kindCounts.all === 0) {
           return h('div', { key: 'empty', className: cx('artifact-space-status') }, [
             h('span', { key: 'title', className: cx('artifact-space-statusTitle') }, t('empty.title')),
             h('span', { key: 'body', className: cx('artifact-space-statusBody') }, t('empty.body')),
@@ -2856,6 +3011,12 @@ window.__ModuleLoader__.load({
         if (searching && filteredGroups.length === 0) {
           return h('div', { key: 'noHits', className: cx('artifact-space-status') }, [
             h('span', { key: 'title', className: cx('artifact-space-statusTitle') }, t('search.none', { query: query.trim() })),
+            h('span', { key: 'body', className: cx('artifact-space-statusBody') }, t('search.noneHint')),
+          ]);
+        }
+        if (kindFilter !== 'all' && kindGroups.length === 0) {
+          return h('div', { key: 'noKind', className: cx('artifact-space-status') }, [
+            h('span', { key: 'title', className: cx('artifact-space-statusTitle') }, t('filter.empty')),
             h('span', { key: 'body', className: cx('artifact-space-statusBody') }, t('search.noneHint')),
           ]);
         }
@@ -2943,6 +3104,51 @@ window.__ModuleLoader__.load({
             favorites.size > 0
               ? h('span', { key: 'count', className: cx('artifact-space-favCount') }, String(favorites.size))
               : null,
+          ]),
+          h('div', {
+            key: 'filter',
+            className: cx('artifact-space-filter'),
+            role: 'group',
+            'aria-label': t('filter.label'),
+          }, [
+            h('button', {
+              key: 'all',
+              type: 'button',
+              className: cx('artifact-space-filterBtn'),
+              'data-kind': 'all',
+              'aria-pressed': kindFilter === 'all' ? 'true' : 'false',
+              onClick: () => setKindFilter('all'),
+            }, [
+              h('span', { key: 'label' }, t('filter.all')),
+              h('span', { key: 'count', className: cx('artifact-space-filterCount') },
+                t('filter.allCount', { count: String(kindCounts.all) })),
+            ]),
+            h('button', {
+              key: 'presented',
+              type: 'button',
+              className: cx('artifact-space-filterBtn'),
+              'data-kind': 'presented',
+              'aria-pressed': kindFilter === 'presented' ? 'true' : 'false',
+              title: t('artifact.presented'),
+              onClick: () => setKindFilter(kindFilter === 'presented' ? 'all' : 'presented'),
+            }, [
+              h('span', { key: 'label' }, t('filter.presented')),
+              h('span', { key: 'count', className: cx('artifact-space-filterCount') },
+                t('filter.presentedCount', { count: String(kindCounts.presented) })),
+            ]),
+            h('button', {
+              key: 'produced',
+              type: 'button',
+              className: cx('artifact-space-filterBtn'),
+              'data-kind': 'produced',
+              'aria-pressed': kindFilter === 'produced' ? 'true' : 'false',
+              title: t('artifact.produced'),
+              onClick: () => setKindFilter(kindFilter === 'produced' ? 'all' : 'produced'),
+            }, [
+              h('span', { key: 'label' }, t('filter.produced')),
+              h('span', { key: 'count', className: cx('artifact-space-filterCount') },
+                t('filter.producedCount', { count: String(kindCounts.produced) })),
+            ]),
           ]),
           h('div', {
             key: 'search',
