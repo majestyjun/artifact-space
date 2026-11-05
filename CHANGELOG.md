@@ -7,6 +7,16 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.2] — 2026-11-05
+
+### 变更
+
+- README 的「安装」章节新增公开目录收录表，写明本插件已进入哪些公开渠道
+  （官方 `awesome-dsh-plugin` 市场 registry、1024 社区插件目录、社区插件精选），
+  以及各自的状态与官方目录的每日构建节奏。
+- 补上 `dsh plugin add @xxjxx/artifact-space` 这条命令，读者不必先手工
+  `npm install` 再改 profile 补丁。
+
 ## [1.1.1] — 2026-11-04
 
 ### 新增
