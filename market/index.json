@@ -39,7 +39,7 @@
         "en": "Adds an Artifact Space entry to the DSH sidebar that lists the final effective artifacts of each session, grouped by workspace and session, with an editor-style preview, image previews, search across workspaces and sessions, favorites, and per-file provenance.",
         "zh": "在 DSH 侧栏新增「产物空间」入口，按工作区与会话分组列出每个会话的最终有效产物，提供编辑器风格预览、图片预览、跨工作区与会话搜索、收藏以及逐文件的来源说明。"
       },
-      "icon": "https://raw.githubusercontent.com/majestyjun/artifact-space/main/assets/icon-180.png",
+      "icon": "https://cdn.jsdelivr.net/gh/majestyjun/artifact-space@main/assets/icon-180.png",
       "author": "majestyjun",
       "homepage": "https://github.com/majestyjun/artifact-space",
       "repository": {
