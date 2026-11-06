@@ -28,6 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The README now reads in a written register: the second person and the
   conversational phrasing ("click to", "what the frame gets is") are gone,
   in both the Chinese and the English version.
+- The feature table in the English README still carried Chinese labels; they
+  are now all translated ("玻璃界面" → Glass interface, "三级搜索" → Three-level
+  search), and the product name in the body reads as Artifact Space with the
+  Chinese original in brackets. The release check gains a new gate that fails
+  on Chinese text or Chinese punctuation in the English README, so the mix
+  cannot come back unnoticed.
 
 ## [1.3.0] — 2026-11-06
 
