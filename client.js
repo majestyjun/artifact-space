@@ -53,6 +53,10 @@ window.__ModuleLoader__.load({
       'preview.download': '下载',
       'preview.downloaded': '已下载',
       'preview.downloadFailed': '下载失败',
+      'lightbox.zoomIn': '放大',
+      'lightbox.zoomOut': '缩小',
+      'lightbox.zoomReset': '还原',
+      'lightbox.zoomLevel': '缩放比例',
       'refresh': '刷新',
       'refresh.aria': '刷新产物列表',
       'refresh.busy': '刷新中…',
@@ -138,6 +142,10 @@ window.__ModuleLoader__.load({
       'preview.download': 'Download',
       'preview.downloaded': 'Downloaded',
       'preview.downloadFailed': 'Download failed',
+      'lightbox.zoomIn': 'Zoom in',
+      'lightbox.zoomOut': 'Zoom out',
+      'lightbox.zoomReset': 'Reset',
+      'lightbox.zoomLevel': 'Zoom level',
       'refresh': 'Refresh',
       'refresh.aria': 'Refresh the artifact list',
       'refresh.busy': 'Refreshing…',
@@ -1070,6 +1078,27 @@ window.__ModuleLoader__.load({
   border-radius:8px;
   box-shadow:0 20px 60px rgba(0,0,0,.5);
   cursor:default;
+  /* The zoom is applied as a transform so the picture keeps its natural
+     resolution while the scale readout stays cheap to update. */
+  transform:scale(1);
+  transform-origin:center center;
+  transition:transform .12s ease-out;
+  will-change:transform;
+}
+.artifact-space-lightbox[data-zooming="true"] .artifact-space-lightboxImage{
+  transition:none;
+}
+.artifact-space-lightbox[data-zoomed="true"]{
+  cursor:grab;
+}
+.artifact-space-lightbox[data-zoomed="true"] .artifact-space-lightboxImage{
+  cursor:grab;
+}
+.artifact-space-lightbox[data-panning="true"]{
+  cursor:grabbing;
+}
+.artifact-space-lightbox[data-panning="true"] .artifact-space-lightboxImage{
+  cursor:grabbing;
 }
 .artifact-space-lightboxBar{
   position:absolute;top:0;left:0;right:0;
@@ -1087,6 +1116,35 @@ window.__ModuleLoader__.load({
   flex:none;
   font-size:12px;line-height:18px;
   opacity:.78;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
+.artifact-space-lightboxZoom{
+  flex:none;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.artifact-space-lightboxZoomButton{
+  flex:none;
+  width:30px;height:30px;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0;
+  border:.5px solid rgba(255,255,255,.28);
+  border-radius:8px;
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  cursor:pointer;
+}
+.artifact-space-lightboxZoomButton:hover{background:rgba(255,255,255,.28)}
+.artifact-space-lightboxZoomButton:focus-visible{outline:2px solid rgba(255,255,255,.7);outline-offset:1px}
+.artifact-space-lightboxZoomButton:disabled{opacity:.4;cursor:default}
+.artifact-space-lightboxZoomButton:disabled:hover{background:rgba(255,255,255,.14)}
+.artifact-space-lightboxZoomButton svg{width:14px;height:14px;flex:none}
+.artifact-space-lightboxZoomLevel{
+  flex:none;
+  min-width:46px;
+  text-align:center;
+  font-size:12px;line-height:18px;
+  font-variant-numeric:tabular-nums;
+  opacity:.86;
   text-shadow:0 1px 4px rgba(0,0,0,.6);
 }
 .artifact-space-lightboxClose{
@@ -1321,6 +1379,32 @@ window.__ModuleLoader__.load({
     }
 
     /**
+     * Collect the labels the lightbox needs from the panel's translator.
+     *
+     * The overlay is built with plain DOM calls, so it cannot read the
+     * translation hook itself; the caller hands the strings over instead.
+     *
+     * @param {(key: string) => string} t - the panel's translator.
+     * @returns {{ zoomIn: string, zoomOut: string, zoomReset: string, zoomLevel: string }}
+     */
+    function lightboxLabels(t) {
+      const read = (key) => {
+        try {
+          const value = typeof t === 'function' ? t(key) : '';
+          return typeof value === 'string' ? value : '';
+        } catch (error) {
+          return '';
+        }
+      };
+      return {
+        zoomIn: read('lightbox.zoomIn'),
+        zoomOut: read('lightbox.zoomOut'),
+        zoomReset: read('lightbox.zoomReset'),
+        zoomLevel: read('lightbox.zoomLevel'),
+      };
+    }
+
+    /**
      * Show a picture full screen.
      *
      * The overlay is built with the DOM directly and hung off `document.body`
@@ -1332,11 +1416,15 @@ window.__ModuleLoader__.load({
      * @param {string} src - the picture's URL.
      * @param {string} name - the file name, shown in the overlay bar.
      * @param {string} meta - the dimensions and size, shown in the overlay bar.
+     * @param {{ zoomIn: string, zoomOut: string, zoomReset: string, zoomLevel: string }} labels
+     *   Localised labels for the zoom controls.
      * @returns {void}
      */
-    function openLightbox(src, name, meta) {
+    function openLightbox(src, name, meta, labels) {
       if (typeof document === 'undefined' || typeof document.createElement !== 'function') return;
       if (typeof src !== 'string' || src === '') return;
+
+      const text = labels && typeof labels === 'object' ? labels : {};
 
       const overlay = document.createElement('div');
       overlay.className = 'artifact-space-lightbox';
@@ -1355,6 +1443,54 @@ window.__ModuleLoader__.load({
       info.className = 'artifact-space-lightboxMeta';
       info.textContent = typeof meta === 'string' ? meta : '';
 
+      /* ── Zoom controls ────────────────────────────────────────────────
+         The picture is scaled with a transform instead of width/height so
+         the original resolution is kept and zooming stays cheap. */
+
+      const zoom = document.createElement('div');
+      zoom.className = 'artifact-space-lightboxZoom';
+
+      const MIN_SCALE = 0.2;
+      const MAX_SCALE = 8;
+      const STEP = 1.25;
+      let scale = 1;
+
+      const makeZoomButton = (label, ariaLabel, path, onClick) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'artifact-space-lightboxZoomButton';
+        button.setAttribute('aria-label', ariaLabel);
+        button.title = ariaLabel;
+        button.innerHTML = `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="${path}"/></svg>`;
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          onClick();
+        });
+        zoom.appendChild(button);
+        return button;
+      };
+
+      const level = document.createElement('span');
+      level.className = 'artifact-space-lightboxZoomLevel';
+      level.setAttribute('aria-label', typeof text.zoomLevel === 'string' ? text.zoomLevel : 'Zoom level');
+
+      const zoomOutButton = makeZoomButton(
+        text.zoomOut, text.zoomOut,
+        'M3 8h10',
+        () => setScale(scale / STEP),
+      );
+      makeZoomButton(
+        text.zoomIn, text.zoomIn,
+        'M8 3v10M3 8h10',
+        () => setScale(scale * STEP),
+      );
+      makeZoomButton(
+        text.zoomReset, text.zoomReset,
+        'M3 8a5 5 0 1 0 1.6-3.7M3 3v3h3',
+        () => setScale(1),
+      );
+      zoom.appendChild(level);
+
       const close = document.createElement('button');
       close.type = 'button';
       close.className = 'artifact-space-lightboxClose';
@@ -1366,8 +1502,18 @@ window.__ModuleLoader__.load({
       picture.src = src;
       picture.alt = typeof name === 'string' ? name : 'image';
 
+      function setScale(next) {
+        const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Number(next) || 1));
+        scale = clamped;
+        picture.style.transform = `scale(${scale})`;
+        level.textContent = `${Math.round(scale * 100)}%`;
+        overlay.setAttribute('data-zoomed', scale > 1 ? 'true' : 'false');
+        zoomOutButton.disabled = scale <= MIN_SCALE + 1e-6;
+      }
+
       bar.appendChild(title);
       bar.appendChild(info);
+      bar.appendChild(zoom);
       bar.appendChild(close);
       overlay.appendChild(bar);
       overlay.appendChild(picture);
@@ -1378,6 +1524,9 @@ window.__ModuleLoader__.load({
       };
       const onKeyDown = (event) => {
         if (event.key === 'Escape') dismiss();
+        else if (event.key === '+' || event.key === '=') setScale(scale * STEP);
+        else if (event.key === '-') setScale(scale / STEP);
+        else if (event.key === '0') setScale(1);
       };
       // Clicking the backdrop closes it; clicking the picture does not, so the
       // picture can be looked at closely without dismissing it by accident.
@@ -1387,6 +1536,15 @@ window.__ModuleLoader__.load({
       close.addEventListener('click', dismiss);
       document.addEventListener('keydown', onKeyDown);
 
+      // The wheel zooms around the pointer, so the spot under the cursor stays
+      // put — the behaviour every image viewer has.
+      overlay.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        const factor = event.deltaY < 0 ? STEP : 1 / STEP;
+        setScale(scale * factor);
+      }, { passive: false });
+
+      setScale(1);
       document.body.appendChild(overlay);
     }
 
@@ -2544,7 +2702,7 @@ window.__ModuleLoader__.load({
                 className: cx('artifact-space-previewAction'),
                 'aria-label': t('preview.fullscreen'),
                 title: t('preview.fullscreen'),
-                onClick: () => openLightbox(src, artifact.name, sizeLabel),
+                onClick: () => openLightbox(src, artifact.name, sizeLabel, lightboxLabels(t)),
               }, [
                 h('svg', {
                   key: 'icon',
@@ -2654,7 +2812,7 @@ window.__ModuleLoader__.load({
                 src,
                 alt: artifact.name,
                 title: t('preview.fullscreen'),
-                onClick: () => openLightbox(src, artifact.name, sizeLabel),
+                onClick: () => openLightbox(src, artifact.name, sizeLabel, lightboxLabels(t)),
                 onLoad: (event) => {
                   const node = event.currentTarget;
                   setDimensions({ width: node.naturalWidth, height: node.naturalHeight });
