@@ -2,7 +2,7 @@
 # 不含代码块内容与生成区域。
 # 重新生成：node gen-i18n-yaml.mjs
 1:
-  zh: 259bb772dabe62e9
+  zh: 2b45ff339a20d141
   en: f9dd0b97f4aaeb43
 1/2.1:
   zh: 23a88367d24bb95a
@@ -20,8 +20,8 @@
   zh: 5ab1bcb0ea4211a4
   en: fde89fec0014121d
 1/2.5:
-  zh: e16ffd01b707ba26
-  en: f836b82faf4f07d2
+  zh: a5be8ea9a5ea3d71
+  en: e3bd58cd0b5a6ddb
 1/2.6:
   zh: bcc6444e4f565cda
   en: 102be3d414983988
@@ -47,8 +47,8 @@
   zh: af0849039c842373
   en: 3471791ae2c7effe
 1/2.11:
-  zh: 7fa427cf304b1720
-  en: 8d11fc3d806b2360
+  zh: f0642f94842ab1e1
+  en: 99d9fb36e28059cc
 1/2.12:
   zh: 88bc76e59d3273a0
   en: d4a0de6ba72174bb
