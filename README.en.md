@@ -74,7 +74,7 @@ of dumping raw text:
 | --- | --- |
 | `png`, `jpg`, `jpeg`, `gif`, `webp`, `bmp`, `avif`, `ico`, `svg` | Image: the Host returns the file's own bytes under the media type that matches its extension, the browser renders it, and the status bar reports the picture's dimensions and size. |
 | `md`, `markdown`, `mdown`, `mkd`, `mdx` | Markdown: headings, paragraphs, lists, tables, block quotes, thematic breaks, fenced code blocks with a language label, and inline code / strong / emphasis / strikethrough / links. |
-| `html`, `htm`, `xhtml` | Rendered in a sandboxed frame (`sandbox=""`), after script elements, inline event handlers and `javascript:` URLs are stripped. |
+| `html`, `htm`, `xhtml` | Rendered as a page: the Host rewrites the document's relative references to pictures, styles and fonts into authenticated asset addresses, so the preview shows the real page. |
 | `yml`, `yaml` | An indented key/value outline that keeps the document's own nesting. |
 | `json`, `jsonc`, `json5` | Pretty-printed JSON; a malformed document falls back to its raw text. |
 | anything else | Plain text. |
@@ -85,6 +85,17 @@ names a picture, and it is within 16 MB — and it serves them under the exact
 `Content-Type` that extension maps to. SVG is shown the same way, so the browser
 never runs any script it carries. When a picture fails to load, the preview says
 so instead of showing an empty pane.
+
+HTML artifacts take a route of their own: the Host delivers the document as it
+is, but first rewrites its relative `src`, `href`, `poster` and `srcset`
+references into asset addresses. Absolute addresses, `data:` URIs and bare
+fragments are left untouched, and a reference that climbs out of the workspace
+root with `..` is refused. The preview frame therefore receives the page
+itself, and the document's relative pictures no longer come out broken. An
+"Open in browser" button puts the document in a tab of its own. The Host's
+response carries a `content-security-policy` that blocks inline scripts and
+outbound requests, and the frame's `sandbox` narrows the permissions further,
+so scripts in the document never run.
 
 Every format falls back to plain text, so an unknown or malformed document still
 shows its content.
