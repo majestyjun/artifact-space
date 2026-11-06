@@ -11,9 +11,10 @@ English | [中文](README.md)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![dsh-plugin](https://img.shields.io/badge/DSH--plugin-8A5CF5.svg)](https://github.com/topics/dsh-plugin)
 
-A DSH plugin that adds an **产物空间** entry to the sidebar. It lists every
-workspace's final effective session artifacts — grouped by workspace, then by
-session — and previews the file content when a row is selected.
+A DSH plugin that adds an **Artifact Space** (产物空间) entry to the sidebar.
+It lists every workspace's final effective session artifacts — grouped by
+workspace, then by session — and previews the file content when a row is
+selected.
 
 ![Artifact Space panel](./docs/screenshot-panel.png)
 
@@ -21,14 +22,14 @@ session — and previews the file content when a row is selected.
 
 | | |
 | --- | --- |
-| **玻璃界面** | A layered glass panel that adapts to the light and dark themes, with colored light behind it so the material actually refracts. |
-| **编辑器预览** | Code files open in an editor-style view: a sticky line-number gutter, syntax highlighting, and a status bar reporting language, line count, size and encoding. |
-| **多格式渲染** | Markdown, HTML, YAML and JSON each get their own renderer, with a plain-text fallback for anything unrecognised. |
-| **三级搜索** | Filter across workspaces, sessions and artifacts at once. Words separated by spaces are alternatives, so `client json` finds both `client.js` and `package.json`. |
-| **收藏夹** | Star the artifacts worth keeping. Favorites survive restarts, and each one leaves disk the moment you un-star it. |
-| **会话折叠** | Sessions fold to their header. By default only the ones that fit on the first screen are open. |
-| **一键带走** | Copy a file's content or its absolute path straight from the preview header. |
-| **来源可溯** | Each artifact says whether it was *delivered* or merely *produced*, in which turn, and what the session said about it. |
+| **Glass interface** | A layered glass panel that adapts to the light and dark themes, with colored light behind it so the material actually refracts. |
+| **Editor preview** | Code files open in an editor-style view: a sticky line-number gutter, syntax highlighting, and a status bar reporting language, line count, size and encoding. |
+| **Multi-format rendering** | Markdown, HTML, YAML and JSON each get their own renderer, with a plain-text fallback for anything unrecognised. |
+| **Three-level search** | Filter across workspaces, sessions and artifacts at once. Words separated by spaces are alternatives, so `client json` finds both `client.js` and `package.json`. |
+| **Favorites** | Star the artifacts worth keeping. Favorites survive restarts, and each one leaves disk the moment you un-star it. |
+| **Session folding** | Sessions fold to their header. By default only the ones that fit on the first screen are open. |
+| **Copy and go** | Copy a file's content or its absolute path straight from the preview header. |
+| **Traceable origin** | Each artifact says whether it was *delivered* or merely *produced*, in which turn, and what the session said about it. |
 
 ## What counts as an artifact
 
