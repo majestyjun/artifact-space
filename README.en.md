@@ -94,6 +94,12 @@ outside the picture. **Download** fetches the bytes from the Host's image route
 and saves them locally under the original file name, which raises the browser's
 save dialog.
 
+The full-screen view supports zooming: the toolbar carries Zoom in / Zoom out /
+Reset buttons and a live scale readout, ranging from 20% to 800%. The mouse wheel
+zooms directly, `+` zooms in, `-` zooms out and `0` resets. The picture is scaled
+with a transform, so its native resolution is preserved and a grab cursor lets
+you inspect fine detail once it is enlarged.
+
 HTML artifacts take a route of their own: the Host delivers the document as it
 is, but first rewrites its relative `src`, `href`, `poster` and `srcset`
 references into asset addresses. Absolute addresses, `data:` URIs and bare
