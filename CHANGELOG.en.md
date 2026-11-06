@@ -7,6 +7,20 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] — 2026-11-06
+
+### Added
+
+- The full-screen lightbox now supports zooming: the toolbar gained Zoom in / Zoom out / Reset buttons and a live scale readout (20%–800%). The picture is scaled with a transform, so its native resolution is preserved.
+- The mouse wheel zooms directly inside the lightbox; the wheel event is intercepted so the page does not scroll along.
+- Keyboard shortcuts: `+` zooms in, `-` zooms out, `0` resets, `Esc` closes.
+- Added `smoke-render-lightbox-zoom.mjs`, a dedicated zoom verification script with 38 assertions, wired into the pre-release pipeline.
+
+### Changed
+
+- The zoom buttons follow the panel's glass styling so they match the other action buttons. Zoom labels are provided in Chinese and English (`lightbox.zoomIn` / `zoomOut` / `zoomReset` / `zoomLevel`).
+- The cursor switches to a grab handle once the picture is enlarged, and the transition animation is disabled while zooming so the image tracks the input.
+
 ## [1.4.0] — 2026-11-06
 
 ### Added
