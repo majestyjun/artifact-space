@@ -7,6 +7,28 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2026-11-06
+
+### Added
+
+- **Full screen** for picture previews: the picture is enlarged until it covers
+  the window. It can be triggered by clicking the picture itself or by the
+  "Full screen" button, and it closes on `Esc` or on a click outside the
+  picture. The overlay is hung off `document.body`, which sidesteps the
+  containing block the panel's own `backdrop-filter` would otherwise impose.
+- **Download** for picture previews: the bytes are fetched from the Host's
+  image route and saved locally under the original file name. The outcome —
+  success or failure — is reported on the button itself.
+- The preview action buttons are larger: height from 22px to 27px, icon from
+  12px to 13.5px, font size from 11px to 12px, with the preview header raised
+  from 32px to 38px to match.
+
+### Changed
+
+- The README now reads in a written register: the second person and the
+  conversational phrasing ("click to", "what the frame gets is") are gone,
+  in both the Chinese and the English version.
+
 ## [1.3.0] — 2026-11-06
 
 ### Added

@@ -86,6 +86,13 @@ names a picture, and it is within 16 MB — and it serves them under the exact
 never runs any script it carries. When a picture fails to load, the preview says
 so instead of showing an empty pane.
 
+The picture preview offers two further operations. **Full screen** enlarges the
+picture until it covers the window; it can be triggered by clicking the picture
+itself or by the "Full screen" button, and it closes on `Esc` or on a click
+outside the picture. **Download** fetches the bytes from the Host's image route
+and saves them locally under the original file name, which raises the browser's
+save dialog.
+
 HTML artifacts take a route of their own: the Host delivers the document as it
 is, but first rewrites its relative `src`, `href`, `poster` and `srcset`
 references into asset addresses. Absolute addresses, `data:` URIs and bare
@@ -216,7 +223,7 @@ The plugin reads only the session logs and workspace files the Host already
 exposes to it. It makes no network request of its own and sends nothing
 anywhere.
 
-Favorites are stored locally in your browser profile under
+Favorites are stored locally in the browser profile under
 `artifactSpace.favorite.v1.*`. Un-starring an artifact deletes its entry, and
 **Clear** in the favorites header removes every one of them together with their
 storage records.
