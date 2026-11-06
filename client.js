@@ -49,6 +49,10 @@ window.__ModuleLoader__.load({
       'preview.lines': '{count} 行',
       'preview.close': '关闭预览',
       'preview.openInBrowser': '在浏览器中打开',
+      'preview.fullscreen': '全屏查看',
+      'preview.download': '下载',
+      'preview.downloaded': '已下载',
+      'preview.downloadFailed': '下载失败',
       'refresh': '刷新',
       'refresh.aria': '刷新产物列表',
       'refresh.busy': '刷新中…',
@@ -130,6 +134,10 @@ window.__ModuleLoader__.load({
       'preview.lines': '{count} lines',
       'preview.close': 'Close preview',
       'preview.openInBrowser': 'Open in browser',
+      'preview.fullscreen': 'Full screen',
+      'preview.download': 'Download',
+      'preview.downloaded': 'Downloaded',
+      'preview.downloadFailed': 'Download failed',
       'refresh': 'Refresh',
       'refresh.aria': 'Refresh the artifact list',
       'refresh.busy': 'Refreshing…',
@@ -682,7 +690,7 @@ window.__ModuleLoader__.load({
   backdrop-filter:blur(18px) saturate(160%);
 }
 .artifact-space-previewHead{
-  box-sizing:border-box;height:32px;flex:none;
+  box-sizing:border-box;height:38px;flex:none;
   display:flex;align-items:center;gap:8px;
   padding:0 9px 0 11px;
   border-bottom:.5px solid var(--glass-edge-soft);
@@ -1014,26 +1022,26 @@ window.__ModuleLoader__.load({
    预览区操作（复制内容 / 复制路径）
    ═══════════════════════════════════════════════════════════ */
 .artifact-space-previewActions{
-  display:inline-flex;align-items:center;gap:4px;
+  display:inline-flex;align-items:center;gap:5px;
   flex:none;
 }
 .artifact-space-previewAction{
   box-sizing:border-box;
-  height:22px;
-  display:inline-flex;align-items:center;gap:4px;
-  padding:0 6px;
+  height:27px;
+  display:inline-flex;align-items:center;gap:5px;
+  padding:0 9px;
   border:.5px solid transparent;
-  border-radius:7px;
+  border-radius:8px;
   background:rgba(255,255,255,.26);
   color:var(--glass-text-secondary);
   cursor:pointer;
-  font-size:11px;line-height:16px;
+  font-size:12px;line-height:18px;
   white-space:nowrap;
   transition:background .12s ease-out,color .12s ease-out,border-color .12s ease-out;
 }
 .artifact-space-previewAction:hover{background:rgba(255,255,255,.46);color:var(--glass-text-primary)}
 .artifact-space-previewAction:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-.artifact-space-previewAction svg{width:12px;height:12px;flex:none}
+.artifact-space-previewAction svg{width:13.5px;height:13.5px;flex:none}
 .artifact-space-previewAction[data-state="ok"]{
   border-color:var(--glass-accent-edge);
   background:var(--glass-accent);
@@ -1043,7 +1051,58 @@ window.__ModuleLoader__.load({
   border-color:var(--glass-error);
   color:var(--glass-error);
 }
-.artifact-space-previewActionLabel{font-size:11px;line-height:16px}
+.artifact-space-previewActionLabel{font-size:12px;line-height:18px}
+
+/* 图片灯箱：全屏查看时覆盖整个视口 */
+.artifact-space-lightbox{
+  position:fixed;inset:0;z-index:2147483000;
+  display:flex;align-items:center;justify-content:center;
+  padding:32px;
+  background:rgba(16,18,32,.72);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+  cursor:zoom-out;
+}
+.artifact-space-lightboxImage{
+  max-width:100%;max-height:100%;
+  width:auto;height:auto;
+  object-fit:contain;
+  border-radius:8px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  cursor:default;
+}
+.artifact-space-lightboxBar{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;
+  color:#fff;
+}
+.artifact-space-lightboxTitle{
+  flex:1;min-width:0;
+  font-size:13px;line-height:18px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
+.artifact-space-lightboxMeta{
+  flex:none;
+  font-size:12px;line-height:18px;
+  opacity:.78;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
+.artifact-space-lightboxClose{
+  flex:none;
+  width:30px;height:30px;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0;
+  border:.5px solid rgba(255,255,255,.28);
+  border-radius:8px;
+  background:rgba(255,255,255,.14);
+  color:#fff;
+  cursor:pointer;
+}
+.artifact-space-lightboxClose:hover{background:rgba(255,255,255,.28)}
+.artifact-space-lightboxClose:focus-visible{outline:2px solid rgba(255,255,255,.7);outline-offset:1px}
+.artifact-space-lightboxClose svg{width:14px;height:14px;flex:none}
 
 /* ═══════════════════════════════════════════════════════════
    编辑器样式代码区（对齐 WorkBuddy 的 sc-code-* 规范：
@@ -1259,6 +1318,111 @@ window.__ModuleLoader__.load({
       if (typeof window === 'undefined' || typeof window.open !== 'function') return;
       // `noopener` keeps the opened tab from reaching back into the panel.
       window.open(url, '_blank', 'noopener');
+    }
+
+    /**
+     * Show a picture full screen.
+     *
+     * The overlay is built with the DOM directly and hung off `document.body`
+     * rather than rendered by React inside the panel. The panel's own shell
+     * carries a `backdrop-filter`, and such an element becomes the containing
+     * block for `position: fixed` descendants — a React-rendered overlay
+     * would be clipped to the panel instead of covering the window.
+     *
+     * @param {string} src - the picture's URL.
+     * @param {string} name - the file name, shown in the overlay bar.
+     * @param {string} meta - the dimensions and size, shown in the overlay bar.
+     * @returns {void}
+     */
+    function openLightbox(src, name, meta) {
+      if (typeof document === 'undefined' || typeof document.createElement !== 'function') return;
+      if (typeof src !== 'string' || src === '') return;
+
+      const overlay = document.createElement('div');
+      overlay.className = 'artifact-space-lightbox';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', typeof name === 'string' ? name : 'image');
+
+      const bar = document.createElement('div');
+      bar.className = 'artifact-space-lightboxBar';
+
+      const title = document.createElement('span');
+      title.className = 'artifact-space-lightboxTitle';
+      title.textContent = typeof name === 'string' ? name : '';
+
+      const info = document.createElement('span');
+      info.className = 'artifact-space-lightboxMeta';
+      info.textContent = typeof meta === 'string' ? meta : '';
+
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'artifact-space-lightboxClose';
+      close.setAttribute('aria-label', 'Close');
+      close.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+
+      const picture = document.createElement('img');
+      picture.className = 'artifact-space-lightboxImage';
+      picture.src = src;
+      picture.alt = typeof name === 'string' ? name : 'image';
+
+      bar.appendChild(title);
+      bar.appendChild(info);
+      bar.appendChild(close);
+      overlay.appendChild(bar);
+      overlay.appendChild(picture);
+
+      const dismiss = () => {
+        overlay.remove();
+        document.removeEventListener('keydown', onKeyDown);
+      };
+      const onKeyDown = (event) => {
+        if (event.key === 'Escape') dismiss();
+      };
+      // Clicking the backdrop closes it; clicking the picture does not, so the
+      // picture can be looked at closely without dismissing it by accident.
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) dismiss();
+      });
+      close.addEventListener('click', dismiss);
+      document.addEventListener('keydown', onKeyDown);
+
+      document.body.appendChild(overlay);
+    }
+
+    /**
+     * Save a picture to the local disk.
+     *
+     * The bytes are fetched from the Host's own image route and handed to the
+     * browser as an object URL, so the file keeps its real name and type
+     * instead of arriving as a numbered download.
+     *
+     * @param {string} url - the image route URL.
+     * @param {string} name - the file name to save under.
+     * @returns {Promise<boolean>} whether the download was started.
+     */
+    async function downloadArtifact(url, name) {
+      if (typeof url !== 'string' || url === '') return false;
+      if (typeof fetch !== 'function' || typeof document === 'undefined') return false;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) return false;
+        const blob = await response.blob();
+        if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return false;
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = objectUrl;
+        link.download = typeof name === 'string' && name !== '' ? name : 'artifact';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        // The object URL is released on the next tick, once the browser has
+        // picked the download up.
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 4000);
+        return true;
+      } catch {
+        return false;
+      }
     }
 
     /**
@@ -2366,42 +2530,115 @@ window.__ModuleLoader__.load({
         const src = `${IMAGE_ROUTE}?${new URLSearchParams({ sessionId, path }).toString()}`;
         const [imageState, setImageState] = React.useState('loading');
         const [dimensions, setDimensions] = React.useState(null);
+        const sizeLabel = dimensions === null
+          ? formatBytes(artifact.bytes)
+          : `${dimensions.width}×${dimensions.height} · ${formatBytes(artifact.bytes)}`;
         return h('div', { className: cx('artifact-space-preview'), 'data-state': 'image' }, [
           h('div', { key: 'head', className: cx('artifact-space-previewHead') }, [
             h('span', { key: 'title', className: cx('artifact-space-previewTitle') }, artifact.name),
-            h('span', { key: 'meta', className: cx('artifact-space-previewMeta') },
-              dimensions === null
-                ? formatBytes(artifact.bytes)
-                : `${dimensions.width}×${dimensions.height} · ${formatBytes(artifact.bytes)}`),
-            h('button', {
-              key: 'copyPath',
-              type: 'button',
-              className: cx('artifact-space-previewAction'),
-              'data-state': copied !== null && copied.startsWith('path:') ? copied.slice('path:'.length) : null,
-              'aria-label': t('artifact.copyPath'),
-              title: t('artifact.copyPath'),
-              onClick: () => copy(artifact.absolutePath ?? '', 'path'),
-            }, [
-              h('svg', {
-                key: 'icon',
-                viewBox: '0 0 16 16',
-                width: 12,
-                height: 12,
-                fill: 'none',
-                stroke: 'currentColor',
-                strokeWidth: 1.3,
-                strokeLinecap: 'round',
-                strokeLinejoin: 'round',
-                'aria-hidden': true,
+            h('span', { key: 'meta', className: cx('artifact-space-previewMeta') }, sizeLabel),
+            h('div', { key: 'actions', className: cx('artifact-space-previewActions') }, [
+              h('button', {
+                key: 'fullscreen',
+                type: 'button',
+                className: cx('artifact-space-previewAction'),
+                'aria-label': t('preview.fullscreen'),
+                title: t('preview.fullscreen'),
+                onClick: () => openLightbox(src, artifact.name, sizeLabel),
               }, [
-                h('path', { key: 'p', d: 'M6.4 9.6a2.6 2.6 0 003.9.3l2-2a2.6 2.6 0 00-3.7-3.7l-1.1 1.1' }),
-                h('path', { key: 'p2', d: 'M9.6 6.4a2.6 2.6 0 00-3.9-.3l-2 2a2.6 2.6 0 003.7 3.7l1.1-1.1' }),
+                h('svg', {
+                  key: 'icon',
+                  viewBox: '0 0 16 16',
+                  width: 13.5,
+                  height: 13.5,
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  strokeWidth: 1.3,
+                  strokeLinecap: 'round',
+                  strokeLinejoin: 'round',
+                  'aria-hidden': true,
+                }, [
+                  h('path', { key: 'p', d: 'M6 2H2v4M10 2h4v4M6 14H2v-4M10 14h4v-4' }),
+                ]),
+                h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') }, t('preview.fullscreen')),
               ]),
-              copied !== null && copied.startsWith('path:')
-                ? h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') },
-                  copied === 'path:ok' ? t('artifact.copiedPath') : t('artifact.copyFailed'))
-                : null,
+              h('button', {
+                key: 'download',
+                type: 'button',
+                className: cx('artifact-space-previewAction'),
+                'data-state': copied !== null && copied.startsWith('download:') ? copied.slice('download:'.length) : null,
+                'aria-label': t('preview.download'),
+                title: t('preview.download'),
+                onClick: async () => {
+                  const ok = await downloadArtifact(src, artifact.name);
+                  setCopied(`download:${ok ? 'ok' : 'failed'}`);
+                },
+              }, [
+                h('svg', {
+                  key: 'icon',
+                  viewBox: '0 0 16 16',
+                  width: 13.5,
+                  height: 13.5,
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  strokeWidth: 1.3,
+                  strokeLinecap: 'round',
+                  strokeLinejoin: 'round',
+                  'aria-hidden': true,
+                }, [
+                  h('path', { key: 'p', d: 'M8 2v8M5 7l3 3 3-3M3 13h10' }),
+                ]),
+                h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') },
+                  copied !== null && copied.startsWith('download:')
+                    ? (copied === 'download:ok' ? t('preview.downloaded') : t('preview.downloadFailed'))
+                    : t('preview.download')),
+              ]),
+              h('button', {
+                key: 'copyPath',
+                type: 'button',
+                className: cx('artifact-space-previewAction'),
+                'data-state': copied !== null && copied.startsWith('path:') ? copied.slice('path:'.length) : null,
+                'aria-label': t('artifact.copyPath'),
+                title: t('artifact.copyPath'),
+                onClick: () => copy(artifact.absolutePath ?? '', 'path'),
+              }, [
+                h('svg', {
+                  key: 'icon',
+                  viewBox: '0 0 16 16',
+                  width: 13.5,
+                  height: 13.5,
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  strokeWidth: 1.3,
+                  strokeLinecap: 'round',
+                  strokeLinejoin: 'round',
+                  'aria-hidden': true,
+                }, [
+                  h('path', { key: 'p', d: 'M6.4 9.6a2.6 2.6 0 003.9.3l2-2a2.6 2.6 0 00-3.7-3.7l-1.1 1.1' }),
+                  h('path', { key: 'p2', d: 'M9.6 6.4a2.6 2.6 0 00-3.9-.3l-2 2a2.6 2.6 0 003.7 3.7l1.1-1.1' }),
+                ]),
+                copied !== null && copied.startsWith('path:')
+                  ? h('span', { key: 'label', className: cx('artifact-space-previewActionLabel') },
+                    copied === 'path:ok' ? t('artifact.copiedPath') : t('artifact.copyFailed'))
+                  : null,
+              ]),
             ]),
+            h('button', {
+              key: 'close',
+              type: 'button',
+              className: cx('artifact-space-previewClose'),
+              'aria-label': t('preview.close'),
+              onClick: onClose,
+            }, h('svg', {
+              viewBox: '0 0 16 16',
+              width: 12,
+              height: 12,
+              fill: 'none',
+              stroke: 'currentColor',
+              strokeWidth: 1.4,
+              strokeLinecap: 'round',
+              'aria-hidden': true,
+            }, h('path', { key: 'p', d: 'M4 4l8 8M12 4l-8 8' }))),
           ]),
           imageState === 'error'
             ? h(PreviewState, {
@@ -2416,6 +2653,8 @@ window.__ModuleLoader__.load({
                 className: cx('artifact-space-previewImage'),
                 src,
                 alt: artifact.name,
+                title: t('preview.fullscreen'),
+                onClick: () => openLightbox(src, artifact.name, sizeLabel),
                 onLoad: (event) => {
                   const node = event.currentTarget;
                   setDimensions({ width: node.naturalWidth, height: node.naturalHeight });
