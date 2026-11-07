@@ -61,6 +61,8 @@ window.__ModuleLoader__.load({
       'version.check': '检查更新',
       'version.checking': '正在检查更新…',
       'version.latest': '最新版本 {version}',
+      'version.ahead': '本地版本 {version}',
+      'version.aheadNote': 'npm 上尚未发布此版本（已发布的是 {version}）',
       'version.upToDate': '已是最新版本',
       'version.available': '发现新版本 {version}',
       'version.download': '下载并安装',
@@ -168,6 +170,8 @@ window.__ModuleLoader__.load({
       'version.check': 'Check for updates',
       'version.checking': 'Checking for updates…',
       'version.latest': 'Latest version {version}',
+      'version.ahead': 'Local build {version}',
+      'version.aheadNote': 'This version is not published on the registry yet ({version} is the latest release there).',
       'version.upToDate': 'Up to date',
       'version.available': 'Version {version} is available',
       'version.download': 'Download and install',
@@ -2078,6 +2082,9 @@ window.__ModuleLoader__.load({
         current: null,
         latest: null,
         updateAvailable: false,
+        // True when the running build is newer than what the registry
+        // publishes — a version installed before it went out.
+        ahead: false,
         checked: false,
         error: null,
       };
@@ -2113,6 +2120,7 @@ window.__ModuleLoader__.load({
               current: typeof value?.current === 'string' ? value.current : null,
               latest: typeof value?.latest === 'string' ? value.latest : null,
               updateAvailable: value?.updateAvailable === true,
+              ahead: value?.ahead === true,
               checked: value?.checked === true,
               error: typeof value?.error === 'string' ? value.error : null,
             });
@@ -2290,6 +2298,7 @@ window.__ModuleLoader__.load({
       current: null,
       latest: null,
       updateAvailable: false,
+      ahead: false,
       checked: false,
       error: null,
     };
@@ -3456,6 +3465,10 @@ window.__ModuleLoader__.load({
       // A stale Host half is its own situation: the reader needs a restart,
       // not a stack trace.
       const staleHost = version.status === 'error' && version.error === 'host-outdated';
+      // The running build is newer than the registry's latest. There is
+      // nothing to download, and calling the older registry version "latest"
+      // would read like a downgrade is waiting to happen.
+      const ahead = version.status !== 'error' && version.ahead === true;
       const title = version.status === 'updating'
         ? t('version.downloading')
         : version.status === 'rolling-back'
@@ -3468,14 +3481,18 @@ window.__ModuleLoader__.load({
                 ? (staleHost ? t('version.hostOutdated') : t('version.failed'))
                 : version.updateAvailable
                   ? t('version.available', { version: version.latest ?? '' })
-                  : t('version.latest', { version: version.latest ?? version.current ?? t('version.unknown') });
+                  : ahead
+                    ? t('version.ahead', { version: version.current ?? '' })
+                    : t('version.latest', { version: version.latest ?? version.current ?? t('version.unknown') });
       const note = version.status === 'updated' || version.status === 'rolled-back'
         ? t('version.restart')
         : version.status === 'error'
           ? (staleHost ? t('version.hostOutdatedNote') : String(version.error ?? ''))
           : version.updateAvailable
             ? t('version.badge', { version: version.current ?? t('version.unknown') })
-            : t('version.upToDate');
+            : ahead
+              ? t('version.aheadNote', { version: version.latest ?? '' })
+              : t('version.upToDate');
       // The download button stays put while the download runs — it turns into
       // a disabled "downloading" label — so the reader sees that something is
       // happening instead of the button vanishing under their cursor.
