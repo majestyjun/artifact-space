@@ -1,6 +1,6 @@
 {
   "name": "@xxjxx/artifact-space",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "产物空间：为 DSH 侧栏增加一个入口，按工作区与会话隔离列出每个会话的最终有效产物，支持预览、搜索与收藏。",
   "type": "module",
   "license": "MIT",
@@ -35,6 +35,7 @@
   "files": [
     "index.js",
     "client.js",
+    "updater.js",
     "cordis.patch.yml",
     "locale/*.json",
     "icon.svg",
