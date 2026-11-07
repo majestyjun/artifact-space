@@ -20,6 +20,12 @@
  * cards are ordered by last activity (newest first).
  */
 
+/**
+ * Version lookup and in-place upgrade, kept beside this file so the upgrade
+ * can be reasoned about — and tested — on its own.
+ */
+import { installLatest, restoreBackup, versionReport } from './updater.js';
+
 /** Services the artifact fold and the authenticated routes need. */
 const inject = [
   'connection',
@@ -52,6 +58,15 @@ const HTML_PATH = '/api/artifact-space.html';
 
 /** Route serving one asset an HTML document references, by its workspace path. */
 const ASSET_PATH = '/api/artifact-space.asset';
+
+/** Route reporting the installed version and the newest published one. */
+const VERSION_PATH = '/api/artifact-space.version';
+
+/** Route downloading and installing the newest published version. */
+const UPDATE_PATH = '/api/artifact-space.update';
+
+/** Route restoring the installation from the backup an upgrade left behind. */
+const ROLLBACK_PATH = '/api/artifact-space.rollback';
 
 /**
  * Byte cap for one image read; larger pictures are refused rather than
@@ -1263,6 +1278,37 @@ function registerRoutes(ctx) {
         path,
         signal: AbortSignal.any([request.signal, lifetime.signal]),
       }).finally(() => { pending.delete(marker); });
+    }],
+    [VERSION_PATH, ['GET'], (request) => {
+      const url = new URL(request.url);
+      const check = url.searchParams.get('check') === '1';
+      const marker = {};
+      pending.add(marker);
+      const task = versionReport({
+        check,
+        signal: AbortSignal.any([request.signal, lifetime.signal]),
+      })
+        .then((report) => Response.json(report, { headers: { 'cache-control': 'no-store' } }))
+        .catch(() => Response.json({ error: 'version-failed' }, { status: 500 }))
+        .finally(() => { pending.delete(marker); });
+      return task;
+    }],
+    [UPDATE_PATH, ['GET'], (request) => {
+      const marker = {};
+      pending.add(marker);
+      const task = installLatest({
+        signal: AbortSignal.any([request.signal, lifetime.signal]),
+      })
+        .then((outcome) => Response.json(outcome, { headers: { 'cache-control': 'no-store' } }))
+        .catch(() => Response.json({ updated: false, error: 'update-failed' }, { status: 500 }))
+        .finally(() => { pending.delete(marker); });
+      return task;
+    }],
+    [ROLLBACK_PATH, ['GET'], (request) => {
+      request.signal.throwIfAborted();
+      return Promise.resolve(Response.json(restoreBackup(), {
+        headers: { 'cache-control': 'no-store' },
+      }));
     }],
   ];
 

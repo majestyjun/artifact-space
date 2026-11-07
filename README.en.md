@@ -30,6 +30,7 @@ selected.
 | **Session folding** | Sessions fold to their header. By default only the ones that fit on the first screen are open. |
 | **Copy and go** | Copy a file's content or its absolute path straight from the preview header. |
 | **Traceable origin** | Each artifact says whether it was *delivered* or merely *produced*, in which turn, and what the session said about it. |
+| **Self-update** | A version badge lives in the panel header. When a new release appears you can download and install it right there, and roll it back in one click if it misbehaves. |
 
 ## What counts as an artifact
 
@@ -46,8 +47,9 @@ dropped, and both sessions and workspaces are ordered by last activity.
 
 | Half | File | Role |
 | --- | --- | --- |
-| Host | `index.js` | Registers two authenticated routes: `GET /api/artifact-space.rows` and `GET /api/artifact-space.read`. |
-| Client | `client.js` | Registers the sidebar entry (`sidebar.panellist`) and the main panel (`main` slot key `artifact-space`). |
+| Host | `index.js` | Registers the authenticated routes: `GET /api/artifact-space.rows`, `GET /api/artifact-space.read`, plus three routes for version detection and updating. |
+| Host | `updater.js` | Queries the npm registry, downloads and verifies the tarball, replaces the plugin directory in place, and keeps a backup for rollback. |
+| Client | `client.js` | Registers the sidebar entry (`sidebar.panellist`) and the main panel (`main` slot key `artifact-space`), and draws the version badge and update card. |
 
 The two halves talk over an authenticated Host route registered with
 `ctx.connection.fetch.register`, so no credentials leave the loopback host.
@@ -59,6 +61,11 @@ The two halves talk over an authenticated Host route registered with
 - `GET /api/artifact-space.read?sessionId=…&path=…` — the text of one
   artifact, bounded to 512 KB / 4000 lines. Refusals map to
   `403 outside-workspace`, `404 not-a-file`, `413 too-large`, `415 binary-file`.
+- `GET /api/artifact-space.version` — the installed version and the latest
+  version on the registry; `?check=1` actually performs the query.
+- `GET /api/artifact-space.update` — download and install the latest version.
+- `GET /api/artifact-space.rollback` — roll back to the previously backed-up
+  version.
 
 ## Preview states
 
@@ -173,6 +180,26 @@ An artifact can be starred from its row, and the stars are collected in the
   absent row as proof of deletion would throw away favorites the reader still
   wants.
 
+## Version updates
+
+A version badge lives in the panel header and shows the installed version (for
+example `v1.6.0`). The npm registry is only queried the first time the badge is
+clicked, so nothing goes over the network during ordinary use.
+
+- When a newer release exists the badge turns orange and announces the update;
+  clicking it opens an **update card** showing the installed version next to
+  the latest one.
+- Pressing **download and install** makes the Host download the tarball from
+  npm, verify its `sha512` integrity, unpack it into a temporary directory and
+  only then replace the current installation. The old installation is backed up
+  beforehand, and **roll back** returns to it in one click.
+- Installing never touches the profile's `package.json` or lockfile and never
+  runs `pnpm install` — the replacement is invisible to DSH's integrity check,
+  so the Host will not refuse to start.
+- Replacement unlinks first and writes second, so pnpm's content-addressed
+  store is never polluted. Once the install finishes the card asks you to
+  **restart DSH** for it to take effect.
+
 ## Install
 
 ### From the plugin market
@@ -227,8 +254,10 @@ imported again.
 ## Privacy
 
 The plugin reads only the session logs and workspace files the Host already
-exposes to it. It makes no network request of its own and sends nothing
-anywhere.
+exposes to it. Apart from the **version check** it makes no network request of
+its own and sends nothing anywhere — the version check only asks the npm
+registry for the latest version and download URL of `@xxjxx/artifact-space`,
+and never involves session or workspace content.
 
 Favorites are stored locally in the browser profile under
 `artifactSpace.favorite.v1.*`. Un-starring an artifact deletes its entry, and
