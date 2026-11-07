@@ -183,12 +183,14 @@ An artifact can be starred from its row, and the stars are collected in the
 ## Version updates
 
 A version badge lives in the panel header and shows the installed version (for
-example `v1.6.0`). The npm registry is only queried the first time the badge is
+example `v1.6.1`). The npm registry is only queried the first time the badge is
 clicked, so nothing goes over the network during ordinary use.
 
 - When a newer release exists the badge turns orange and announces the update;
   clicking it opens an **update card** showing the installed version next to
   the latest one.
+- The card's **view release notes** button opens the published release notes, so
+  you can see what a version actually changed before deciding to install it.
 - Pressing **download and install** makes the Host download the tarball from
   npm, verify its `sha512` integrity, unpack it into a temporary directory and
   only then replace the current installation. The old installation is backed up
