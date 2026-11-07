@@ -67,6 +67,8 @@ window.__ModuleLoader__.load({
       'version.downloading': '正在下载并安装…',
       'version.installed': '已更新到 {version}，重启 DSH 后生效',
       'version.failed': '更新失败',
+      'version.hostOutdated': '宿主未加载新版',
+      'version.hostOutdatedNote': '当前运行的宿主半边还没有版本路由，重启 DSH 后即可使用版本检测',
       'version.restart': '重启 DSH 后生效',
       'version.rollback': '回滚到上一版本',
       'version.rolledBack': '已回滚，重启 DSH 后生效',
@@ -172,6 +174,8 @@ window.__ModuleLoader__.load({
       'version.downloading': 'Downloading and installing…',
       'version.installed': 'Updated to {version}. Restart DSH to apply.',
       'version.failed': 'Update failed',
+      'version.hostOutdated': 'The Host has not loaded the new version',
+      'version.hostOutdatedNote': 'The Host half that is running has no version route yet. Restart DSH to enable the version check.',
       'version.restart': 'Restart DSH to apply',
       'version.rollback': 'Roll back to the previous version',
       'version.rolledBack': 'Rolled back. Restart DSH to apply.',
@@ -2095,6 +2099,13 @@ window.__ModuleLoader__.load({
         const url = check ? `${VERSION_ROUTE}?check=1` : VERSION_ROUTE;
         const task = fetch(url, { signal: lifetime.signal, cache: 'no-store' })
           .then(async (response) => {
+            // 404 means the Host half that is running predates the version
+            // routes — the browser half hot-reloaded but the Host did not.
+            // That is a restart, not a failure, and the reader has to be told.
+            if (response.status === 404) {
+              set({ ...state, status: 'error', error: 'host-outdated' });
+              return;
+            }
             if (!response.ok) throw new Error(`version read failed: ${response.status}`);
             const value = await response.json();
             set({
@@ -3412,9 +3423,13 @@ window.__ModuleLoader__.load({
      */
     function VersionBadge({ version, busy, open, onToggle, t }) {
       const available = version.updateAvailable === true;
+      // Without a version there is nothing to prefix, so the badge says only
+      // "unknown" instead of the awkward "version unknown version".
       const label = available
         ? t('version.available', { version: version.latest ?? '' })
-        : t('version.badge', { version: version.current ?? t('version.unknown') });
+        : typeof version.current === 'string'
+          ? t('version.badge', { version: version.current })
+          : t('version.unknown');
       return h('button', {
         type: 'button',
         className: cx('artifact-space-version'),
@@ -3438,6 +3453,9 @@ window.__ModuleLoader__.load({
      * a rollback, and an installed upgrade says that DSH must be restarted.
      */
     function VersionCard({ version, busy, onInstall, onRollback, onClose, t }) {
+      // A stale Host half is its own situation: the reader needs a restart,
+      // not a stack trace.
+      const staleHost = version.status === 'error' && version.error === 'host-outdated';
       const title = version.status === 'updating'
         ? t('version.downloading')
         : version.status === 'rolling-back'
@@ -3447,14 +3465,14 @@ window.__ModuleLoader__.load({
             : version.status === 'rolled-back'
               ? t('version.rolledBack')
               : version.status === 'error'
-                ? t('version.failed')
+                ? (staleHost ? t('version.hostOutdated') : t('version.failed'))
                 : version.updateAvailable
                   ? t('version.available', { version: version.latest ?? '' })
                   : t('version.latest', { version: version.latest ?? version.current ?? t('version.unknown') });
       const note = version.status === 'updated' || version.status === 'rolled-back'
         ? t('version.restart')
         : version.status === 'error'
-          ? String(version.error ?? '')
+          ? (staleHost ? t('version.hostOutdatedNote') : String(version.error ?? ''))
           : version.updateAvailable
             ? t('version.badge', { version: version.current ?? t('version.unknown') })
             : t('version.upToDate');
