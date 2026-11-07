@@ -2069,6 +2069,28 @@ window.__ModuleLoader__.load({
     }
 
     /**
+     * Should opening the update card consult the registry right now?
+     *
+     * The registry is consulted the first time the card is opened, and again
+     * after a failed attempt — a reader who clicks again means to try again.
+     * Two situations are excluded:
+     *
+     * - the registry has already answered, so the answer is still good;
+     * - the Host half is stale, because only a restart can fix that, and
+     *   retrying would merely repeat the same failure.
+     *
+     * @param {object} version - the version state.
+     * @param {boolean} opening - whether this click opens the card.
+     * @returns {boolean} true when a registry check should be started.
+     */
+    function shouldCheckForUpdates(version, opening) {
+      if (!opening) return false;
+      if (version?.checked === true) return false;
+      if (version?.error === 'host-outdated') return false;
+      return true;
+    }
+
+    /**
      * The installed version and, when it was asked for, the newest published one.
      *
      * The registry is only consulted on an explicit check: the panel opens
@@ -3998,11 +4020,12 @@ window.__ModuleLoader__.load({
             busy: versionBusy,
             open: versionOpen,
             onToggle: () => {
-              setVersionOpen((prev) => !prev);
+              const opening = !versionOpen;
+              setVersionOpen(opening);
               // Opening the card for the first time is the moment a reader
               // wants to know whether anything newer exists, so the registry
               // is consulted then — and only then.
-              if (!versionOpen && version.status === 'ready' && !version.checked) {
+              if (shouldCheckForUpdates(version, opening)) {
                 versionStore?.check();
               }
             },
