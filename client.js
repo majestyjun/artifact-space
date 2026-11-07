@@ -83,6 +83,10 @@ window.__ModuleLoader__.load({
       'refresh.aria': '刷新产物列表',
       'refresh.busy': '刷新中…',
       'refresh.at': '更新于 {time}',
+      'split.aria': '拖动调整列表与预览的宽度',
+      'split.hint': '左右方向键微调，双击恢复均分',
+      'split.reset': '恢复默认分栏',
+      'split.resetHint': '把左右两栏恢复成各占一半',
       'session.expand': '展开该会话的产物',
       'session.collapse': '收起该会话的产物',
       'search.placeholder': '搜索产物…',
@@ -194,6 +198,10 @@ window.__ModuleLoader__.load({
       'refresh.aria': 'Refresh the artifact list',
       'refresh.busy': 'Refreshing…',
       'refresh.at': 'Updated at {time}',
+      'split.aria': 'Drag to resize the list and the preview',
+      'split.hint': 'Use the arrow keys to adjust, double-click to reset',
+      'split.reset': 'Reset the split',
+      'split.resetHint': 'Put the two panes back to an even split',
       'session.expand': 'Expand this session’s artifacts',
       'session.collapse': 'Collapse this session’s artifacts',
       'search.placeholder': 'Search artifacts…',
@@ -679,8 +687,40 @@ window.__ModuleLoader__.load({
   box-sizing:border-box;
   flex:1;min-height:0;
   display:grid;
+  /* The divider's position is set inline; the pixel fallback keeps the
+     columns from collapsing before the first measurement arrives. */
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   position:relative;
+}
+/* 拖动分栏：分隔条本体极细，热区加宽才好抓 */
+.artifact-space-splitter{
+  position:absolute;top:0;bottom:0;
+  width:7px;margin-left:-3px;
+  z-index:3;
+  cursor:col-resize;
+  background:transparent;
+  border:0;padding:0;
+  touch-action:none;
+  -webkit-user-select:none;user-select:none;
+}
+.artifact-space-splitter::before{
+  content:'';
+  position:absolute;top:0;bottom:0;left:3px;
+  width:1px;
+  background:var(--glass-edge-soft);
+  transition:background .12s ease-out,width .12s ease-out;
+}
+.artifact-space-splitter:hover::before,
+.artifact-space-splitter:focus-visible::before,
+.artifact-space-body[data-dragging="true"] .artifact-space-splitter::before{
+  background:var(--glass-accent-edge);
+  width:2px;
+}
+.artifact-space-splitter:focus-visible{outline:none}
+/* 拖动时禁止选中文字，并让指针保持 col-resize */
+.artifact-space-body[data-dragging="true"]{
+  cursor:col-resize;
+  -webkit-user-select:none;user-select:none;
 }
 .artifact-space-tree{
   box-sizing:border-box;min-width:0;overflow:auto;
@@ -698,6 +738,8 @@ window.__ModuleLoader__.load({
 @container (max-width:720px){
   .artifact-space-body{grid-template-columns:minmax(0,1fr)}
   .artifact-space-tree{border-right:0}
+  /* 单栏覆盖模式下没有可拖的分隔条 */
+  .artifact-space-splitter{display:none}
   .artifact-space-pane{
     position:absolute;inset:0;z-index:2;
     background:var(--glass-surface);
@@ -784,6 +826,9 @@ window.__ModuleLoader__.load({
 .artifact-space-row{
   box-sizing:border-box;height:25px;
   display:grid;
+  /* icon · name · provenance · size · star — five cells for five children.
+     The provenance bits share one cell so the count never depends on the
+     data; a sixth child would wrap onto a second grid line. */
   grid-template-columns:15px minmax(0,1fr) auto 48px 18px;
   align-items:center;gap:7px;
   padding:0 8px 0 8px;
@@ -812,6 +857,13 @@ window.__ModuleLoader__.load({
 .artifact-space-rowName[data-outside="true"]{color:var(--glass-text-secondary)}
 .artifact-space-row[data-selected="true"] .artifact-space-rowName{font-weight:500}
 .artifact-space-rowSize{flex:none;text-align:right;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* 来源信息（交付/产出 + 时间）共用一个格子，右对齐贴住大小那一列。
+   固定宽度避免有无标签的行左右抖动。 */
+.artifact-space-rowMeta{
+  display:flex;align-items:center;justify-content:flex-end;gap:6px;
+  flex:none;min-width:0;
+  overflow:hidden;
+}
 /* 产物时间：与「最新的在最上面」的排序对应，鼠标悬停给出绝对时间 */
 .artifact-space-rowTime{
   flex:none;
@@ -825,6 +877,8 @@ window.__ModuleLoader__.load({
 /* 空间紧张时（窄面板 / 长文件名）先让位给文件名与大小 */
 @container (max-width:420px){
   .artifact-space-rowTime{display:none}
+  /* 时间没了，来源格只剩标签 —— 收窄它，把空间还给文件名 */
+  .artifact-space-rowMeta{width:38px}
 }
 .artifact-space-rowMore{
   box-sizing:border-box;height:25px;
@@ -2358,6 +2412,192 @@ window.__ModuleLoader__.load({
     /** The snapshot used when no favorites store is available. */
     const EMPTY_FAVORITES = new Map();
 
+    /* ── Split pane ────────────────────────────────────────────────────── */
+
+    /**
+     * The widths of the two panes, and the rules that keep them usable.
+     *
+     * The list on the left must stay wide enough to show a file name next
+     * to its kind, time and size; the preview on the right must stay wide
+     * enough to read code in. Both limits are hard: dragging past them
+     * stops, rather than squeezing a pane out of existence.
+     *
+     * The limits are expressed as fractions of the container so they hold
+     * on a wide monitor and on a small window alike.
+     */
+    const SPLIT = {
+      /** The narrowest the list may become, in pixels. */
+      MIN_TREE: 220,
+      /** The narrowest the preview may become, in pixels. */
+      MIN_PANE: 320,
+      /** The widest the list may become, as a fraction of the container. */
+      MAX_TREE_RATIO: 0.72,
+      /** How far one keyboard step moves the divider, in pixels. */
+      STEP: 24,
+    };
+
+    /**
+     * Clamp a proposed divider position to what the container allows.
+     *
+     * @param {number} x - the divider position, in pixels from the left.
+     * @param {number} width - the container's width, in pixels.
+     * @returns {number} the position the divider may rest at.
+     */
+    function clampSplit(x, width) {
+      const total = Number.isFinite(width) && width > 0 ? width : 0;
+      // Without a measurable container there is nothing to clamp against;
+      // keep the caller's value and let the CSS fall back to the even split.
+      if (total === 0) return Number.isFinite(x) ? x : 0;
+      // The list's minimum width is a hard floor. It is not lowered to fit a
+      // narrow container — a list squeezed below it stops being a list, and
+      // the whole point of the limit is that the list stays readable.
+      const min = SPLIT.MIN_TREE;
+      const maxTree = Math.max(SPLIT.MIN_TREE, total * SPLIT.MAX_TREE_RATIO);
+      // When the container cannot hold both minimums, the list wins: the
+      // preview is the side that can afford to be squeezed.
+      const max = Math.max(min, Math.min(maxTree, total - SPLIT.MIN_PANE));
+      if (!Number.isFinite(x)) return Math.round(total / 2);
+      return Math.round(Math.min(max, Math.max(min, x)));
+    }
+
+    /**
+     * The split position a stored value should start from.
+     *
+     * A stale or hand-edited value is not trusted; anything unusable falls
+     * back to the even split the CSS uses by default.
+     *
+     * @param {unknown} raw - the value read from storage.
+     * @param {number} width - the container's width, in pixels.
+     * @returns {number} the position the divider should rest at.
+     */
+    function restoreSplit(raw, width) {
+      const value = typeof raw === 'number' ? raw : Number.parseFloat(String(raw ?? ''));
+      if (!Number.isFinite(value) || value <= 0) return Math.round((width || 0) / 2);
+      return clampSplit(value, width);
+    }
+
+    /**
+     * The split store: where the divider sits, and whether it is moving.
+     *
+     * The position is kept in pixels rather than as a fraction, because the
+     * panes have different minimum widths — a fraction would make the same
+     * stored value mean different things on screens of different sizes.
+     *
+     * @returns {object} the store.
+     */
+    function createSplitStore() {
+      const STORAGE_KEY = 'artifactSpace.split.v1';
+      const listeners = new Set();
+      let position = null;
+      let dragging = false;
+      let storageOk = true;
+      // Whether the reader has moved the divider themselves. The reset
+      // button only appears once there is something to reset.
+      let customized = false;
+      // useSyncExternalStore compares snapshots by identity. Handing out a
+      // fresh object on every call made it believe the state changed on
+      // every read, and the panel re-rendered until React tore it down
+      // (error #185). The snapshot is therefore a stable reference that is
+      // only replaced when the state actually moves.
+      let snapshot = { position: null, dragging: false, customized: false };
+
+      const publish = () => {
+        if (snapshot.position !== position
+          || snapshot.dragging !== dragging
+          || snapshot.customized !== customized) {
+          snapshot = { position, dragging, customized };
+        }
+        for (const listener of [...listeners]) listener();
+      };
+
+      const read = () => {
+        if (typeof localStorage === 'undefined') return null;
+        try {
+          return localStorage.getItem(STORAGE_KEY);
+        } catch {
+          storageOk = false;
+          return null;
+        }
+      };
+
+      const write = (value) => {
+        if (typeof localStorage === 'undefined' || !storageOk) return;
+        try {
+          localStorage.setItem(STORAGE_KEY, String(Math.round(value)));
+        } catch {
+          storageOk = false;
+        }
+      };
+
+      return {
+        /** The divider position in pixels, or null while it is still unknown. */
+        getSnapshot: () => snapshot,
+        subscribe: (listener) => {
+          listeners.add(listener);
+          return () => { listeners.delete(listener); };
+        },
+        /**
+         * Restore the stored position, clamped to the current container.
+         *
+         * @param {number} width - the container's width, in pixels.
+         * @returns {number} the position in use.
+         */
+        restore(width) {
+          const stored = read();
+          position = restoreSplit(stored, width);
+          // Only a stored position that was actually usable counts as a
+          // customization. A corrupt value falls back to the even split,
+          // and there is then nothing to reset.
+          const value = Number.parseFloat(String(stored ?? ''));
+          customized = Number.isFinite(value) && value > 0;
+          publish();
+          return position;
+        },
+        /**
+         * Move the divider and remember the new position.
+         *
+         * @param {number} x - the requested position, in pixels from the left.
+         * @param {number} width - the container's width, in pixels.
+         * @param {boolean} [persist] - whether to write it to storage.
+         * @returns {number} the position in use.
+         */
+        move(x, width, persist = true) {
+          position = clampSplit(x, width);
+          // Only a deliberate move counts as customization. The resize
+          // handler clamps through this path too, and that must not make
+          // the reset button appear for a reader who never touched it.
+          if (persist) customized = true;
+          if (persist) write(position);
+          publish();
+          return position;
+        },
+        /** Mark the divider as being dragged, so the UI can react. */
+        setDragging(value) {
+          dragging = value === true;
+          publish();
+        },
+        /**
+         * Forget the stored position and return to the even split.
+         *
+         * @param {number} width - the container's width, in pixels.
+         * @returns {number} the position in use.
+         */
+        reset(width) {
+          position = clampSplit(Math.round((width || 0) / 2), width);
+          customized = false;
+          if (typeof localStorage !== 'undefined' && storageOk) {
+            try {
+              localStorage.removeItem(STORAGE_KEY);
+            } catch {
+              storageOk = false;
+            }
+          }
+          publish();
+          return position;
+        },
+      };
+    }
+
     /** The version state a panel renders before the Host has answered. */
     const EMPTY_VERSION = {
       status: 'idle',
@@ -2597,14 +2837,20 @@ window.__ModuleLoader__.load({
         }, pieces.map((piece, index) => (piece.hit
           ? h('mark', { key: `m${index}`, className: cx('artifact-space-hit') }, piece.text)
           : h('span', { key: `t${index}` }, piece.text)))),
-        artifactKind(artifact, t),
-        Number.isFinite(artifact.producedAt)
-          ? h('span', {
-            key: 'time',
-            className: cx('artifact-space-rowTime'),
-            title: absoluteTime(artifact.producedAt),
-          }, relativeTime(t, artifact.producedAt))
-          : null,
+        // The provenance bits share one grid cell. Rendering the kind and the
+        // time as separate cells made the cell count depend on the data
+        // (five children without a kind, six with one), so the star fell onto
+        // a second grid line and landed on top of the file icon.
+        h('span', { key: 'meta', className: cx('artifact-space-rowMeta') }, [
+          artifactKind(artifact, t),
+          Number.isFinite(artifact.producedAt)
+            ? h('span', {
+              key: 'time',
+              className: cx('artifact-space-rowTime'),
+              title: absoluteTime(artifact.producedAt),
+            }, relativeTime(t, artifact.producedAt))
+            : null,
+        ]),
         h('span', { key: 'size', className: cx('artifact-space-rowSize') }, formatBytes(artifact.bytes)),
         onToggleFavorite === null ? null : h('button', {
           key: 'star',
@@ -3656,6 +3902,15 @@ window.__ModuleLoader__.load({
       const [versionOpen, setVersionOpen] = React.useState(false);
       const primedGroups = React.useRef(false);
       const treeRef = React.useRef(null);
+      // The body element the divider is measured against, and the divider
+      // itself. Both are needed to turn a pointer position into a column
+      // width.
+      const bodyRef = React.useRef(null);
+      const splitRef = React.useRef(null);
+      // The split store holds the divider position; it survives remounts
+      // through localStorage, like the favorites do.
+      const splitStore = React.useMemo(() => createSplitStore(), []);
+      const split = React.useSyncExternalStore(splitStore.subscribe, splitStore.getSnapshot);
       // The viewport height the tree was measured against, so the automatic
       // rule is recomputed when the panel is resized.
       const treeHeight = React.useRef(0);
@@ -3736,6 +3991,100 @@ window.__ModuleLoader__.load({
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
       }, []);
+
+      /* ── The draggable divider ────────────────────────────────────────── */
+
+      /** The container's current width, or 0 when it cannot be measured. */
+      const bodyWidth = () => {
+        const body = bodyRef.current;
+        if (body === null || typeof body.getBoundingClientRect !== 'function') return 0;
+        return body.getBoundingClientRect().width;
+      };
+
+      // Restore the stored position once the container can be measured, and
+      // keep it inside the limits when the panel is resized.
+      React.useEffect(() => {
+        const body = bodyRef.current;
+        if (body === null || typeof ResizeObserver === 'undefined') {
+          splitStore.restore(bodyWidth());
+          return undefined;
+        }
+        const observer = new ResizeObserver(() => {
+          const width = bodyWidth();
+          // A resize must not silently move the divider: the stored
+          // position is clamped, but only a drag writes a new one.
+          splitStore.move(splitStore.getSnapshot().position ?? width / 2, width, false);
+        });
+        observer.observe(body);
+        splitStore.restore(bodyWidth());
+        return () => observer.disconnect();
+      }, [splitStore]);
+
+      /**
+       * Move the divider to where the pointer is.
+       *
+       * Pointer Events cover mouse, touch and pen with one code path.
+       *
+       * @param {PointerEvent} event - the pointer event.
+       * @returns {void}
+       */
+      const onSplitPointerDown = (event) => {
+        if (event.button !== undefined && event.button !== 0) return;
+        const body = bodyRef.current;
+        if (body === null) return;
+        event.preventDefault();
+        const divider = splitRef.current;
+        if (divider !== null && typeof divider.setPointerCapture === 'function') {
+          divider.setPointerCapture(event.pointerId);
+        }
+        splitStore.setDragging(true);
+
+        const onMove = (moveEvent) => {
+          const rect = body.getBoundingClientRect();
+          splitStore.move(moveEvent.clientX - rect.left, rect.width);
+        };
+        const onUp = () => {
+          splitStore.setDragging(false);
+          if (typeof window === 'undefined') return;
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerup', onUp);
+          window.removeEventListener('pointercancel', onUp);
+        };
+        if (typeof window === 'undefined') return;
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+      };
+
+      /**
+       * Nudge the divider with the arrow keys.
+       *
+       * @param {KeyboardEvent} event - the key event.
+       * @returns {void}
+       */
+      const onSplitKeyDown = (event) => {
+        const step = event.shiftKey ? SPLIT.STEP * 3 : SPLIT.STEP;
+        let delta = 0;
+        if (event.key === 'ArrowLeft') delta = -step;
+        else if (event.key === 'ArrowRight') delta = step;
+        else if (event.key === 'Home') delta = -Infinity;
+        else if (event.key === 'End') delta = Infinity;
+        else return;
+        event.preventDefault();
+        const width = bodyWidth();
+        const current = splitStore.getSnapshot().position ?? width / 2;
+        const target = delta === -Infinity ? 0 : (delta === Infinity ? width : current + delta);
+        splitStore.move(target, width);
+      };
+
+      /**
+       * Return to the even split.
+       *
+       * @returns {void}
+       */
+      const onSplitReset = () => {
+        splitStore.reset(bodyWidth());
+      };
 
       // Track the tree's visible height so the first-screen rule follows the
       // panel when it is resized.
@@ -4131,6 +4480,34 @@ window.__ModuleLoader__.load({
               ? h('span', { key: 'count', className: cx('artifact-space-favCount') }, String(favorites.size))
               : null,
           ]),
+          // The reset button only shows once the divider has actually been
+          // moved. A toolbar button that does nothing is noise, and most
+          // readers never touch the divider at all.
+          split.customized
+            ? h('button', {
+              key: 'splitReset',
+              type: 'button',
+              className: cx('artifact-space-tool'),
+              'aria-label': t('split.reset'),
+              title: t('split.resetHint'),
+              onClick: () => splitStore.reset(bodyWidth()),
+            }, h('svg', {
+              viewBox: '0 0 16 16',
+              width: 14,
+              height: 14,
+              fill: 'none',
+              stroke: 'currentColor',
+              strokeWidth: 1.3,
+              strokeLinecap: 'round',
+              strokeLinejoin: 'round',
+              'aria-hidden': true,
+            }, [
+              // Two panes with an arrow pointing back to an even split.
+              h('rect', { key: 'l', x: 1.8, y: 2.8, width: 5, height: 10.4, rx: 1.2 }),
+              h('rect', { key: 'r', x: 9.2, y: 2.8, width: 5, height: 10.4, rx: 1.2 }),
+              h('path', { key: 'a', d: 'M8 4.6v6.8M8 11.4l-2-2M8 11.4l2-2' }),
+            ]))
+            : null,
           h('div', {
             key: 'filter',
             className: cx('artifact-space-filter'),
@@ -4270,8 +4647,32 @@ window.__ModuleLoader__.load({
           onClose: () => setVersionOpen(false),
           t,
         }) : null,
-        h('div', { key: 'body', className: cx('artifact-space-body') }, [
+        h('div', {
+          key: 'body',
+          ref: bodyRef,
+          className: cx('artifact-space-body'),
+          'data-dragging': split.dragging ? 'true' : 'false',
+          style: split.position === null
+            ? undefined
+            : { gridTemplateColumns: `${split.position}px minmax(0,1fr)` },
+        }, [
           h('nav', { key: 'tree', ref: treeRef, className: cx('artifact-space-tree'), 'aria-label': t('page.title') }, tree()),
+          // The divider sits on top of the boundary rather than taking a
+          // grid cell, so it never steals width from either pane.
+          h('div', {
+            key: 'splitter',
+            ref: splitRef,
+            className: cx('artifact-space-splitter'),
+            role: 'separator',
+            tabIndex: 0,
+            'aria-label': t('split.aria'),
+            'aria-orientation': 'vertical',
+            title: t('split.hint'),
+            style: split.position === null ? undefined : { left: `${split.position}px` },
+            onPointerDown: onSplitPointerDown,
+            onKeyDown: onSplitKeyDown,
+            onDoubleClick: onSplitReset,
+          }),
           h('section', { key: 'pane', className: cx('artifact-space-pane') },
             activeArtifact !== null && selectedSession !== null
               ? h(PreviewPane, {
