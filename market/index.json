@@ -36,8 +36,8 @@
         "zh": "产物空间"
       },
       "description": {
-        "en": "Adds an Artifact Space entry to the DSH sidebar that lists the final effective artifacts of each session, grouped by workspace and session, with an editor-style preview, image previews, search across workspaces and sessions, favorites, and per-file provenance.",
-        "zh": "在 DSH 侧栏新增「产物空间」入口，按工作区与会话分组列出每个会话的最终有效产物，提供编辑器风格预览、图片预览、跨工作区与会话搜索、收藏以及逐文件的来源说明。"
+        "en": "Adds an Artifact Space entry to the DSH sidebar that lists the final effective artifacts of each session, grouped by workspace and session, with an editor-style preview, image previews, search across workspaces and sessions, favorites, per-file provenance, and an in-panel version check that can download and install a newer release without leaving the panel.",
+        "zh": "在 DSH 侧栏新增「产物空间」入口，按工作区与会话分组列出每个会话的最终有效产物，提供编辑器风格预览、图片预览、跨工作区与会话搜索、收藏、逐文件的来源说明，并支持在面板内检测版本、一键下载并安装新版本。"
       },
       "icon": "https://cdn.jsdelivr.net/gh/majestyjun/artifact-space@main/assets/icon-180.png",
       "author": "majestyjun",
@@ -57,13 +57,43 @@
         ],
         "labels": [],
         "sortKeys": {
-          "published": 1793797879
+          "published": 1793978872
         }
       },
       "versions": [
         {
+          "version": "1.5.0",
+          "publishTimestamp": 1793978872,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.1.5-alpha.2"
+          }
+        },
+        {
+          "version": "1.2.0",
+          "publishTimestamp": 1793935249,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.1.5-alpha.2"
+          }
+        },
+        {
+          "version": "1.1.2",
+          "publishTimestamp": 1793896878,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.1.5-alpha.2"
+          }
+        },
+        {
           "version": "1.1.1",
-          "publishTimestamp": 1793797879,
+          "publishTimestamp": 1793807119,
           "source": {
             "type": "npm"
           },
@@ -73,7 +103,7 @@
         },
         {
           "version": "1.1.0",
-          "publishTimestamp": 1793784803,
+          "publishTimestamp": 1793806403,
           "source": {
             "type": "npm"
           },
@@ -83,7 +113,7 @@
         },
         {
           "version": "1.0.0",
-          "publishTimestamp": 1793781850,
+          "publishTimestamp": 1793801050,
           "source": {
             "type": "npm"
           },
