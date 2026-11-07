@@ -21,7 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The version check **never touches** the profile's `package.json` or lockfile and never runs `pnpm install` — the plugin file replacement is invisible to DSH's integrity check, so it cannot make the app refuse to start.
 - The downloaded package is unpacked into a temporary directory and validated before anything is replaced; a failed integrity check or a broken archive leaves the current installation untouched. Replacement unlinks first and writes second, so pnpm's content-addressed store is never polluted.
-- The update strings are provided in Chinese and English (16 `version.*` keys), and the badge and card follow the light and dark themes.
+- The update strings are provided in Chinese and English (18 `version.*` keys), and the badge and card follow the light and dark themes.
+- When the Host half has not loaded the new version yet (for instance, only the browser half hot-reloaded), the panel says so plainly — "the Host has not loaded the new version, restart DSH" — instead of a vague "update failed". A restart is the only thing that can fix it, and pointing at the wrong remedy is worse than saying nothing.
+- When no version can be read, the badge shows only "unknown version" instead of the stuttering "version unknown version".
 
 ## [1.5.0] — 2026-11-06
 
