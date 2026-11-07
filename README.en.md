@@ -27,6 +27,7 @@ selected.
 | **Multi-format rendering** | Markdown, HTML, YAML and JSON each get their own renderer, with a plain-text fallback for anything unrecognised. |
 | **Three-level search** | Filter across workspaces, sessions and artifacts at once. Words separated by spaces are alternatives, so `client json` finds both `client.js` and `package.json`. |
 | **Favorites** | Star the artifacts worth keeping. Favorites survive restarts, and each one leaves disk the moment you un-star it. |
+| **Resizable split** | Drag the divider between the artifact list and the preview to change the widths; both sides keep a minimum. A "reset the split" button appears in the header once you have moved it. |
 | **Session folding** | Sessions fold to their header. By default only the ones that fit on the first screen are open. |
 | **Copy and go** | Copy a file's content or its absolute path straight from the preview header. |
 | **Traceable origin** | Each artifact says whether it was *delivered* or merely *produced*, in which turn, and what the session said about it. |
@@ -179,6 +180,26 @@ An artifact can be starred from its row, and the stars are collected in the
   its rows while its log is unreadable or awaits migration, so treating an
   absent row as proof of deletion would throw away favorites the reader still
   wants.
+
+## Split width
+
+The divider between the artifact list and the preview pane can be **dragged**
+to change how wide each side is.
+
+- The drag is bounded by both sides' minimum widths: the list keeps at least
+  220px, the preview at least 320px, and the list may take at most 72% of the
+  container. Neither side can be squeezed out of existence.
+- When the container is too narrow for both minimums, the list wins — a
+  squeezed list stops being a list — and the divider hides itself.
+- The divider takes focus with `Tab`; `←` / `→` nudge it by 24px (`Shift` for
+  72px), `Home` / `End` push it to either end, and a **double-click restores
+  the even split**.
+- Once you have moved the divider, a **reset the split** button appears in the
+  panel header. It puts the two panes back to an even split and deletes the
+  stored position. It stays out of the way until there is something to reset.
+- The position is stored locally for the panel's container and restored next
+  time. A container resize clamps it back into range without overwriting the
+  position you dragged to.
 
 ## Version updates
 

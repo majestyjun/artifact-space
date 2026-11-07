@@ -12,10 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The update card gained a **view release notes** text link that opens the published release notes for that exact version (the GitHub release), so you can see what a version actually changed before you click "Download and install".
+- **The artifact list and the preview pane can now be resized by dragging** the divider between them. The divider is draggable, and both sides keep a minimum width while you do. It also takes focus: `←` / `→` nudge it by 24px (`Shift` for 72px), `Home` / `End` push it to either end, and a **double-click restores the even split**. The position is remembered locally for the panel's container and restored next time.
+- **A "reset the split" button was added.** Once you have moved the divider, a button appears in the panel header that puts the two panes back to an even split and deletes the stored position. It only shows when there is something to reset — it takes no room the rest of the time, and there is no button that does nothing.
+- The list has a **hard minimum of 220px** — it cannot be dragged out of existence; the preview keeps at least 320px, and the list may take at most 72% of the container. When the container is too narrow for both minimums, the list wins (a squeezed list stops being a list) and the divider hides itself.
+- New `verify-split.mjs` checks the split behaviour specifically (22 assertions covering the width constraints, position persistence, when the reset button appears and fallback on corrupt data), plus `smoke-render-split.mjs`, a render smoke test that emulates React's `useSyncExternalStore` and actually renders the panel. Both are wired into the pre-release pipeline.
 
 ### Fixed
 
+- **The split pane no longer blanks the panel.** The split store's `getSnapshot` handed out a fresh object on every call, and `useSyncExternalStore` compares snapshots by identity — so it believed the state kept changing and re-rendered without end, until React threw #185 (Maximum update depth exceeded) and tore down the render slot, leaving a blank page. The snapshot is now a stable reference, replaced only when the position or the dragging state actually changes.
 - **The favorite star no longer hides.** It used to sit at `opacity:0` and only appeared when the row was hovered — nothing on screen hinted that a row could be starred, while the empty favorites state told people to click a star they could not see; on touch screens it was unreachable entirely. The star is now always visible.
+- **The star no longer overlaps the file icon.** Rows are laid out as a grid with a fixed number of cells, but the delivered/produced label and the time were two separate cells — so a row *with* a label had one more child than a row without one, and the surplus star was pushed onto a second grid line, landing in the file icon's column and overlapping it (see the entry above: the star was transparent, so the misplacement went unnoticed). The label and the time now share a single provenance cell, so the child count is always 5, matching the 5 columns.
 
 ### Changed
 
