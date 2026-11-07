@@ -7,6 +7,16 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] — 2026-11-07
+
+### Added
+
+- The update card gained a **View release notes** button that opens the published release notes (the GitHub release) directly, so you can see what a version actually changed before you click "Download and install".
+
+### Changed
+
+- The commit guard now also blocks credentials: a staged file containing an npm token or a private key header stops the commit; `.gitignore` gained `.npmrc` and `.env`.
+
 ## [1.6.0] — 2026-11-07
 
 ### Added
@@ -15,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The update card offers a version comparison, a **download and install** button and a **one-click rollback** button. Once the download finishes it tells you that restarting DSH activates the new version.
 - Added the Host-side `updater.js`: it queries the npm registry for the latest version, downloads the tarball and verifies its `sha512` integrity, then **replaces the plugin directory in place** — backing it up beforehand so a bad update can be rolled back in one click.
 - Added three Host routes: `GET /api/artifact-space.version` (version check), `GET /api/artifact-space.update` (download and install) and `GET /api/artifact-space.rollback` (rollback).
-- Added `verify-version-update.mjs` (125 assertions covering the Host-side structure, a sandboxed real download-and-replace run, the client rendering and the published package contents) and `smoke-render-version-update.mjs` (16 rendering scenarios), both wired into the pre-release pipeline.
+- Added `verify-version-update.mjs` (131 assertions covering the Host-side structure, a sandboxed real download-and-replace run, the client rendering and the published package contents) and `smoke-render-version-update.mjs` (18 rendering scenarios), both wired into the pre-release pipeline.
 
 ### Changed
 
