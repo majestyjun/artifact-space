@@ -271,6 +271,11 @@ window.__ModuleLoader__.load({
   --glass-link: #2f6ae0;
   /* 收藏星标：琥珀金，与蓝青主调区分但不喧宾夺主 */
   --glass-star: #e0a038;
+  /* 星标的常态色（未收藏时的描边）。不能直接用 tertiary 灰：它在浅色玻璃上
+     只有 ≈2.9:1，而 opacity 一压更低。常驻可见的图形需达 3:1，故单列一色。 */
+  --glass-star-idle: #6f7680;
+  /* 已收藏的星标用实心琥珀，浅色底上换深一档以保 3:1。 */
+  --glass-star-on: #b57c1a;
   /* 失败态：优先用宿主令牌，缺失时回落到一个可读的暖红 */
   --glass-error: var(--dsw-alias-state-error-primary, #c2453d);
 
@@ -325,8 +330,10 @@ window.__ModuleLoader__.load({
     --glass-accent-edge: rgba(130,175,255,.42);
     --glass-accent-glow: 0 0 0 3px rgba(90,140,255,.10), 0 3px 14px rgba(60,110,255,.26);
     --glass-accent-icon: #8ab4ff;
-  --glass-link: #8ab4ff;
+    --glass-link: #8ab4ff;
     --glass-star: #f0b455;
+    --glass-star-idle: #6f7680;
+    --glass-star-on: #f0b455;
     --glass-error: var(--dsw-alias-state-error-primary, #e2726a);
     --glass-base-1: #12131c;
     --glass-base-2: #171722;
@@ -997,17 +1004,21 @@ window.__ModuleLoader__.load({
   display:inline-flex;align-items:center;justify-content:center;
   padding:0;border:0;border-radius:6px;
   background:transparent;
-  color:var(--glass-text-tertiary);
+  color:var(--glass-star-idle);
   cursor:pointer;
-  opacity:0;
+  /* The star stays visible. Hiding it until hover made the feature
+     undiscoverable: nothing on screen hinted that a row could be starred,
+     and the empty state told people to click a star they could not see.
+     It reads quietly and comes forward on hover or once starred. */
   transition:opacity .12s ease-out,background .12s ease-out,color .12s ease-out;
 }
-.artifact-space-row:hover .artifact-space-star,
-.artifact-space-star:focus-visible,
-.artifact-space-star[aria-pressed="true"]{opacity:1}
-.artifact-space-star:hover{background:rgba(255,255,255,.42);color:var(--glass-star)}
+.artifact-space-row:hover .artifact-space-star{color:var(--glass-star)}
 .artifact-space-star:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:1px}
-.artifact-space-star[aria-pressed="true"]{color:var(--glass-star)}
+.artifact-space-star:hover{background:rgba(255,255,255,.42);color:var(--glass-star)}
+/* A starred row keeps its own colour on hover — otherwise "already starred"
+   and "about to be starred" would look identical. */
+.artifact-space-star[aria-pressed="true"],
+.artifact-space-star[aria-pressed="true"]:hover{color:var(--glass-star-on)}
 
 /* 头部收藏夹按钮：带计数徽标 */
 .artifact-space-favTool{
@@ -1016,14 +1027,14 @@ window.__ModuleLoader__.load({
   /* 与搜索框拉开一点距离，两者同属「查找/筛选」这一类控件 */
   margin-right:4px;
 }
-.artifact-space-favTool[data-active="true"]{color:var(--glass-star);background:rgba(255,255,255,.44)}
+.artifact-space-favTool[data-active="true"]{color:var(--glass-star-on);background:rgba(255,255,255,.44)}
 .artifact-space-favTool[data-active="true"]:hover{background:rgba(255,255,255,.56)}
 .artifact-space-favCount{
   font-size:10px;line-height:12px;
   font-variant-numeric:tabular-nums;
   color:var(--glass-text-tertiary);
 }
-.artifact-space-favTool[data-active="true"] .artifact-space-favCount{color:var(--glass-star)}
+.artifact-space-favTool[data-active="true"] .artifact-space-favCount{color:var(--glass-star-on)}
 
 /* 收藏列表 */
 .artifact-space-favWrap{
@@ -1114,7 +1125,7 @@ window.__ModuleLoader__.load({
   color:var(--glass-text-tertiary);
   font-variant-numeric:tabular-nums;
 }
-.artifact-space-favRemove{opacity:.55;color:var(--glass-star)}
+.artifact-space-favRemove{opacity:.55;color:var(--glass-star-on)}
 .artifact-space-favItem:hover .artifact-space-favRemove{opacity:1}
 .artifact-space-favRemove:hover{color:var(--glass-text-primary)}
 

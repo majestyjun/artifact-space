@@ -13,8 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The update card gained a **view release notes** text link that opens the published release notes for that exact version (the GitHub release), so you can see what a version actually changed before you click "Download and install".
 
+### Fixed
+
+- **The favorite star no longer hides.** It used to sit at `opacity:0` and only appeared when the row was hovered — nothing on screen hinted that a row could be starred, while the empty favorites state told people to click a star they could not see; on touch screens it was unreachable entirely. The star is now always visible.
+
 ### Changed
 
+- The star's resting colour is a dedicated neutral (`#6f7680` — 4.39:1 on light glass, 4.03:1 on dark, meeting the 3:1 that non-text graphics require) and turns amber on hover or once starred. The tertiary grey it used to borrow only reached 2.89:1 on the light surface, and lower still once its opacity was reduced.
+- A starred row keeps its own colour on hover, so "already starred" and "about to be starred" no longer look alike.
 - The update card now **separates information from action**: the release notes are a text link under the note instead of a pill competing with the primary button, and "Close" became an icon button (it keeps an `aria-label`); the action row carries only the actions worth taking.
 - The link uses a solid blue (light theme `#2f6ae0`, dark theme `#8ab4ff`) that reaches WCAG AA contrast on the glass surface (≈4.9:1 / ≈8:1) — the edge colour is translucent and would only reach ≈1.9:1 as text.
 - The commit guard now also blocks credentials: a staged file containing an npm token or a private key header stops the commit; `.gitignore` gained `.npmrc` and `.env`.
