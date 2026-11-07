@@ -165,6 +165,11 @@ export async function versionReport({ check, signal }) {
     current,
     latest: null,
     updateAvailable: false,
+    // The installed build can be *newer* than what the registry publishes —
+    // a version that was installed before it went out. Saying "latest 1.5.0"
+    // next to "you are up to date" reads like a downgrade is pending, so the
+    // report says plainly that this build runs ahead of the registry.
+    ahead: false,
     checked: false,
     error: null,
   };
@@ -173,7 +178,9 @@ export async function versionReport({ check, signal }) {
     const release = await fetchLatestRelease(signal);
     report.latest = release.version;
     report.checked = true;
-    report.updateAvailable = compareVersions(current, release.version) < 0;
+    const order = compareVersions(current, release.version);
+    report.updateAvailable = order < 0;
+    report.ahead = order > 0;
   } catch (error) {
     report.error = error instanceof Error ? error.message : String(error);
   }

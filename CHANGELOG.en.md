@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The update strings are provided in Chinese and English (18 `version.*` keys), and the badge and card follow the light and dark themes.
 - When the Host half has not loaded the new version yet (for instance, only the browser half hot-reloaded), the panel says so plainly — "the Host has not loaded the new version, restart DSH" — instead of a vague "update failed". A restart is the only thing that can fix it, and pointing at the wrong remedy is worse than saying nothing.
 - When no version can be read, the badge shows only "unknown version" instead of the stuttering "version unknown version".
+- When the running build is newer than what npm has published (the state right before a release goes out), the card says so plainly — "local build {version}" / "this version is not published on npm yet" — instead of the contradictory "latest version 1.5.0" next to "up to date", which reads like a pending downgrade.
 
 ## [1.5.0] — 2026-11-06
 
