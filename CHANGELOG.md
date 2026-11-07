@@ -7,6 +7,22 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.6.0] — 2026-11-07
+
+### 新增
+
+- 面板头部常驻**版本徽章**，显示当前安装版本（如 `v1.6.0`）。有新版时徽章转为橙色并提示可更新，点击展开**更新卡片**。
+- 更新卡片提供**版本对比**、**下载并安装**按钮与**一键回滚**按钮；下载完成后提示「重启 DSH 生效」。
+- 新增宿主端 `updater.js`：从 npm registry 查询最新版本，下载 tarball 并校验 `sha512` 完整性，通过后**就地替换**插件目录 —— 替换前自动备份，出问题可一键回滚。
+- 新增三条宿主路由：`GET /api/artifact-space.version`（版本检测）、`GET /api/artifact-space.update`（下载安装）、`GET /api/artifact-space.rollback`（回滚）。
+- 新增 `verify-version-update.mjs`（103 项断言，覆盖宿主端结构、沙盒真实下载替换、客户端渲染、发布包内容）与 `smoke-render-version-update.mjs`（10 个渲染场景），并接入发布前流水线。
+
+### 变更
+
+- 版本检测**不触碰** profile 的 `package.json` 与 lockfile，也不执行 `pnpm install` —— 插件文件的替换对 DSH 的完整性校验不可见，因此不会触发启动拒绝。
+- 下载的包在替换前会**先解包到临时目录验证**，校验失败或解包异常一律不动现有安装；替换采用「先 `unlink` 再写入」的方式，避免污染 pnpm 的内容寻址存储。
+- 更新文案中英文各一份（`version.*` 共 16 个键），徽章与卡片样式随明暗主题自适应。
+
 ## [1.5.0] — 2026-11-06
 
 ### 新增
