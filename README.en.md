@@ -189,8 +189,8 @@ clicked, so nothing goes over the network during ordinary use.
 - When a newer release exists the badge turns orange and announces the update;
   clicking it opens an **update card** showing the installed version next to
   the latest one.
-- The card's **view release notes** button opens the published release notes, so
-  you can see what a version actually changed before deciding to install it.
+- A **view release notes** link under the card opens the published release notes,
+  so you can see what a version actually changed before deciding to install it.
 - Pressing **download and install** makes the Host download the tarball from
   npm, verify its `sha512` integrity, unpack it into a temporary directory and
   only then replace the current installation. The old installation is backed up

@@ -266,6 +266,9 @@ window.__ModuleLoader__.load({
   --glass-accent-edge: rgba(90,140,255,.5);
   --glass-accent-glow: 0 0 0 3px rgba(90,140,255,.10), 0 3px 14px rgba(60,110,255,.24);
   --glass-accent-icon: #4a7fe0;
+  /* 更新卡片里的文字链色：实色蓝，保证在玻璃上的对比度达到 WCAG AA（≈4.9:1）。
+     描边色 --glass-accent-edge 是半透明的，用作文字色只有 ≈1.9:1，读不清。 */
+  --glass-link: #2f6ae0;
   /* 收藏星标：琥珀金，与蓝青主调区分但不喧宾夺主 */
   --glass-star: #e0a038;
   /* 失败态：优先用宿主令牌，缺失时回落到一个可读的暖红 */
@@ -322,6 +325,7 @@ window.__ModuleLoader__.load({
     --glass-accent-edge: rgba(130,175,255,.42);
     --glass-accent-glow: 0 0 0 3px rgba(90,140,255,.10), 0 3px 14px rgba(60,110,255,.26);
     --glass-accent-icon: #8ab4ff;
+  --glass-link: #8ab4ff;
     --glass-star: #f0b455;
     --glass-error: var(--dsw-alias-state-error-primary, #e2726a);
     --glass-base-1: #12131c;
@@ -486,6 +490,31 @@ window.__ModuleLoader__.load({
 }
 .artifact-space-updateBtn[data-primary="true"]:hover{background:linear-gradient(180deg,#5597ff,#3f7ef0)}
 .artifact-space-updateBtn:disabled{opacity:.5;cursor:not-allowed}
+/* 「查看更新说明」是信息入口而非操作：做成文字链，挂在说明文字下方，
+   不与主操作按钮抢同一行的注意力。 */
+.artifact-space-updateNotes{
+  font-size:11px;line-height:15px;
+  color:var(--glass-link);
+  text-decoration:none;
+  align-self:flex-start;
+  border-radius:4px;
+  transition:opacity .12s ease-out;
+}
+.artifact-space-updateNotes:hover{opacity:.72;text-decoration:underline}
+.artifact-space-updateNotes:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:2px}
+/* 「关闭」只是收起卡片，没有独立语义，用图标而不是文字药丸。 */
+.artifact-space-updateClose{
+  width:24px;height:24px;flex:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0;border:0;border-radius:7px;
+  font-size:15px;line-height:1;
+  color:var(--glass-text-tertiary);
+  background:transparent;
+  cursor:pointer;
+  transition:background .12s ease-out,color .12s ease-out;
+}
+.artifact-space-updateClose:hover{background:rgba(255,255,255,.42);color:var(--glass-text-primary)}
+.artifact-space-updateClose:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:2px}
 .artifact-space-tool{
   width:26px;height:26px;flex:none;
   display:inline-flex;align-items:center;justify-content:center;
@@ -3536,17 +3565,28 @@ window.__ModuleLoader__.load({
         h('div', { key: 'text', className: cx('artifact-space-updateText') }, [
           h('span', { key: 'title', className: cx('artifact-space-updateTitle') }, title),
           h('span', { key: 'note', className: cx('artifact-space-updateNote') }, note),
-        ]),
-        h('div', { key: 'actions', className: cx('artifact-space-updateActions') }, [
+          // The release notes are an information link, not an action. Putting
+          // them on their own line under the note keeps them clear of the
+          // action row, where a pill would compete with the install button.
           notesUrl === ''
             ? null
-            : h('button', {
+            : h('a', {
               key: 'notes',
-              type: 'button',
-              className: cx('artifact-space-updateBtn'),
+              className: cx('artifact-space-updateNotes'),
+              href: notesUrl,
+              target: '_blank',
+              rel: 'noreferrer noopener',
               title: t('version.notesHint'),
-              onClick: () => openInBrowser(notesUrl),
+              onClick: (event) => {
+                // Let the plugin's own opener handle it: it knows whether the
+                // host can open a browser, and it keeps the panel from
+                // navigating away underneath the reader.
+                event.preventDefault();
+                openInBrowser(notesUrl);
+              },
             }, t('version.notes')),
+        ]),
+        h('div', { key: 'actions', className: cx('artifact-space-updateActions') }, [
           canInstall
             ? h('button', {
               key: 'install',
@@ -3566,12 +3606,16 @@ window.__ModuleLoader__.load({
               onClick: onRollback,
             }, t('version.rollback'))
             : null,
+          // Closing dismisses the card; it carries no meaning of its own, so
+          // it is an icon rather than a word competing for the action row.
           h('button', {
             key: 'close',
             type: 'button',
-            className: cx('artifact-space-updateBtn'),
+            className: cx('artifact-space-updateClose'),
+            'aria-label': t('version.close'),
+            title: t('version.close'),
             onClick: onClose,
-          }, t('version.close')),
+          }, '×'),
         ]),
       ]);
     }

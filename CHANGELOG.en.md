@@ -11,10 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The update card gained a **View release notes** button that opens the published release notes (the GitHub release) directly, so you can see what a version actually changed before you click "Download and install".
+- The update card gained a **view release notes** text link that opens the published release notes for that exact version (the GitHub release), so you can see what a version actually changed before you click "Download and install".
 
 ### Changed
 
+- The update card now **separates information from action**: the release notes are a text link under the note instead of a pill competing with the primary button, and "Close" became an icon button (it keeps an `aria-label`); the action row carries only the actions worth taking.
+- The link uses a solid blue (light theme `#2f6ae0`, dark theme `#8ab4ff`) that reaches WCAG AA contrast on the glass surface (≈4.9:1 / ≈8:1) — the edge colour is translucent and would only reach ≈1.9:1 as text.
 - The commit guard now also blocks credentials: a staged file containing an npm token or a private key header stops the commit; `.gitignore` gained `.npmrc` and `.env`.
 
 ## [1.6.0] — 2026-11-07
@@ -25,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The update card offers a version comparison, a **download and install** button and a **one-click rollback** button. Once the download finishes it tells you that restarting DSH activates the new version.
 - Added the Host-side `updater.js`: it queries the npm registry for the latest version, downloads the tarball and verifies its `sha512` integrity, then **replaces the plugin directory in place** — backing it up beforehand so a bad update can be rolled back in one click.
 - Added three Host routes: `GET /api/artifact-space.version` (version check), `GET /api/artifact-space.update` (download and install) and `GET /api/artifact-space.rollback` (rollback).
-- Added `verify-version-update.mjs` (131 assertions covering the Host-side structure, a sandboxed real download-and-replace run, the client rendering and the published package contents) and `smoke-render-version-update.mjs` (18 rendering scenarios), both wired into the pre-release pipeline.
+- Added `verify-version-update.mjs` (131 assertions covering the Host-side structure, a sandboxed real download-and-replace run, the client rendering and the published package contents) and `smoke-render-version-update.mjs` (19 rendering scenarios), both wired into the pre-release pipeline.
 
 ### Changed
 
