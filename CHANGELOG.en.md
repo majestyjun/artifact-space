@@ -7,6 +7,22 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] — 2026-11-07
+
+### Added
+
+- A permanent **version badge** in the panel header shows the installed version (e.g. `v1.6.0`). When a newer release exists the badge turns orange and announces the update; clicking it opens an **update card**.
+- The update card offers a version comparison, a **download and install** button and a **one-click rollback** button. Once the download finishes it tells you that restarting DSH activates the new version.
+- Added the Host-side `updater.js`: it queries the npm registry for the latest version, downloads the tarball and verifies its `sha512` integrity, then **replaces the plugin directory in place** — backing it up beforehand so a bad update can be rolled back in one click.
+- Added three Host routes: `GET /api/artifact-space.version` (version check), `GET /api/artifact-space.update` (download and install) and `GET /api/artifact-space.rollback` (rollback).
+- Added `verify-version-update.mjs` (103 assertions covering the Host-side structure, a sandboxed real download-and-replace run, the client rendering and the published package contents) and `smoke-render-version-update.mjs` (10 rendering scenarios), both wired into the pre-release pipeline.
+
+### Changed
+
+- The version check **never touches** the profile's `package.json` or lockfile and never runs `pnpm install` — the plugin file replacement is invisible to DSH's integrity check, so it cannot make the app refuse to start.
+- The downloaded package is unpacked into a temporary directory and validated before anything is replaced; a failed integrity check or a broken archive leaves the current installation untouched. Replacement unlinks first and writes second, so pnpm's content-addressed store is never polluted.
+- The update strings are provided in Chinese and English (16 `version.*` keys), and the badge and card follow the light and dark themes.
+
 ## [1.5.0] — 2026-11-06
 
 ### Added

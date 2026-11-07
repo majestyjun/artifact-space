@@ -27,6 +27,7 @@ kind: "package-bundle"
 | **会话折叠** | 会话可折叠成标题行；默认只展开首屏能看到的那些 |
 | **一键带走** | 在预览区头部直接复制文件内容或绝对路径 |
 | **来源可溯** | 每个产物都标明是「交付」还是顺手「产出」、来自第几轮对话、会话当时对它说了什么 |
+| **版本自更新** | 面板头部常驻版本徽章；发现新版可直接在面板里下载安装，装坏了还能一键回滚 |
 
 ## 什么算是一个产物
 
@@ -41,8 +42,9 @@ kind: "package-bundle"
 
 | 半边 | 文件 | 职责 |
 | --- | --- | --- |
-| 宿主 | `index.js` | 注册两条需鉴权的路由：`GET /api/artifact-space.rows` 与 `GET /api/artifact-space.read` |
-| 浏览器 | `client.js` | 注册侧栏入口（`sidebar.panellist`）与主面板（`main` slot，键为 `artifact-space`） |
+| 宿主 | `index.js` | 注册需鉴权的路由：`GET /api/artifact-space.rows`、`GET /api/artifact-space.read`，以及版本检测与更新的三条路由 |
+| 宿主 | `updater.js` | 查询 npm registry、下载并校验 tarball、就地替换插件目录、备份与回滚 |
+| 浏览器 | `client.js` | 注册侧栏入口（`sidebar.panellist`）与主面板（`main` slot，键为 `artifact-space`），并绘制版本徽章与更新卡片 |
 
 两半边通过 `ctx.connection.fetch.register` 注册的鉴权宿主路由通信，凭证不会离开本机回环。
 
@@ -50,6 +52,9 @@ kind: "package-bundle"
 
 - `GET /api/artifact-space.rows` — 所有工作区分组及其会话、产物。
 - `GET /api/artifact-space.read?sessionId=…&path=…` — 单个产物的文本内容，上限 512 KB / 4000 行。拒绝原因映射为 `403 outside-workspace`、`404 not-a-file`、`413 too-large`、`415 binary-file`。
+- `GET /api/artifact-space.version` — 当前安装版本与 registry 上的最新版本；`?check=1` 会实际发起查询。
+- `GET /api/artifact-space.update` — 下载并安装最新版本。
+- `GET /api/artifact-space.rollback` — 回滚到上一次备份的版本。
 
 ## 预览状态
 
@@ -121,6 +126,15 @@ HTML 产物走的是另一条路：宿主把文档原样投递，但先把文档
 - 收藏的生命周期可以比会话长。所属会话被删除后，该条目会被标记为失效且无法打开；收藏夹头部的**清理 N 项失效**按钮会删除这些条目，并同步删掉它们的存储记录。
 - 失效条目**绝不自动清理**：宿主会在会话日志不可读或等待迁移时把该行整个丢掉，所以「列表里没有」并不能证明「文件已删除」，据此自动清扫会误删用户仍想要的收藏。
 
+## 版本更新
+
+面板头部常驻一个版本徽章，显示当前安装的版本（例如 `v1.6.0`）。首次点击徽章时才会向 npm registry 查询最新版本，因此平时不产生任何网络请求。
+
+- 有新版可用时，徽章转为橙色并提示可更新；点击展开**更新卡片**，卡片里能看到当前版本与最新版本的对比。
+- 点击**下载并安装**后，宿主从 npm 下载 tarball，用 `sha512` 校验完整性，解包到临时目录验证通过后才替换现有安装。替换前会自动备份，装坏了可以用**一键回滚**退回上一个版本。
+- 安装不会碰 profile 的 `package.json` 与 lockfile，也不会执行 `pnpm install` —— 替换对 DSH 的完整性校验不可见，因此不会导致宿主拒绝启动。
+- 替换采用「先删除链接再写入」的方式，避免污染 pnpm 的内容寻址存储；替换完成后提示**重启 DSH 生效**。
+
 ## 安装
 
 ### 从插件市场安装
@@ -166,7 +180,7 @@ dsh plugin add @xxjxx/artifact-space
 
 ## 隐私
 
-插件只读取宿主本就已开放给它的会话日志与工作区文件。它不发起任何自己的网络请求，也不向任何地方发送数据。
+插件只读取宿主本就已开放给它的会话日志与工作区文件。除**版本检测**外，它不发起任何自己的网络请求，也不向任何地方发送数据 —— 版本检测只向 npm registry 查询 `@xxjxx/artifact-space` 的最新版本号与下载地址，不涉及会话或工作区内容。
 
 收藏保存在浏览器本地 profile 下，键名前缀为 `artifactSpace.favorite.v1.*`。取消收藏会删除对应条目，收藏夹头部的**清空**按钮会连同它们的存储记录一起删除全部收藏。
 
