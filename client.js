@@ -77,6 +77,8 @@ window.__ModuleLoader__.load({
       'version.close': '关闭',
       'version.unknown': '未知版本',
       'version.detail': '版本更新',
+      'version.notes': '查看更新说明',
+      'version.notesHint': '在浏览器中打开发布说明',
       'refresh': '刷新',
       'refresh.aria': '刷新产物列表',
       'refresh.busy': '刷新中…',
@@ -186,6 +188,8 @@ window.__ModuleLoader__.load({
       'version.close': 'Close',
       'version.unknown': 'Unknown version',
       'version.detail': 'Version updates',
+      'version.notes': 'View release notes',
+      'version.notesHint': 'Open the release notes in your browser',
       'refresh': 'Refresh',
       'refresh.aria': 'Refresh the artifact list',
       'refresh.busy': 'Refreshing…',
@@ -3520,6 +3524,13 @@ window.__ModuleLoader__.load({
       // happening instead of the button vanishing under their cursor.
       const canInstall = version.updateAvailable === true && version.status !== 'updated';
       const canRollback = version.status === 'updated' || version.status === 'rolled-back';
+      // The release notes live on GitHub, one page per tag. The card offers a
+      // way there so a reader can see what a version actually changed before
+      // deciding to install it.
+      const notesVersion = version.latest ?? version.current ?? '';
+      const notesUrl = notesVersion === ''
+        ? ''
+        : `https://github.com/majestyjun/artifact-space/releases/tag/v${notesVersion}`;
 
       return h('div', { className: cx('artifact-space-updateCard') }, [
         h('div', { key: 'text', className: cx('artifact-space-updateText') }, [
@@ -3527,6 +3538,15 @@ window.__ModuleLoader__.load({
           h('span', { key: 'note', className: cx('artifact-space-updateNote') }, note),
         ]),
         h('div', { key: 'actions', className: cx('artifact-space-updateActions') }, [
+          notesUrl === ''
+            ? null
+            : h('button', {
+              key: 'notes',
+              type: 'button',
+              className: cx('artifact-space-updateBtn'),
+              title: t('version.notesHint'),
+              onClick: () => openInBrowser(notesUrl),
+            }, t('version.notes')),
           canInstall
             ? h('button', {
               key: 'install',
