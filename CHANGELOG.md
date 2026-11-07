@@ -15,7 +15,7 @@
 - 更新卡片提供**版本对比**、**下载并安装**按钮与**一键回滚**按钮；下载完成后提示「重启 DSH 生效」。
 - 新增宿主端 `updater.js`：从 npm registry 查询最新版本，下载 tarball 并校验 `sha512` 完整性，通过后**就地替换**插件目录 —— 替换前自动备份，出问题可一键回滚。
 - 新增三条宿主路由：`GET /api/artifact-space.version`（版本检测）、`GET /api/artifact-space.update`（下载安装）、`GET /api/artifact-space.rollback`（回滚）。
-- 新增 `verify-version-update.mjs`（103 项断言，覆盖宿主端结构、沙盒真实下载替换、客户端渲染、发布包内容）与 `smoke-render-version-update.mjs`（10 个渲染场景），并接入发布前流水线。
+- 新增 `verify-version-update.mjs`（125 项断言，覆盖宿主端结构、沙盒真实下载替换、客户端渲染、发布包内容）与 `smoke-render-version-update.mjs`（16 个渲染场景），并接入发布前流水线。
 
 ### 变更
 
