@@ -57,6 +57,22 @@ window.__ModuleLoader__.load({
       'lightbox.zoomOut': '缩小',
       'lightbox.zoomReset': '还原',
       'lightbox.zoomLevel': '缩放比例',
+      'version.badge': '版本 {version}',
+      'version.check': '检查更新',
+      'version.checking': '正在检查更新…',
+      'version.latest': '最新版本 {version}',
+      'version.upToDate': '已是最新版本',
+      'version.available': '发现新版本 {version}',
+      'version.download': '下载并安装',
+      'version.downloading': '正在下载并安装…',
+      'version.installed': '已更新到 {version}，重启 DSH 后生效',
+      'version.failed': '更新失败',
+      'version.restart': '重启 DSH 后生效',
+      'version.rollback': '回滚到上一版本',
+      'version.rolledBack': '已回滚，重启 DSH 后生效',
+      'version.close': '关闭',
+      'version.unknown': '未知版本',
+      'version.detail': '版本更新',
       'refresh': '刷新',
       'refresh.aria': '刷新产物列表',
       'refresh.busy': '刷新中…',
@@ -146,6 +162,22 @@ window.__ModuleLoader__.load({
       'lightbox.zoomOut': 'Zoom out',
       'lightbox.zoomReset': 'Reset',
       'lightbox.zoomLevel': 'Zoom level',
+      'version.badge': 'Version {version}',
+      'version.check': 'Check for updates',
+      'version.checking': 'Checking for updates…',
+      'version.latest': 'Latest version {version}',
+      'version.upToDate': 'Up to date',
+      'version.available': 'Version {version} is available',
+      'version.download': 'Download and install',
+      'version.downloading': 'Downloading and installing…',
+      'version.installed': 'Updated to {version}. Restart DSH to apply.',
+      'version.failed': 'Update failed',
+      'version.restart': 'Restart DSH to apply',
+      'version.rollback': 'Roll back to the previous version',
+      'version.rolledBack': 'Rolled back. Restart DSH to apply.',
+      'version.close': 'Close',
+      'version.unknown': 'Unknown version',
+      'version.detail': 'Version updates',
       'refresh': 'Refresh',
       'refresh.aria': 'Refresh the artifact list',
       'refresh.busy': 'Refreshing…',
@@ -366,6 +398,82 @@ window.__ModuleLoader__.load({
 .artifact-space-title{margin:0;font-size:13px;font-weight:500;line-height:18px;white-space:nowrap}
 .artifact-space-subtitle{margin:0;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .artifact-space-headSpacer{flex:1;min-width:8px}
+/* ── 版本徽章 ────────────────────────────────────────────── */
+.artifact-space-version{
+  flex:none;
+  display:inline-flex;align-items:center;gap:5px;
+  height:22px;padding:0 8px;
+  border:0;border-radius:7px;
+  background:rgba(255,255,255,.30);
+  color:var(--glass-text-tertiary);
+  font-size:11px;line-height:22px;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+  cursor:pointer;
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset;
+  transition:background .12s ease-out,color .12s ease-out;
+}
+.artifact-space-version:hover{background:rgba(255,255,255,.48);color:var(--glass-text-primary)}
+.artifact-space-version:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:2px}
+/* 有新版：橙色提示，一眼可见 */
+.artifact-space-version[data-update="true"]{
+  background:rgba(255,169,77,.22);
+  color:#c2700a;
+  font-weight:500;
+}
+.artifact-space-version[data-busy="true"]{cursor:progress;opacity:.72}
+.artifact-space-versionDot{
+  width:5px;height:5px;border-radius:50%;
+  background:currentColor;flex:none;
+}
+.artifact-space-version[data-update="true"] .artifact-space-versionDot{
+  animation:artifact-space-pulse 1.6s ease-in-out infinite;
+}
+@keyframes artifact-space-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+/* ── 更新卡片（展开在头部下方，不挤压头部高度） ────────── */
+.artifact-space-updateCard{
+  flex:none;
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;
+  border-bottom:.5px solid var(--glass-edge-soft);
+  background:var(--glass-header);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+  backdrop-filter:blur(10px) saturate(140%);
+}
+.artifact-space-updateText{
+  display:flex;flex-direction:column;gap:2px;
+  min-width:0;flex:1;
+}
+.artifact-space-updateTitle{
+  font-size:12px;font-weight:500;line-height:17px;
+  color:var(--glass-text-primary);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.artifact-space-updateNote{
+  font-size:11px;line-height:16px;
+  color:var(--glass-text-tertiary);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.artifact-space-updateActions{display:flex;align-items:center;gap:6px;flex:none}
+.artifact-space-updateBtn{
+  height:24px;padding:0 11px;
+  border:0;border-radius:7px;
+  font-size:11px;line-height:24px;
+  white-space:nowrap;cursor:pointer;
+  background:rgba(255,255,255,.42);
+  color:var(--glass-text-primary);
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset;
+  transition:background .12s ease-out,opacity .12s ease-out;
+}
+.artifact-space-updateBtn:hover{background:rgba(255,255,255,.62)}
+.artifact-space-updateBtn:focus-visible{outline:2px solid var(--glass-accent-edge);outline-offset:2px}
+.artifact-space-updateBtn[data-primary="true"]{
+  background:linear-gradient(180deg,#4a8cff,#3a76e8);
+  color:#fff;font-weight:500;
+  box-shadow:0 1px 0 rgba(255,255,255,.28) inset;
+}
+.artifact-space-updateBtn[data-primary="true"]:hover{background:linear-gradient(180deg,#5597ff,#3f7ef0)}
+.artifact-space-updateBtn:disabled{opacity:.5;cursor:not-allowed}
 .artifact-space-tool{
   width:26px;height:26px;flex:none;
   display:inline-flex;align-items:center;justify-content:center;
@@ -1874,6 +1982,9 @@ window.__ModuleLoader__.load({
     const READ_ROUTE = 'api/artifact-space.read';
     const IMAGE_ROUTE = 'api/artifact-space.image';
     const HTML_ROUTE = 'api/artifact-space.html';
+    const VERSION_ROUTE = 'api/artifact-space.version';
+    const UPDATE_ROUTE = 'api/artifact-space.update';
+    const ROLLBACK_ROUTE = 'api/artifact-space.rollback';
 
     /**
      * Fetch-once cache of the grouped artifact rows.
@@ -1942,6 +2053,134 @@ window.__ModuleLoader__.load({
         reload() {
           if (inflight !== null) return inflight;
           return read('refresh');
+        },
+        dispose() {
+          lifetime.abort();
+        },
+      };
+    }
+
+    /**
+     * The installed version and, when it was asked for, the newest published one.
+     *
+     * The registry is only consulted on an explicit check: the panel opens
+     * without touching the network, and the reader decides when to look.
+     */
+    function createVersionStore() {
+      const listeners = new Set();
+      const lifetime = new AbortController();
+      let state = {
+        status: 'idle',
+        current: null,
+        latest: null,
+        updateAvailable: false,
+        checked: false,
+        error: null,
+      };
+      let inflight = null;
+
+      const publish = () => {
+        for (const listener of [...listeners]) listener();
+      };
+      const set = (next) => {
+        state = next;
+        publish();
+      };
+
+      /** Ask the Host for the version, optionally consulting the registry. */
+      const read = (check) => {
+        if (inflight !== null) return inflight;
+        const marker = {};
+        inflight = marker;
+        const url = check ? `${VERSION_ROUTE}?check=1` : VERSION_ROUTE;
+        const task = fetch(url, { signal: lifetime.signal, cache: 'no-store' })
+          .then(async (response) => {
+            if (!response.ok) throw new Error(`version read failed: ${response.status}`);
+            const value = await response.json();
+            set({
+              status: 'ready',
+              current: typeof value?.current === 'string' ? value.current : null,
+              latest: typeof value?.latest === 'string' ? value.latest : null,
+              updateAvailable: value?.updateAvailable === true,
+              checked: value?.checked === true,
+              error: typeof value?.error === 'string' ? value.error : null,
+            });
+          })
+          .catch(() => {
+            if (!lifetime.signal.aborted) {
+              set({ ...state, status: 'error', error: 'version-unavailable' });
+            }
+          })
+          .finally(() => {
+            if (inflight === marker) inflight = null;
+          });
+        return task;
+      };
+
+      /** Run an operation on the Host and fold its answer into the state. */
+      const run = (route, busy) => {
+        if (inflight !== null) return inflight;
+        const marker = {};
+        inflight = marker;
+        set({ ...state, status: busy });
+        const task = fetch(route, { signal: lifetime.signal, cache: 'no-store' })
+          .then(async (response) => {
+            const value = await response.json().catch(() => null);
+            if (!response.ok) {
+              set({ ...state, status: 'error', error: value?.error ?? 'update-failed' });
+              return;
+            }
+            if (value?.restored === true) {
+              set({ ...state, status: 'rolled-back' });
+              return;
+            }
+            if (value?.updated === true) {
+              set({
+                ...state,
+                status: 'updated',
+                current: typeof value?.version === 'string' ? value.version : state.current,
+                latest: typeof value?.version === 'string' ? value.version : state.latest,
+                updateAvailable: false,
+                error: null,
+              });
+              return;
+            }
+            if (value?.reason === 'already-current') {
+              set({ ...state, status: 'ready', updateAvailable: false, error: null });
+              return;
+            }
+            set({ ...state, status: 'error', error: value?.error ?? 'update-failed' });
+          })
+          .catch(() => {
+            if (!lifetime.signal.aborted) set({ ...state, status: 'error', error: 'update-failed' });
+          })
+          .finally(() => {
+            if (inflight === marker) inflight = null;
+          });
+        return task;
+      };
+
+      return {
+        getSnapshot: () => state,
+        subscribe: (listener) => {
+          listeners.add(listener);
+          return () => { listeners.delete(listener); };
+        },
+        /** Read the installed version without touching the network. */
+        load() {
+          return read(false);
+        },
+        /** Ask the registry whether a newer version exists. */
+        check() {
+          return read(true);
+        },
+        /** Download and install the newest published version. */
+        install() {
+          return run(UPDATE_ROUTE, 'updating');
+        },
+        /** Restore the installation from the backup the last upgrade left. */
+        rollback() {
+          return run(ROLLBACK_ROUTE, 'rolling-back');
         },
         dispose() {
           lifetime.abort();
@@ -2033,6 +2272,16 @@ window.__ModuleLoader__.load({
 
     /** The snapshot used when no favorites store is available. */
     const EMPTY_FAVORITES = new Map();
+
+    /** The version state a panel renders before the Host has answered. */
+    const EMPTY_VERSION = {
+      status: 'idle',
+      current: null,
+      latest: null,
+      updateAvailable: false,
+      checked: false,
+      error: null,
+    };
 
     /**
      * The favorites store: artifacts the reader marked worth keeping.
@@ -3156,6 +3405,101 @@ window.__ModuleLoader__.load({
     }
 
     /**
+     * The version badge in the panel header.
+     *
+     * It shows the version that is running, and turns to an accent as soon as
+     * a newer one is published. Clicking it unfolds the update card.
+     */
+    function VersionBadge({ version, busy, open, onToggle, t }) {
+      const available = version.updateAvailable === true;
+      const label = available
+        ? t('version.available', { version: version.latest ?? '' })
+        : t('version.badge', { version: version.current ?? t('version.unknown') });
+      return h('button', {
+        type: 'button',
+        className: cx('artifact-space-version'),
+        'data-update': available ? 'true' : 'false',
+        'data-busy': busy ? 'true' : 'false',
+        'aria-expanded': open ? 'true' : 'false',
+        'aria-label': label,
+        title: label,
+        onClick: onToggle,
+      }, [
+        available ? h('span', { key: 'dot', className: cx('artifact-space-versionDot') }) : null,
+        h('span', { key: 'text' }, label),
+      ]);
+    }
+
+    /**
+     * The update card unfolded below the header.
+     *
+     * What it says and what it offers follow the state the Host last
+     * reported: a newer version offers a download, a finished upgrade offers
+     * a rollback, and an installed upgrade says that DSH must be restarted.
+     */
+    function VersionCard({ version, busy, onInstall, onRollback, onClose, t }) {
+      const title = version.status === 'updating'
+        ? t('version.downloading')
+        : version.status === 'rolling-back'
+          ? t('version.rollback')
+          : version.status === 'updated'
+            ? t('version.installed', { version: version.current ?? '' })
+            : version.status === 'rolled-back'
+              ? t('version.rolledBack')
+              : version.status === 'error'
+                ? t('version.failed')
+                : version.updateAvailable
+                  ? t('version.available', { version: version.latest ?? '' })
+                  : t('version.latest', { version: version.latest ?? version.current ?? t('version.unknown') });
+      const note = version.status === 'updated' || version.status === 'rolled-back'
+        ? t('version.restart')
+        : version.status === 'error'
+          ? String(version.error ?? '')
+          : version.updateAvailable
+            ? t('version.badge', { version: version.current ?? t('version.unknown') })
+            : t('version.upToDate');
+      // The download button stays put while the download runs — it turns into
+      // a disabled "downloading" label — so the reader sees that something is
+      // happening instead of the button vanishing under their cursor.
+      const canInstall = version.updateAvailable === true && version.status !== 'updated';
+      const canRollback = version.status === 'updated' || version.status === 'rolled-back';
+
+      return h('div', { className: cx('artifact-space-updateCard') }, [
+        h('div', { key: 'text', className: cx('artifact-space-updateText') }, [
+          h('span', { key: 'title', className: cx('artifact-space-updateTitle') }, title),
+          h('span', { key: 'note', className: cx('artifact-space-updateNote') }, note),
+        ]),
+        h('div', { key: 'actions', className: cx('artifact-space-updateActions') }, [
+          canInstall
+            ? h('button', {
+              key: 'install',
+              type: 'button',
+              className: cx('artifact-space-updateBtn'),
+              'data-primary': 'true',
+              disabled: busy,
+              onClick: onInstall,
+            }, version.status === 'updating' ? t('version.downloading') : t('version.download'))
+            : null,
+          canRollback
+            ? h('button', {
+              key: 'rollback',
+              type: 'button',
+              className: cx('artifact-space-updateBtn'),
+              disabled: busy,
+              onClick: onRollback,
+            }, t('version.rollback'))
+            : null,
+          h('button', {
+            key: 'close',
+            type: 'button',
+            className: cx('artifact-space-updateBtn'),
+            onClick: onClose,
+          }, t('version.close')),
+        ]),
+      ]);
+    }
+
+    /**
      * The Artifact Space page: a workspace tree on the left, the selected
      * file's preview on the right. Data flows through the store the Host
      * serves, so the page subscribes to the smallest slice it renders.
@@ -3176,6 +3520,8 @@ window.__ModuleLoader__.load({
       // The quick category filter: every artifact, only the delivered ones, or
       // only the ones produced along the way.
       const [kindFilter, setKindFilter] = React.useState('all');
+      // Whether the version card is unfolded below the header.
+      const [versionOpen, setVersionOpen] = React.useState(false);
       const primedGroups = React.useRef(false);
       const treeRef = React.useRef(null);
       // The viewport height the tree was measured against, so the automatic
@@ -3192,6 +3538,21 @@ window.__ModuleLoader__.load({
         favoritesStore !== null ? favoritesStore.getSnapshot : () => EMPTY_FAVORITES,
       );
       React.useEffect(() => { props.rows.load(); }, [props.rows]);
+
+      // The installed version, and whether a newer one is published.
+      const versionStore = props.version;
+      const version = React.useSyncExternalStore(
+        versionStore !== null ? versionStore.subscribe : () => () => {},
+        versionStore !== null ? versionStore.getSnapshot : () => EMPTY_VERSION,
+      );
+      const versionBusy = version.status === 'checking'
+        || version.status === 'updating'
+        || version.status === 'rolling-back';
+      React.useEffect(() => {
+        // The installed version is read from the Host on mount; the registry
+        // is left alone until the reader asks for it.
+        if (versionStore !== null) versionStore.load();
+      }, [versionStore]);
 
       // Defensive reads: the Host's payload is the only shape authority, and a
       // malformed row must degrade to a smaller list, never crash the panel.
@@ -3596,6 +3957,22 @@ window.__ModuleLoader__.load({
             artifacts: String(totals.artifacts),
           })),
           h('div', { key: 'spacer', className: cx('artifact-space-headSpacer') }),
+          h(VersionBadge, {
+            key: 'version',
+            version,
+            busy: versionBusy,
+            open: versionOpen,
+            onToggle: () => {
+              setVersionOpen((prev) => !prev);
+              // Opening the card for the first time is the moment a reader
+              // wants to know whether anything newer exists, so the registry
+              // is consulted then — and only then.
+              if (!versionOpen && version.status === 'ready' && !version.checked) {
+                versionStore?.check();
+              }
+            },
+            t,
+          }),
           h('button', {
             key: 'favorites',
             type: 'button',
@@ -3751,6 +4128,15 @@ window.__ModuleLoader__.load({
             'aria-hidden': true,
           }, h('path', { d: 'M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5V5h-2.5' }))),
         ]),
+        versionOpen ? h(VersionCard, {
+          key: 'update',
+          version,
+          busy: versionBusy,
+          onInstall: () => { versionStore?.install(); },
+          onRollback: () => { versionStore?.rollback(); },
+          onClose: () => setVersionOpen(false),
+          t,
+        }) : null,
         h('div', { key: 'body', className: cx('artifact-space-body') }, [
           h('nav', { key: 'tree', ref: treeRef, className: cx('artifact-space-tree'), 'aria-label': t('page.title') }, tree()),
           h('section', { key: 'pane', className: cx('artifact-space-pane') },
@@ -4360,15 +4746,18 @@ window.__ModuleLoader__.load({
         // every read still in flight and no stale response can publish.
         const stores = createRowsStore();
         const preview = createPreviewStore();
+        // The version store lives here too: an upgrade in flight must not
+        // outlive the plugin that started it.
+        const version = createVersionStore();
         // The favorites store outlives the panel: it is created once with the
         // plugin, so the starred artifacts are shared by every view and
         // survive the panel being closed and reopened.
         const favorites = createFavoritesStore();
         ctx.effect(() => async () => {
-          await Promise.all([stores.dispose(), preview.dispose()]);
+          await Promise.all([stores.dispose(), preview.dispose(), version.dispose()]);
         }, 'artifact-space: stores');
 
-        const injectFace = () => ({ rows: stores, preview, favorites });
+        const injectFace = () => ({ rows: stores, preview, favorites, version });
 
         // The sidebar entry and the central panel it opens share one id.
         ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
