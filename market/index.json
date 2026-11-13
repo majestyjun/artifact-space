@@ -57,10 +57,20 @@
         ],
         "labels": [],
         "sortKeys": {
-          "published": 1794062864
+          "published": 1794572852
         }
       },
       "versions": [
+        {
+          "version": "1.7.0",
+          "publishTimestamp": 1794572852,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.1.5-alpha.2"
+          }
+        },
         {
           "version": "1.6.1",
           "publishTimestamp": 1794062864,
