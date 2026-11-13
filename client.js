@@ -2221,6 +2221,13 @@ window.__ModuleLoader__.load({
       const lifetime = new AbortController();
       let state = { status: 'idle', groups: [] };
       let inflight = null;
+      // When the last read was started. The sidebar icon and the panel mount
+      // both ask for a refresh at the same moment, so one of them has to
+      // stand down — the one that arrives second sees a recent read.
+      let lastReadAt = 0;
+      // Only long enough to cover the two triggers of one opening landing in
+      // the same tick. A deliberate reopen after that window always reads.
+      const READ_DEBOUNCE_MS = 250;
 
       const publish = () => {
         for (const listener of [...listeners]) listener();
@@ -2259,6 +2266,9 @@ window.__ModuleLoader__.load({
         // block always compares against the task that is actually in flight.
         const marker = {};
         inflight = marker;
+        // Stamped when the read starts, not when it ends: the second trigger
+        // of the same opening must stand down while this one is still running.
+        lastReadAt = Date.now();
         const task = fetch(ROWS_ROUTE, { signal: lifetime.signal })
           .then(async (response) => {
             if (!response.ok) throw new Error(`artifact rows read failed: ${response.status}`);
@@ -2285,10 +2295,50 @@ window.__ModuleLoader__.load({
           listeners.add(listener);
           return () => { listeners.delete(listener); };
         },
-        /** Read unless a read already stands for the current state. */
+        /**
+         * Read unless a read already stands for the current state.
+         *
+         * Only for the very first read: the panel is mounted once per opening
+         * of the plugin, and a store that already holds rows must still be
+         * refreshed — that is what `open()` is for.
+         */
         load() {
           if (inflight !== null) return inflight;
           if (state.status === 'ready' || state.status === 'loading') return Promise.resolve();
+          return read();
+        },
+        /**
+         * The panel was opened. Read the rows again.
+         *
+         * The store lives with the plugin, not with the panel, so it already
+         * holds the rows from the last time the panel was open. Those rows may
+         * be stale — a session may have produced something in the meantime —
+         * so opening the panel always reads again.
+         *
+         * The first opening has nothing to keep and shows the loading state;
+         * every later opening refreshes quietly: the rows stay on screen and
+         * are replaced when the new ones arrive, and a failure keeps what is
+         * already there instead of blanking the panel.
+         */
+        /**
+         * The panel was opened. Read the rows again.
+         *
+         * The store lives with the plugin, not with the panel, so it already
+         * holds the rows from the last time the panel was open. Those rows may
+         * be stale — a session may have produced something in the meantime —
+         * so opening the panel always reads again.
+         *
+         * The first opening has nothing to keep and shows the loading state;
+         * every later opening refreshes quietly: the rows stay on screen and
+         * are replaced when the new ones arrive, and a failure keeps what is
+         * already there instead of blanking the panel.
+         *
+         * This is the authoritative "the panel was opened" signal, so it
+         * always reads — the debounce lives on the sidebar path instead.
+         */
+        open() {
+          if (inflight !== null) return inflight;
+          if (state.status === 'ready') return read('quiet');
           return read();
         },
         /** Force a fresh read on an explicit refresh. */
@@ -2297,15 +2347,20 @@ window.__ModuleLoader__.load({
           return read('refresh');
         },
         /**
-         * Refresh in the background when the panel is opened.
+         * Refresh in the background when the sidebar icon is selected.
          *
-         * The panel is opened to look for something that was just made, so
-         * the list it shows has to be current. The read is silent: the rows
-         * on screen stay put and are replaced when the new ones arrive, and
-         * a failure keeps the old list instead of blanking the panel.
+         * This is a backup for the opening signal: the panel itself already
+         * reads when it mounts, and the sidebar icon turns active at the same
+         * moment. So a read that just happened covers both, and this one
+         * stands down — otherwise the same opening would fetch twice.
+         *
+         * The read itself is silent: the rows on screen stay put and are
+         * replaced when the new ones arrive, and a failure keeps the old list
+         * instead of blanking the panel.
          */
         refreshQuiet() {
           if (inflight !== null) return inflight;
+          if (Date.now() - lastReadAt < READ_DEBOUNCE_MS) return Promise.resolve();
           return read('quiet');
         },
         dispose() {
@@ -4086,7 +4141,11 @@ window.__ModuleLoader__.load({
         favoritesStore !== null ? favoritesStore.subscribe : () => () => {},
         favoritesStore !== null ? favoritesStore.getSnapshot : () => EMPTY_FAVORITES,
       );
-      React.useEffect(() => { props.rows.load(); }, [props.rows]);
+      // The store lives with the plugin, so it may still hold the rows from
+      // the last time this panel was open. `open()` reads them again — the
+      // first opening shows the loading state, every later one refreshes
+      // quietly so the list on screen is never blanked out.
+      React.useEffect(() => { props.rows.open(); }, [props.rows]);
 
       // The installed version, and whether a newer one is published.
       const versionStore = props.version;

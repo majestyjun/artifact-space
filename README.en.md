@@ -184,15 +184,18 @@ runs long and still fully readable on hover.
 
 ## Refreshes on open
 
-Every time you **open** Artifact Space (the sidebar icon becomes active), the
-artifact list is refreshed once, quietly. The refresh is deliberately
-undisturbing:
+Every time you **open** Artifact Space (the sidebar icon becomes active, or the
+panel is re-mounted), the artifact list is fetched again — so after switching to
+another plugin panel and back, the timestamps in the list **actually move**
+instead of staying stale. The refresh is deliberately undisturbed:
 
 - while it runs the list is **not cleared** and does not fall back to the
   loading state — the panel never flashes blank;
 - a **failed refresh keeps the old list**, so one flaky request cannot wipe out
   artifacts you were already looking at;
-- a refresh already in flight is never started twice.
+- a refresh already in flight is never started twice, and the two triggers of
+  one opening (the sidebar icon and the panel mount) are coalesced into a
+  single request.
 
 In other words: you keep reading the list while the refresh happens behind it.
 
