@@ -7,6 +7,28 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] — 2026-11-13
+
+### Added
+
+- **Every artifact can now answer "which step made it, how, and what was said".** Each row carries an action badge naming what happened to the file — **created / overwritten / edited / written / delivered** — followed by the AI's own words for that moment (`AI said: …`). At a glance you can tell whether a file was edited or replaced.
+- **The action badge is readable at a glance.** It sits next to the delivered/produced badge, so the two must be tellable apart: the kind badge stays a quiet neutral grey while the action badge gets its own hue — **created = green, overwritten = orange, edited = blue, written = neutral**. "Overwritten" is orange because "this file was replaced wholesale" is the case most worth noticing. The font also went up to 10px, matching the kind badge, so it no longer smears into a smudge on the light glass.
+- **The quoted words are matched to the step, not to the whole turn.** The quote is matched exactly on `turn:step` of the tool call, falling back to "the nearest earlier step of the same turn" and then to "the earliest line of the turn" — so you get the sentence actually spoken just before the work happened, not a vague "let me look at these scripts first". Quotes longer than 240 characters are truncated so a whole monologue never floods the row.
+- **Opening Artifact Space refreshes the artifact list quietly.** Selecting the sidebar icon (that is, opening the panel) triggers one refresh; the refresh **never interrupts reading** — the list is not cleared, does not fall back to the loading state, and a failed refresh keeps the old list, so there is no "nothing happened" click and no blank flash. A refresh already in flight is not started twice.
+- New `verify-provenance.mjs` checks provenance specifically (14 assertions covering how actions are decided, how turns and quotes are associated, and the quiet-refresh semantics), and is wired into the pre-release pipeline.
+
+### Changed
+
+- **Artifact detection no longer guesses from tool names — it reads the Host's own annotations.** It used to infer which calls wrote a file from the tool name (`write` / `edit` / `str_replace_editor`); it now uses the annotation the Host attaches to `tool/result`: an `operation` of `create` / `update` means a write, the presence of `diffs` means an edit, and neither means the call was a **read** (`read` and `read_image` also carry `meta.path`, but no annotation, so they are never mistaken for artifacts). Older logs without annotations fall back to the tool name.
+- **When the same path is written repeatedly, the last write wins.** Path de-duplication used to keep the *first* write, so the row's action and turn stayed at the original one; it now keeps the last write, so the row describes the file's **final state** — consistent with how the delivered section already behaved.
+
+### Fixed
+
+- **The preview header is no longer blown apart by the AI quote.** The source information (including that italic AI quote) used to sit in the middle of the preview's title row, so a long quote pushed the **file size and the action buttons (copy content / copy path / close) out of view** — the buttons became unclickable. The header is now split into two rows: **the first row holds only the title, the type badge, the file size and the action buttons**, with the size and buttons pushed to the right via `margin-left:auto` so they are always visible; **the source information gets a row of its own** (kind / turn / action / time / description / AI quote), truncated with an ellipsis at a per-row limit, and still fully readable on hover. The divider line was adjusted accordingly, so there is no double line.
+- **Two earlier conclusions were inaccurate and have been corrected, so the docs no longer mislead.**:
+  1. The earlier claim of "63.8% → 100% artifact coverage" was **circular reasoning** — the rule was validated with data derived from the very same logs it was derived from. Re-measured against filesystem ground truth (the files actually modified inside the cwd within each session's time window), the real coverage is **2.5%**; the shell-command-parsing route turned out to be **unworkable** (of 9 candidate command rules only 1 matched a file that really existed, and stdout mining had a 40% false-positive rate, recovering only 3 files), so it was dropped. Artifact detection therefore relies on **Host annotations**, and shell command lines are no longer parsed.
+  2. Both corrections are recorded in this changelog and in the README, and this section is the authoritative account of why the plugin behaves the way it does.
+
 ## [1.6.1] — 2026-11-07
 
 ### Added

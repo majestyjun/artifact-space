@@ -30,7 +30,8 @@ selected.
 | **Resizable split** | Drag the divider between the artifact list and the preview to change the widths; both sides keep a minimum. A "reset the split" button appears in the header once you have moved it. |
 | **Session folding** | Sessions fold to their header. By default only the ones that fit on the first screen are open. |
 | **Copy and go** | Copy a file's content or its absolute path straight from the preview header. |
-| **Traceable origin** | Each artifact says whether it was *delivered* or merely *produced*, in which turn, and what the session said about it. |
+| **Traceable origin** | Each artifact says whether it was *delivered* or merely *produced*, in which turn, plus an action badge (created / overwritten / edited / written / delivered) and the AI's words for that moment. |
+| **Refreshes on open** | Opening Artifact Space quietly refreshes the artifact list once, without interrupting you: no blank flash, and a failed refresh keeps the old list. |
 | **Self-update** | A version badge lives in the panel header. When a new release appears you can download and install it right there, and roll it back in one click if it misbehaves. |
 
 ## What counts as an artifact
@@ -38,11 +39,40 @@ selected.
 The Host half folds each session's own log events and keeps:
 
 - files declared through `deliverables/presented` (kind `presented`),
-- files written or edited by a successful `write`, `edit` or `str_replace_editor`
-  call (kind `produced`).
+- files the Host **explicitly annotated as written** in its `tool/result` events
+  (kind `produced`).
+
+Detection relies on the **Host's own annotations** rather than on guessing tool
+names: a `meta.operation` of `create` / `update` means a write, a non-empty
+`meta.diffs` means an edit, and neither means the call was a **read**. `read` and
+`read_image` also carry `meta.path`, but no annotation, so they are **never**
+mistaken for artifacts. Results without annotations — only in older logs — fall
+back to the tool name (`write` / `edit` / `str_replace_editor`).
+
+When the same path is written repeatedly, the **last write wins**: the row
+describes the file's final state.
 
 Only files that still exist are listed, sessions without a surviving artifact are
 dropped, and both sessions and workspaces are ordered by last activity.
+
+### Two corrections about coverage
+
+This section is for whoever reads these docs later, so the earlier claims do not
+mislead them:
+
+1. The earlier statement "63.8% → 100% artifact coverage" was **circular
+   reasoning** — the rule was validated with data derived from the very same logs
+   it was derived from. Re-measured against **filesystem ground truth** (the
+   files actually modified inside the cwd within each session's time window), the
+   real coverage is **2.5%**.
+2. The route that **parsed shell command lines** turned out to be **unworkable**:
+   of 9 candidate command rules only 1 matched a file that really existed, and
+   the stdout-mining fallback had a 40% false-positive rate, recovering only 3
+   files. That route was dropped in favour of reading Host annotations — which is
+   why action detection depends on no shell rules at all.
+
+So: **detection is driven by Host annotations; shell command lines are no longer
+parsed.**
 
 ## Architecture
 
@@ -128,17 +158,43 @@ language, line count, size and encoding.
 
 ## Artifact provenance
 
-The Host folds three facts out of the session log for every artifact, and the
+The Host folds four facts out of the session log for every artifact, and the
 panel shows them:
 
 - **Delivered** or **produced** — a file the session explicitly handed over
   (`deliverables/presented`) is marked as delivered; anything else is marked
   as produced.
 - **Turn** — the conversation turn the delivery came from.
-- **Description** — what the session said about the file.
+- **Action** — whether the file was **created / overwritten / edited / written /
+  delivered**. The action is decided from the Host's annotation, not guessed from
+  a tool name.
+- **AI's words** — the sentence spoken in the moment just before the work
+  happened. The quote is matched exactly on the `turn:step` of the tool call,
+  falling back to "the nearest earlier step of the same turn" and then to "the
+  earliest line of the turn"; anything over 240 characters is truncated.
 
-A list row carries the badge alone, so the file name keeps its room; the
-preview header shows the turn and the description in full.
+A list row carries the badge alone (the action badge plus the italic quote), so
+the file name keeps its room.
+
+The preview header is split into two rows: **the first row holds only the title,
+the type badge, the file size and the action buttons**, with the size and the
+buttons pinned to the right so content can never push them out of view; **the
+source information gets a row of its own**, truncated with an ellipsis when it
+runs long and still fully readable on hover.
+
+## Refreshes on open
+
+Every time you **open** Artifact Space (the sidebar icon becomes active), the
+artifact list is refreshed once, quietly. The refresh is deliberately
+undisturbing:
+
+- while it runs the list is **not cleared** and does not fall back to the
+  loading state — the panel never flashes blank;
+- a **failed refresh keeps the old list**, so one flaky request cannot wipe out
+  artifacts you were already looking at;
+- a refresh already in flight is never started twice.
+
+In other words: you keep reading the list while the refresh happens behind it.
 
 ## Taking an artifact away
 

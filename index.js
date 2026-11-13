@@ -9,11 +9,14 @@
  * Derivation follows the same rule the deliverables UI uses — the session log
  * is the only source of truth:
  *   - `deliverables/presented` events are explicit final deliveries,
- *   - successful first-party file mutations (`write`, `edit`, mutating
- *     `str_replace_editor`) are produced paths, resolved through the recorded
- *     absolute `meta.path` when present,
+ *   - a result the Host annotated as a write (`meta.operation` for a create
+ *     or an update, `meta.diffs` for an edit) is a produced path, resolved
+ *     through the recorded absolute `meta.path` when present,
  *   - the latest `workspace/changes` announcement names the turn whose summary
  *     the Host still serves.
+ *
+ * Every row also carries its turn and what the AI said in that turn, so the
+ * list can answer "which step made this file, and why".
  *
  * Only files that still exist are listed. A session with no surviving artifact
  * is dropped, an empty workspace card is never emitted, and both sessions and
@@ -361,11 +364,123 @@ function pathValue(value) {
   return typeof value === 'string' && value.trim().length > 0 ? value : null;
 }
 
-/** Resolve a settled mutation from recorded metadata, retaining legacy argument paths. */
+/**
+ * The action a recorded mutation performed, as the Host itself reported it.
+ *
+ * The Host annotates a write with `operation: create|update` and an edit with
+ * a `diffs` array, so the action never has to be guessed from the tool name
+ * or from the text of a command. A result carrying neither is a read, and a
+ * read is never an artifact.
+ *
+ * @param {object} meta - the `meta` object of a `tool/result` event.
+ * @returns {string|null} `create`, `update`, `edit`, or null when the result
+ *   recorded no write.
+ */
+function mutationAction(meta) {
+  if (!isRecord(meta)) return null;
+  if (meta.operation === 'create') return 'create';
+  if (meta.operation === 'update') return 'update';
+  if (Array.isArray(meta.diffs)) return 'edit';
+  return null;
+}
+
+/**
+ * The action to report when the Host recorded no annotation of its own.
+ *
+ * Older results carry no `meta` at all. A first-party mutating tool is still
+ * trusted there, but only when its arguments actually describe a mutation,
+ * so a failed or malformed call is not counted as one.
+ *
+ * @param {string} name - the tool name.
+ * @param {string|null} argumentPath - the path the tool was called with.
+ * @returns {string|null} the action, or null when nothing was written.
+ */
+function fallbackAction(name, argumentPath) {
+  if (argumentPath === null) return null;
+  if (name === 'write') return 'write';
+  if (name === 'edit' || name === 'str_replace_editor') return 'edit';
+  return null;
+}
+
+/**
+ * The AI's own words for one step, taken from the assistant message of it.
+ *
+ * A step is the finest grain the log offers: the assistant speaks, then calls
+ * a tool in the same step. Matching the quote to the step that wrote the file
+ * gives the sentence that actually explains the write, rather than the first
+ * sentence of a long turn.
+ *
+ * When the exact step spoke nothing, the closest earlier sentence of the same
+ * turn is used — that is what the assistant had just said when it reached the
+ * tool — and the turn's opening sentence is the last resort.
+ *
+ * @param {Map<string, string>} quotes - assistant text by `turn:step`.
+ * @param {number|null} turn - the turn to quote.
+ * @param {number|null} step - the step to quote.
+ * @returns {string|null} the quoted text, or null when nothing was said.
+ */
+function quoteForStep(quotes, turn, step) {
+  if (!Number.isSafeInteger(turn) || turn < 1) return null;
+  const prefix = `${turn}:`;
+  const exactStep = Number.isSafeInteger(step) && step >= 1 ? step : null;
+  let earlier = null;
+  let earlierStep = -1;
+  let earliest = null;
+  let earliestStep = Infinity;
+
+  for (const [key, text] of quotes) {
+    if (!key.startsWith(prefix)) continue;
+    if (typeof text !== 'string' || text.trim() === '') continue;
+    const at = Number.parseInt(key.slice(prefix.length), 10);
+    if (!Number.isSafeInteger(at)) continue;
+    if (exactStep !== null) {
+      // The exact step explains the write best.
+      if (at === exactStep) return text.replace(/\s+/g, ' ').trim();
+      // Otherwise the closest earlier sentence is what the assistant had just
+      // said when it reached the tool.
+      if (at < exactStep && at > earlierStep) { earlierStep = at; earlier = text; }
+    }
+    if (at < earliestStep) { earliestStep = at; earliest = text; }
+  }
+
+  const chosen = earlier ?? earliest;
+  return chosen === null ? null : chosen.replace(/\s+/g, ' ').trim();
+}
+
+/** Upper bound on a quoted turn, so one verbose report cannot flood a row. */
+const MAX_QUOTE_LENGTH = 240;
+
+/** Shorten a quoted turn to its leading sentence, keeping it readable inline. */
+function shortenQuote(text) {
+  if (text.length <= MAX_QUOTE_LENGTH) return text;
+  const cut = text.slice(0, MAX_QUOTE_LENGTH);
+  const boundary = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('。'), cut.lastIndexOf('，'));
+  return `${(boundary > 40 ? cut.slice(0, boundary + 1) : cut).trim()}…`;
+}
+
+/**
+ * Resolve a settled mutation to the path it touched.
+ *
+ * The Host's resolved absolute path (`meta.path`) is authoritative: it already
+ * accounts for the session's working directory and the platform's separators.
+ * A tool argument path is the fallback. It may be relative, in which case the
+ * session directory resolves it later — that resolution needs the directory,
+ * which only the caller knows.
+ *
+ * @param {string|null} argumentPath - the path the tool was called with.
+ * @param {object} meta - the `meta` object of the result.
+ * @returns {string|null} the path, or null when no path can be trusted.
+ */
 function mutationResultPath(argumentPath, meta) {
-  if (!isRecord(meta) || !Object.hasOwn(meta, 'path')) return argumentPath;
-  if (typeof meta.path === 'string' && isAbsoluteWorkspacePath(meta.path)) return meta.path;
-  return isAbsoluteWorkspacePath(argumentPath) ? argumentPath : null;
+  if (isRecord(meta) && Object.hasOwn(meta, 'path')) {
+    if (typeof meta.path === 'string' && isAbsoluteWorkspacePath(meta.path)) return meta.path;
+    // The Host named a path it could not resolve absolutely; an absolute
+    // argument path is still usable, a relative one is not.
+    return typeof argumentPath === 'string' && isAbsoluteWorkspacePath(argumentPath)
+      ? argumentPath
+      : null;
+  }
+  return typeof argumentPath === 'string' && argumentPath !== '' ? argumentPath : null;
 }
 
 /** Whether one event appended to the model-visible surface at its own log position. */
@@ -384,14 +499,26 @@ function isAppendSurfaceEvent(event) {
  * carried so the preview can resolve it through the same Host recorder. The
  * final event timestamp is returned as the session's last activity.
  *
+ * A path counts as produced when the Host annotated the result as a write:
+ * `meta.operation` for a create or an update, `meta.diffs` for an edit. The
+ * Host's own annotation is the authority here — a tool name is not, because
+ * the same name may write or only read. The absolute path the Host resolved
+ * (`meta.path`) wins over the path the tool was called with, which may be
+ * relative to the session's working directory.
+ *
+ * Every produced row also carries the turn it belongs to and what the AI said
+ * in that turn, so the list can answer "which step made this file, and why".
+ *
  * @param events - the session log, ascending by seq.
  * @returns the folded artifact rows, latest change turn, and last event time.
  */
 function foldSessionArtifacts(events) {
   const calls = new Map();
-  const produced = [];
-  const seen = new Set();
+  // Keyed by path, so a later write to the same file replaces the earlier one:
+  // the row then describes the file's final state, not the first draft of it.
+  const produced = new Map();
   const presented = new Map();
+  const quotes = new Map();
   let changesTurn = null;
   let lastActivity = null;
 
@@ -401,19 +528,45 @@ function foldSessionArtifacts(events) {
     const at = toEpochMs(event.time);
     if (at !== null) lastActivity = at;
     switch (event.type) {
+      case 'assistant/message': {
+        // The words of one step, kept under `turn:step`.
+        const { turn, step } = event.data ?? {};
+        if (!Number.isSafeInteger(turn) || turn < 1) break;
+        const content = event.data?.message?.content;
+        if (!Array.isArray(content)) break;
+        const text = content
+          .filter((part) => part?.type === 'text' && typeof part.text === 'string')
+          .map((part) => part.text)
+          .join(' ')
+          .trim();
+        if (text === '') break;
+        const key = Number.isSafeInteger(step) && step >= 1 ? `${turn}:${step}` : `${turn}:`;
+        if (!quotes.has(key)) quotes.set(key, text);
+        break;
+      }
       case 'tool/call':
-        calls.set(String(event.data.callId), mutationPath(event.data.name, event.data.arguments));
+        calls.set(String(event.data.callId), {
+          name: event.data.name,
+          path: mutationPath(event.data.name, event.data.arguments),
+          turn: Number.isSafeInteger(event.data.turn) ? event.data.turn : null,
+          step: Number.isSafeInteger(event.data.step) ? event.data.step : null,
+        });
         break;
       case 'tool/result': {
         if (event.data.message.isError === true) break;
         if (!isAppendSurfaceEvent(event)) break;
-        const argumentPath = calls.get(String(event.data.message.source.callId));
-        if (argumentPath === null || argumentPath === undefined) break;
-        const path = mutationResultPath(argumentPath, event.data.meta);
-if (path === null || seen.has(path)) break;
-            seen.add(path);
-            produced.push({ path, at });
-            break;
+        const call = calls.get(String(event.data.message.source.callId));
+        if (call === undefined) break;
+        // The Host's own annotation says whether this result wrote a file.
+        // A result carrying neither an operation nor a diff is a read.
+        const action = mutationAction(event.data.meta) ?? fallbackAction(call.name, call.path);
+        if (action === null) break;
+        // The path the Host resolved wins; the one the tool was called with is
+        // the fallback, and it may be relative to the session's directory.
+        const path = mutationResultPath(call.path, event.data.meta);
+        if (path === null) break;
+        produced.set(path, { path, at, action, turn: call.turn, step: call.step });
+        break;
       }
       case 'deliverables/presented': {
         if (!isPresentedData(event.data)) break;
@@ -443,23 +596,27 @@ if (path === null || seen.has(path)) break;
   // for a produced file, the delivery for a presented one, or the later of the
   // two when a path is both written and delivered.
   const rows = [];
-  for (const entry of produced) {
+  for (const entry of produced.values()) {
     const delivery = presented.get(entry.path);
     rows.push({
       path: entry.path,
       description: delivery?.description,
-      turn: delivery?.turn ?? null,
+      turn: delivery?.turn ?? entry.turn,
       kind: delivery === undefined ? 'produced' : 'presented',
+      action: entry.action,
+      quote: shortenQuote(quoteForStep(quotes, entry.turn, entry.step) ?? ''),
       producedAt: laterTime(entry.at, delivery?.at ?? null),
     });
   }
   for (const [path, delivery] of presented) {
-    if (seen.has(path)) continue;
+    if (produced.has(path)) continue;
     rows.push({
       path,
       description: delivery.description,
       turn: delivery.turn,
       kind: 'presented',
+      action: 'present',
+      quote: shortenQuote(quoteForStep(quotes, delivery.turn, null) ?? ''),
       producedAt: delivery.at,
     });
   }
@@ -648,6 +805,11 @@ async function collectSessionRow(ctx, sessionId, snapshotsById, titles, signal) 
       kind: row.kind,
       description: row.description ?? null,
       turn: row.turn,
+      // How the file was made: `create`, `update`, `edit`, `write`, or
+      // `present` for a delivery the Host recorded on its own.
+      action: row.action ?? null,
+      // What the AI said in the turn that produced the file.
+      quote: row.quote ?? null,
       producedAt: row.producedAt ?? null,
       bytes: resolved.info.size ?? 0,
       extension: extensionOf(absolutePath),

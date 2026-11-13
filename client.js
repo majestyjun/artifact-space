@@ -9,6 +9,15 @@ window.__ModuleLoader__.load({
     const NS = 'artifactSpace';
     const PANEL_ID = 'artifact-space';
 
+    /**
+     * The actions the Host may report for a file.
+     *
+     * The Host names them itself, so the row shows what really happened
+     * rather than what a tool name suggests. An unknown name is dropped
+     * instead of shown raw, so a future action never leaks into the UI.
+     */
+    const ACTION_KEYS = new Set(['create', 'update', 'edit', 'write', 'present']);
+
     const zh = {
       'panel': '产物空间',
       'page.title': '产物空间',
@@ -20,6 +29,12 @@ window.__ModuleLoader__.load({
       'session.note.unreadable': '会话日志无法读取',
       'artifact.presented': '交付',
       'artifact.produced': '产出',
+      'artifact.action.create': '新建',
+      'artifact.action.update': '覆盖写入',
+      'artifact.action.edit': '编辑',
+      'artifact.action.write': '写入',
+      'artifact.action.present': '交付',
+      'artifact.quote': 'AI 说：{quote}',
       'filter.label': '分类',
       'filter.all': '全部',
       'filter.presented': '交付',
@@ -135,6 +150,12 @@ window.__ModuleLoader__.load({
       'session.note.unreadable': 'This session log cannot be read',
       'artifact.presented': 'Delivered',
       'artifact.produced': 'Produced',
+      'artifact.action.create': 'Created',
+      'artifact.action.update': 'Overwritten',
+      'artifact.action.edit': 'Edited',
+      'artifact.action.write': 'Written',
+      'artifact.action.present': 'Delivered',
+      'artifact.quote': 'AI said: {quote}',
       'filter.label': 'Kind',
       'filter.all': 'All',
       'filter.presented': 'Delivered',
@@ -914,12 +935,33 @@ window.__ModuleLoader__.load({
   border-bottom:.5px solid var(--glass-edge-soft);
   background:var(--glass-header);
 }
+/* 头部右侧的按钮与文件大小必须永远看得见，所以标题行里只留
+   「标题 / 类型徽章 / 大小 / 操作按钮」，按钮用 margin-left:auto 顶到右边。
+   标题自己收缩并省略，绝不把右边的内容挤出可视区。 */
+.artifact-space-previewHead .artifact-space-previewTitle{flex:0 1 auto;min-width:0}
+/* 有来源信息行时，分隔线画在来源行下面，头部不再画线，避免出现双线 */
+.artifact-space-previewHead[data-with-source="true"]{border-bottom:none}
+/* 来源信息单独一行：分类 / 轮次 / 动作 / 时间 / 说明 / AI 原话。
+   它在标题行下面，所以再长的原话也挤不到标题行的按钮与文件大小。 */
+.artifact-space-previewSource{
+  box-sizing:border-box;flex:none;min-height:20px;
+  display:flex;align-items:center;gap:6px;
+  min-width:0;overflow:hidden;
+  padding:1px 11px;
+  border-bottom:.5px solid var(--glass-edge-soft);
+  background:var(--glass-header);
+}
+.artifact-space-previewSource .artifact-space-meta{flex:0 1 auto;min-width:0;overflow:hidden}
+/* 来源行里可用宽度有限，说明与原话都收紧上限并保持省略号 */
+.artifact-space-previewSource .artifact-space-metaDesc{max-width:18em}
+.artifact-space-previewSource .artifact-space-metaQuote{max-width:26em}
 .artifact-space-previewTitle{
   flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font-size:12px;line-height:18px;font-weight:500;
   font-family:var(--dsw-font-markdown-code-block);
 }
-.artifact-space-previewMeta{flex:none;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* 文件大小与操作按钮永远贴在右侧：标题自己收缩省略，不许把右边顶出去 */
+.artifact-space-previewMeta{flex:none;margin-left:auto;font-size:11px;line-height:16px;color:var(--glass-text-tertiary);font-variant-numeric:tabular-nums;white-space:nowrap}
 /* 语言徽章（VS Code 的文件类型标签） */
 .artifact-space-previewBadge{
   flex:none;
@@ -1238,6 +1280,67 @@ window.__ModuleLoader__.load({
   color:var(--glass-text-tertiary);
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
+}
+/* 产生方式（新建/覆盖写入/编辑/交付）：宿主自己判定的事实。
+   动作徽章与「交付/产出」分类徽章并排出现，所以必须一眼能分清：
+   分类徽章是安静的中性灰，动作徽章带自己的色相与实色边框。 */
+.artifact-space-metaAction{
+  flex:none;
+  padding:0 5px;height:15px;
+  display:inline-flex;align-items:center;
+  border-radius:5px;
+  font-size:10px;line-height:15px;
+  border:.5px solid transparent;
+  background:rgba(255,255,255,.26);
+  color:var(--glass-text-secondary);
+  white-space:nowrap;
+}
+/* 交付这一档已经由「交付」徽章表达，动作徽章不再重复强调 */
+.artifact-space-metaAction[data-action="present"]{
+  display:none;
+}
+/* 每种动作一个色相：新建=绿、覆盖写入=橙（最该被注意的那档）、
+   编辑=蓝、写入=中性。浅色底上用实色文字保证 ≥4.5:1。 */
+.artifact-space-metaAction[data-action="create"]{
+  border-color:rgba(46,140,90,.45);
+  background:rgba(46,140,90,.13);
+  color:#2c7d55;
+}
+.artifact-space-metaAction[data-action="update"]{
+  border-color:rgba(190,110,20,.45);
+  background:rgba(190,110,20,.14);
+  color:#95560f;
+}
+.artifact-space-metaAction[data-action="edit"]{
+  border-color:rgba(70,120,235,.42);
+  background:rgba(70,120,235,.12);
+  color:#2f6ae0;
+}
+/* 暗色主题：底更深，文字要提亮才读得清 */
+@media (prefers-color-scheme: dark){
+  .artifact-space-metaAction[data-action="create"]{
+    border-color:rgba(90,200,140,.42);
+    background:rgba(46,140,90,.22);
+    color:#6fd6a0;
+  }
+  .artifact-space-metaAction[data-action="update"]{
+    border-color:rgba(235,160,60,.45);
+    background:rgba(190,110,20,.24);
+    color:#f0b45c;
+  }
+  .artifact-space-metaAction[data-action="edit"]{
+    border-color:rgba(130,175,255,.42);
+    background:rgba(70,120,235,.22);
+    color:#8ab4ff;
+  }
+}
+/* AI 原话：让产物能回答「这句话促成了这个文件」 */
+.artifact-space-metaQuote{
+  min-width:0;max-width:30em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:11px;line-height:16px;
+  font-style:italic;
+  color:var(--glass-text-tertiary);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2000,9 +2103,9 @@ window.__ModuleLoader__.load({
 
     /**
      * The full provenance of one artifact: how it was delivered, in which
-     * turn, and what the session said about it.
+     * turn, how the file was made, and what the session said about it.
      *
-     * The Host already folds all three out of the session log, so this only
+     * The Host already folds all of it out of the session log, so this only
      * renders what is on the row — nothing is inferred here.
      *
      * @param {object} artifact - the row's artifact.
@@ -2016,7 +2119,12 @@ window.__ModuleLoader__.load({
         ? artifact.description.trim()
         : null;
       const producedAt = Number.isFinite(artifact?.producedAt) ? artifact.producedAt : null;
-      if (kind === null && turn === null && description === null && producedAt === null) return null;
+      const action = ACTION_KEYS.has(artifact?.action) ? artifact.action : null;
+      const quote = typeof artifact?.quote === 'string' && artifact.quote.trim() !== ''
+        ? artifact.quote.trim()
+        : null;
+      if (kind === null && turn === null && description === null && producedAt === null
+        && action === null && quote === null) return null;
 
       return h('span', { className: cx('artifact-space-meta') }, [
         kind !== null
@@ -2030,6 +2138,10 @@ window.__ModuleLoader__.load({
           ? h('span', { key: 'turn', className: cx('artifact-space-metaTurn') },
             t('artifact.turn', { turn: String(turn) }))
           : null,
+        action !== null
+          ? h('span', { key: 'action', className: cx('artifact-space-metaAction'), 'data-action': action },
+            t(`artifact.action.${action}`))
+          : null,
         producedAt !== null
           ? h('span', {
             key: 'time',
@@ -2039,6 +2151,10 @@ window.__ModuleLoader__.load({
           : null,
         description !== null
           ? h('span', { key: 'desc', className: cx('artifact-space-metaDesc'), title: description }, description)
+          : null,
+        quote !== null
+          ? h('span', { key: 'quote', className: cx('artifact-space-metaQuote'), title: quote },
+            t('artifact.quote', { quote }))
           : null,
       ]);
     }
@@ -2114,13 +2230,28 @@ window.__ModuleLoader__.load({
         publish();
       };
 
-      /** Read the rows once, publishing loading, ready, or error. */
+      /**
+       * Read the rows once, publishing loading, ready, or error.
+       *
+       * Three modes, because the panel is opened and closed all day:
+       *
+       * - `initial` — the first read. There is nothing to keep, so the
+       *   loading state is shown.
+       * - `refresh` — the reader pressed refresh. The current rows stay on
+       *   screen and only the list is marked busy, so the panel never blanks
+       *   out mid-read.
+       * - `quiet` — the panel was just opened. The current rows stay on
+       *   screen and nothing is marked busy at all: the list is simply
+       *   replaced when the new rows arrive.
+       */
       const read = (mode = 'initial') => {
         // A refresh keeps the current rows on screen and only marks the list
         // as busy, so the panel never blanks out mid-read. The first read has
         // nothing to keep and shows the loading state instead.
         if (mode === 'refresh' && state.status === 'ready') {
           set({ status: 'refreshing', groups: state.groups, refreshedAt: Date.now() });
+        } else if (mode === 'quiet' && state.status === 'ready') {
+          // Nothing to show the reader: the rows stay exactly as they are.
         } else {
           set({ status: 'loading', groups: [] });
         }
@@ -2136,7 +2267,12 @@ window.__ModuleLoader__.load({
             set({ status: 'ready', groups, refreshedAt: Date.now() });
           })
           .catch(() => {
-            if (!lifetime.signal.aborted) set({ status: 'error', groups: [] });
+            if (lifetime.signal.aborted) return;
+            // A quiet refresh that fails keeps the rows it already had: the
+            // panel was usable a moment ago, and a failed background read is
+            // no reason to blank it.
+            if (mode === 'quiet' && state.status === 'ready') return;
+            set({ status: 'error', groups: [] });
           })
           .finally(() => {
             if (inflight === marker) inflight = null;
@@ -2159,6 +2295,18 @@ window.__ModuleLoader__.load({
         reload() {
           if (inflight !== null) return inflight;
           return read('refresh');
+        },
+        /**
+         * Refresh in the background when the panel is opened.
+         *
+         * The panel is opened to look for something that was just made, so
+         * the list it shows has to be current. The read is silent: the rows
+         * on screen stay put and are replaced when the new ones arrive, and
+         * a failure keeps the old list instead of blanking the panel.
+         */
+        refreshQuiet() {
+          if (inflight !== null) return inflight;
+          return read('quiet');
         },
         dispose() {
           lifetime.abort();
@@ -3410,10 +3558,14 @@ window.__ModuleLoader__.load({
         // into authenticated asset URLs, so the page renders inside the panel
         // exactly as it does in a browser tab — pictures and all.
         const src = `${HTML_ROUTE}?${new URLSearchParams({ sessionId, path }).toString()}`;
+        const source = artifactMeta(artifact, t);
         return h('div', { className: cx('artifact-space-preview'), 'data-state': 'html' }, [
-          h('div', { key: 'head', className: cx('artifact-space-previewHead') }, [
+          h('div', {
+            key: 'head',
+            className: cx('artifact-space-previewHead'),
+            'data-with-source': source === null ? 'false' : 'true',
+          }, [
             h('span', { key: 'title', className: cx('artifact-space-previewTitle'), title: artifact.absolutePath }, artifact.name),
-            artifactMeta(artifact, t),
             h('span', { key: 'meta', className: cx('artifact-space-previewMeta') },
               formatBytes(artifact.bytes)),
             h('div', { key: 'actions', className: cx('artifact-space-previewActions') }, [
@@ -3486,6 +3638,9 @@ window.__ModuleLoader__.load({
               'aria-hidden': true,
             }, h('path', { key: 'p', d: 'M4 4l8 8M12 4l-8 8' }))),
           ]),
+          source === null
+            ? null
+            : h('div', { key: 'source', className: cx('artifact-space-previewSource') }, source),
           h('iframe', {
             key: 'frame',
             className: cx('artifact-space-previewFrame'),
@@ -3640,11 +3795,15 @@ window.__ModuleLoader__.load({
       const text = typeof value.text === 'string' ? value.text : '';
       const lang = detectLanguage(artifact);
       const lineCount = value.lines ?? (text === '' ? 0 : text.replace(/\r\n?/g, '\n').split('\n').length);
+      const source = artifactMeta(artifact, t);
       return h('div', { className: cx('artifact-space-preview'), 'data-state': 'ready' }, [
-        h('div', { key: 'head', className: cx('artifact-space-previewHead') }, [
+        h('div', {
+          key: 'head',
+          className: cx('artifact-space-previewHead'),
+          'data-with-source': source === null ? 'false' : 'true',
+        }, [
           h('span', { key: 'title', className: cx('artifact-space-previewTitle'), title: artifact.absolutePath }, artifact.name),
           h('span', { key: 'badge', className: cx('artifact-space-previewBadge') }, (artifact.extension || '').replace(/^\./, '').toLowerCase() || 'txt'),
-          artifactMeta(artifact, t),
           h('span', { key: 'meta', className: cx('artifact-space-previewMeta') },
             `${formatBytes(value.bytes ?? artifact.bytes)} · ${t('preview.lines', { count: value.lines ?? 0 })}`),
           h('div', { key: 'actions', className: cx('artifact-space-previewActions') }, [
@@ -3724,6 +3883,9 @@ window.__ModuleLoader__.load({
             'aria-hidden': true,
           }, h('path', { d: 'M4 4l8 8M12 4l-8 8' }))),
         ]),
+        source === null
+          ? null
+          : h('div', { key: 'source', className: cx('artifact-space-previewSource') }, source),
         text === ''
           ? h('div', { key: 'body', className: cx('artifact-space-previewBody') }, t('preview.empty'))
           : renderPreviewBody(artifact, text),
@@ -5301,6 +5463,14 @@ window.__ModuleLoader__.load({
           locale: NS,
           label: () => ctx.locale.bind(NS)('panel'),
         }, function ArtifactSpacePanelGlyph({ size, active }) {
+          // The panel is opened to look for something that was just made, so
+          // the list has to be current the moment it comes up. The `active`
+          // flag is what the sidebar tells us: it turns on exactly when this
+          // panel is selected. The refresh is silent — the rows on screen stay
+          // put and are replaced when the new ones arrive.
+          React.useEffect(() => {
+            if (active === true) stores.refreshQuiet();
+          }, [active]);
           return h('svg', {
             viewBox: '0 0 64 64',
             width: size,
